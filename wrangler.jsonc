@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "votatis-intake-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "r2_buckets": [
+    { "binding": "EVIDENCE_BUCKET", "bucket_name": "votatis-evidence" }
+  ],
+  "kv_namespaces": [
+    { "binding": "PENDING_KV", "id": "REPLACE_WITH_KV_ID" }
+  ],
+  "vars": {
+    "ALLOWED_ORIGIN": "http://localhost:5173",
+    "GITHUB_REPO": "OWNER/REPO",
+    "R2_ACCOUNT_ID": "REPLACE_WITH_ACCOUNT_ID",
+    "R2_BUCKET": "votatis-evidence"
+  }
+  // Secrets (wrangler secret put / .dev.vars):
+  //   TURNSTILE_SECRET, GITHUB_TOKEN, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
+}

@@ -1,0 +1,5 @@
+# 로컬 개발용 시크릿. 복사해서 .dev.vars 로 쓰고 실제 값 채운다. (.dev.vars 는 커밋 금지)
+TURNSTILE_SECRET="1x0000000000000000000000000000000AA"
+GITHUB_TOKEN="ghp_..."
+R2_ACCESS_KEY_ID="..."
+R2_SECRET_ACCESS_KEY="..."
