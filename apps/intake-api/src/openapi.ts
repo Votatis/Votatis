@@ -157,7 +157,6 @@ export const openapiSpec = {
           title: { type: "string", description: "제보 제목 (필수)" },
           summary: { type: "string" },
           body: { type: "string" },
-          counting_unit: { type: "string" },
           region: { $ref: "#/components/schemas/Region" },
           occurred_at: { type: "string", format: "date-time" },
           tags: { type: "array", items: { type: "string" } },

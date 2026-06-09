@@ -3,7 +3,7 @@ id: "0001"
 title: 제보 수집 API
 status: completed
 created: 2026-06-09
-updated: 2026-06-09
+updated: 2026-06-10
 related:
   - "docs/MVP-PRD.md §3 v1 범위"
   - "docs/MVP-PRD.md §5 데이터 수집 흐름"
@@ -121,3 +121,4 @@ related:
 - 2026-06-09: GitHub Issue 인증을 정적 PAT(`GITHUB_TOKEN`)에서 GitHub App(installation 토큰, `GITHUB_APP_ID`/`GITHUB_APP_PRIVATE_KEY`)으로 변경 — 봇 정체성 + 자동 만료 토큰. (요청: 채팅)
 - 2026-06-09: OpenAPI 3.1 문서 제공 추가 — `GET /openapi.json`(스펙) + `GET /reference`(`/docs` alias, Scalar API Reference UI, CDN standalone). 의존성 추가 없음. (요청: 채팅)
 - 2026-06-09: 출처 규칙 완화 — source 항목이 `url`(웹사이트) 또는 `text`(직접 입력) 중 하나면 유효. `sources`는 더 이상 필수가 아니며 출처(URL/텍스트)·첨부 중 최소 하나만 있으면 등록 가능. (요청: 채팅)
+- 2026-06-10: 입력 스키마에서 `counting_unit`(개표 단위) 제거 — 불필요 데이터로 판단. `types.ts`·`openapi.ts`·Issue 본문(`github.ts`)에서 삭제. 클라(웹앱)도 함께 제거. (요청: 채팅)

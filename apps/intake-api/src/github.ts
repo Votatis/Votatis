@@ -28,7 +28,6 @@ export function buildIssueBody(p: PendingSubmission, attachments: FinalizedAttac
   if (i.summary) lines.push(`summary: "${yamlEscape(i.summary)}"`);
   lines.push(`status: "unverified"`);
   lines.push(`tags: [${(i.tags ?? []).map((t) => `"${yamlEscape(t)}"`).join(", ")}]`);
-  if (i.counting_unit) lines.push(`counting_unit: "${yamlEscape(i.counting_unit)}"`);
   lines.push("region:");
   lines.push(`  sido: ${i.region?.sido ? `"${yamlEscape(i.region.sido)}"` : "null"}`);
   lines.push(`  sigungu: ${i.region?.sigungu ? `"${yamlEscape(i.region.sigungu)}"` : "null"}`);

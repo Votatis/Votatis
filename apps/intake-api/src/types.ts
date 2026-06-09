@@ -47,7 +47,6 @@ export interface SubmissionInput {
   title: string;
   summary?: string;
   body?: string;
-  counting_unit?: string;
   region?: RegionInput;
   occurred_at?: string;
   tags?: string[];
