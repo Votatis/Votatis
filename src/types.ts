@@ -11,7 +11,8 @@ export interface Env {
 
   // Secrets
   TURNSTILE_SECRET: string;
-  GITHUB_TOKEN: string;
+  GITHUB_APP_ID: string;
+  GITHUB_APP_PRIVATE_KEY: string; // PEM (PKCS#1 또는 PKCS#8)
   R2_ACCESS_KEY_ID: string;
   R2_SECRET_ACCESS_KEY: string;
 }

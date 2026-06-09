@@ -1,5 +1,7 @@
 # 로컬 개발용 시크릿. 복사해서 .dev.vars 로 쓰고 실제 값 채운다. (.dev.vars 는 커밋 금지)
 TURNSTILE_SECRET="1x0000000000000000000000000000000AA"
-GITHUB_TOKEN="ghp_..."
+GITHUB_APP_ID="123456"
+# GitHub App private key. PEM 을 한 줄로(\n 사용): "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----\n"
+GITHUB_APP_PRIVATE_KEY=""
 R2_ACCESS_KEY_ID="..."
 R2_SECRET_ACCESS_KEY="..."

@@ -9,14 +9,14 @@
     { "binding": "EVIDENCE_BUCKET", "bucket_name": "votatis-evidence" }
   ],
   "kv_namespaces": [
-    { "binding": "PENDING_KV", "id": "REPLACE_WITH_KV_ID" }
+    { "binding": "PENDING_KV", "id": "c6c9431e178e4395a77e9b77f86c0fa2" }
   ],
   "vars": {
     "ALLOWED_ORIGIN": "http://localhost:5173",
-    "GITHUB_REPO": "OWNER/REPO",
-    "R2_ACCOUNT_ID": "REPLACE_WITH_ACCOUNT_ID",
+    "GITHUB_REPO": "3dulev/votatis-data",
+    "R2_ACCOUNT_ID": "4691f0338d03a2e7d000403d13b66264",
     "R2_BUCKET": "votatis-evidence"
   }
   // Secrets (wrangler secret put / .dev.vars):
-  //   TURNSTILE_SECRET, GITHUB_TOKEN, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
+  //   TURNSTILE_SECRET, GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
 }

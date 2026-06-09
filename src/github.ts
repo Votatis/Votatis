@@ -1,4 +1,5 @@
 import type { Env, PendingSubmission } from "./types";
+import { getInstallationToken } from "./github-app";
 
 export interface FinalizedAttachment {
   filename: string;
@@ -58,17 +59,18 @@ export function buildIssueBody(p: PendingSubmission, attachments: FinalizedAttac
   return lines.join("\n");
 }
 
-/** GitHub Issue 를 생성하고 html_url 을 반환한다. */
+/** GitHub Issue 를 생성하고 html_url 을 반환한다. GitHub App installation 토큰(봇)으로 인증한다. */
 export async function createIssue(
   env: Env,
   title: string,
   body: string,
   labels: string[] = ["unverified"],
 ): Promise<string> {
+  const token = await getInstallationToken(env);
   const resp = await fetch(`https://api.github.com/repos/${env.GITHUB_REPO}/issues`, {
     method: "POST",
     headers: {
-      authorization: `Bearer ${env.GITHUB_TOKEN}`,
+      authorization: `Bearer ${token}`,
       "content-type": "application/json",
       "user-agent": "votatis-intake-api",
       accept: "application/vnd.github+json",

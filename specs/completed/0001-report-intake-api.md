@@ -97,11 +97,11 @@ related:
 - [x] `POST /submissions`가 유효 요청에 submission_id와 첨부별 presigned PUT URL을 반환한다. (test: 정상 제출)
 - [x] Turnstile 토큰이 없거나 검증 실패면 403으로 거부한다. (test: Turnstile 실패)
 - [x] sources가 비어 있으면 등록을 거부한다. (test: sources 빈)
-- [~] presigned URL로 R2에 직접 업로드가 성공한다(Worker 메모리를 거치지 않음). — presigned 발급(`src/r2-presign.ts`)·서명 검증은 테스트로 확인. 실제 R2 PUT은 라이브 R2 통합테스트 영역(로컬 단위테스트로는 미검증).
+- [x] presigned URL로 R2에 직접 업로드가 성공한다(Worker 메모리를 거치지 않음). — 실 R2 버킷 `votatis-evidence`에 presigned PUT 200 확인(2026-06-09, aws4fetch 서명 → 직접 PUT → 객체 내용 검증).
 - [x] `finalize`가 R2 객체를 읽어 magic bytes 불일치/허용목록 외/크기 초과 파일을 거부한다. (test: magic bytes 불일치 → 400)
 - [x] `finalize`가 서버에서 계산한 SHA-256을 Issue에 기록한다(클라 추정값과 무관하게 정본). (test: 정상 finalize)
 - [x] `finalize` 통과 시 staging 객체가 정식 key로 이동되고 KV의 pending 항목이 삭제된다. (test: 정상 finalize)
-- [~] finalize되지 않은 제출의 staging 객체는 R2 lifecycle로, KV 항목은 TTL로 자동 정리되어 정식 경로에 남지 않는다. — KV TTL(`PENDING_TTL_SECONDS`)은 코드로 구현. R2 lifecycle rule은 버킷 인프라 설정이라 배포 시 적용 필요(코드 외 작업).
+- [x] finalize되지 않은 제출의 staging 객체는 R2 lifecycle로, KV 항목은 TTL로 자동 정리되어 정식 경로에 남지 않는다. — KV TTL(`PENDING_TTL_SECONDS`) 코드 구현 + R2 lifecycle rule `staging-cleanup`(`_staging/` prefix, 1일 만료) 실 버킷에 적용 완료(2026-06-09).
 - [~] 생성된 GitHub Issue 본문이 PRD §7/§8 스키마 포맷과 일치한다(필수 필드 누락 없음). — `buildIssueBody`로 frontmatter 생성, submitter/status 유닛테스트 확인. 전체 필드 1:1 정합은 §8 Issue Form 확정 후 재대조 필요.
 - [x] 동일 IP 과다 요청이 Rate Limiting으로 429 처리된다. (test: rate limit)
 - [x] 저장·기록 어디에도 제보자 실명·전화·이메일이 남지 않는다(submitter는 익명 해시). (애초 미수신 + test: Issue 본문 익명)
@@ -118,3 +118,4 @@ related:
 ## Changelog
 기능/기술이 크게 바뀐 변경만 한 줄씩. 단순 버그·오타·리팩터링은 제외.
 - 2026-06-09: 최초 작성
+- 2026-06-09: GitHub Issue 인증을 정적 PAT(`GITHUB_TOKEN`)에서 GitHub App(installation 토큰, `GITHUB_APP_ID`/`GITHUB_APP_PRIVATE_KEY`)으로 변경 — 봇 정체성 + 자동 만료 토큰. (요청: 채팅)

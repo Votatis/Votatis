@@ -7,6 +7,7 @@ import {
 import { beforeAll, describe, expect, it } from "vitest";
 import worker from "../src/index";
 import { buildIssueBody } from "../src/github";
+import { createAppJWT } from "../src/github-app";
 import { detectImageType } from "../src/validation";
 import { sha256Hex } from "../src/util";
 import type { PendingSubmission } from "../src/types";
@@ -43,10 +44,19 @@ function mockTurnstile(success: boolean, times = 1) {
 }
 
 function mockGithub() {
+  // GitHub App: installation 조회 → installation token → issue 생성
   fetchMock
     .get("https://api.github.com")
-    .intercept({ path: "/repos/votatis/archive/issues", method: "POST" })
-    .reply(201, { html_url: "https://github.com/votatis/archive/issues/1" });
+    .intercept({ path: "/repos/3dulev/votatis-data/installation", method: "GET" })
+    .reply(200, { id: 999 });
+  fetchMock
+    .get("https://api.github.com")
+    .intercept({ path: "/app/installations/999/access_tokens", method: "POST" })
+    .reply(201, { token: "ghs_testinstalltoken" });
+  fetchMock
+    .get("https://api.github.com")
+    .intercept({ path: "/repos/3dulev/votatis-data/issues", method: "POST" })
+    .reply(201, { html_url: "https://github.com/3dulev/votatis-data/issues/1" });
 }
 
 const validBody = () => ({
@@ -188,6 +198,17 @@ describe("유닛: 검증/스키마", () => {
   it("detectImageType 이 JPEG 매직바이트를 인식", () => {
     expect(detectImageType(JPEG)).toBe("image/jpeg");
     expect(detectImageType(new TextEncoder().encode("not image"))).toBeNull();
+  });
+
+  it("createAppJWT 가 PKCS#1 키로 RS256 JWT 를 서명", async () => {
+    const jwt = await createAppJWT(env.GITHUB_APP_ID, env.GITHUB_APP_PRIVATE_KEY);
+    const parts = jwt.split(".");
+    expect(parts).toHaveLength(3);
+    const header = JSON.parse(atob(parts[0].replace(/-/g, "+").replace(/_/g, "/")));
+    expect(header.alg).toBe("RS256");
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+    expect(payload.iss).toBe("123456");
+    expect(parts[2].length).toBeGreaterThan(100); // 서명 존재
   });
 
   it("Issue 본문에 익명 submitter + unverified status, 실명 없음", () => {
