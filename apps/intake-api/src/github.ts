@@ -14,11 +14,22 @@ function yamlEscape(v: string): string {
   return v.replace(/"/g, '\\"');
 }
 
+/** R2 key 를 public base URL 뒤에 붙인다. 경로 세그먼트(한글·공백 등)는 인코딩, 슬래시는 유지. */
+function publicUrl(baseUrl: string, key: string): string {
+  const encoded = key.split("/").map(encodeURIComponent).join("/");
+  return `${baseUrl.replace(/\/$/, "")}/${encoded}`;
+}
+
 /**
  * PRD §7 스키마에 맞춘 YAML frontmatter + 마크다운 본문의 Issue 본문을 만든다.
  * status 는 항상 unverified — Worker 는 판단하지 않는다(검증은 사람 큐에서).
+ * publicBaseUrl 이 주어지면 첨부 이미지를 마크다운으로 본문에 임베드한다.
  */
-export function buildIssueBody(p: PendingSubmission, attachments: FinalizedAttachment[]): string {
+export function buildIssueBody(
+  p: PendingSubmission,
+  attachments: FinalizedAttachment[],
+  publicBaseUrl?: string,
+): string {
   const i = p.input;
   const lines: string[] = [];
   lines.push("---");
@@ -60,6 +71,16 @@ export function buildIssueBody(p: PendingSubmission, attachments: FinalizedAttac
   lines.push("---");
   lines.push("");
   lines.push(i.body ?? "");
+
+  // 첨부 이미지를 마크다운으로 임베드(R2 public URL). public base 가 없으면 생략.
+  if (publicBaseUrl && attachments.length > 0) {
+    lines.push("");
+    lines.push("## 첨부");
+    for (const a of attachments) {
+      lines.push(`![${a.filename}](${publicUrl(publicBaseUrl, a.r2_key)})`);
+    }
+  }
+
   return lines.join("\n");
 }
 

@@ -8,6 +8,7 @@ export interface Env {
   GITHUB_REPO: string; // "owner/repo"
   R2_ACCOUNT_ID: string;
   R2_BUCKET: string;
+  R2_PUBLIC_BASE_URL: string; // R2 public dev/custom 도메인 (끝 슬래시 없이). Issue 본문 이미지 임베드용.
 
   // Secrets
   TURNSTILE_SECRET: string;

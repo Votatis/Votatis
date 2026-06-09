@@ -60,7 +60,7 @@ export async function handleFinalize(request: Request, env: Env, submissionId: s
   }
 
   // Issue 생성 (PRD 스키마 포맷). baseUrl 은 시뮬레이션 모드에서 가짜 issue_url 생성에 쓰인다.
-  const issueBody = buildIssueBody(pending, finalized);
+  const issueBody = buildIssueBody(pending, finalized, env.R2_PUBLIC_BASE_URL);
   const baseUrl = new URL(request.url).origin;
   const issueUrl = await createIssue(env, pending.input.title, issueBody, ["unverified"], baseUrl);
 

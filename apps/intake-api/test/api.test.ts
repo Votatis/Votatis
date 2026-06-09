@@ -261,6 +261,33 @@ describe("유닛: 검증/스키마", () => {
     expect(body).toContain('status: "unverified"');
     expect(body).toContain("consent: true");
   });
+
+  it("publicBaseUrl 주어지면 첨부를 마크다운 이미지로 임베드(경로 인코딩)", () => {
+    const pending: PendingSubmission = {
+      submission_id: "sid1",
+      finalize_token: "t",
+      submitter: "anon-1",
+      collected_at: "2026-06-09T00:00:00.000Z",
+      input: { election: "제9회 전국동시지방선거", title: "제목" },
+      staging: [],
+    };
+    const att = {
+      filename: "shot.webp",
+      r2_key: "제9회 전국동시지방선거/sid1/shot.webp",
+      sha256: "deadbeef",
+      mime: "image/webp",
+      size: 100,
+    };
+    const body = buildIssueBody(pending, [att], "https://pub-test.r2.dev");
+    // 슬래시는 유지, 한글/공백 세그먼트는 인코딩
+    expect(body).toContain(
+      "![shot.webp](https://pub-test.r2.dev/" +
+        encodeURIComponent("제9회 전국동시지방선거") +
+        "/sid1/shot.webp)",
+    );
+    // public base 없으면 임베드 안 함
+    expect(buildIssueBody(pending, [att])).not.toContain("![shot.webp]");
+  });
 });
 
 describe("시뮬레이션 모드 (SIMULATE_GITHUB)", () => {
