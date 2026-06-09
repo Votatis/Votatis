@@ -1,4 +1,4 @@
-import type { SubmissionInput, AttachmentInput } from "./types";
+import type { SubmissionInput, AttachmentInput, SourceInput } from "./types";
 
 export const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/gif", "image/webp"]);
 export const MAX_FILE_BYTES = 15 * 1024 * 1024; // 15MB
@@ -33,12 +33,14 @@ export function validateSubmission(raw: unknown): ValidationResult {
   if (!nonEmptyString(o.election)) return { ok: false, error: "election 은 필수입니다." };
   if (!nonEmptyString(o.title)) return { ok: false, error: "title 은 필수입니다." };
 
-  // 출처 없으면 등록 불가 (PRD 원칙2)
-  if (!Array.isArray(o.sources) || o.sources.length === 0)
-    return { ok: false, error: "sources 는 최소 1개 필요합니다 (출처 없는 항목은 등록 불가)." };
-  for (const s of o.sources) {
-    if (typeof s !== "object" || s === null || !nonEmptyString((s as Record<string, unknown>).url))
-      return { ok: false, error: "각 source 에는 url 이 필요합니다." };
+  // 출처(sources): 선택. 있으면 각 항목은 url(웹사이트) 또는 text(직접 입력) 중 하나 이상 필요.
+  const sources = (o.sources ?? []) as SourceInput[];
+  if (!Array.isArray(sources)) return { ok: false, error: "sources 형식이 잘못되었습니다." };
+  for (const s of sources) {
+    if (typeof s !== "object" || s === null) return { ok: false, error: "각 source 형식이 잘못되었습니다." };
+    const sr = s as Record<string, unknown>;
+    if (!nonEmptyString(sr.url) && !nonEmptyString(sr.text))
+      return { ok: false, error: "각 source 에는 url 또는 text 가 필요합니다." };
   }
 
   // 첨부 검증 (선언 단계: mime 허용목록 + 크기 + 개수). 실제 바이트 검증은 finalize.
@@ -52,6 +54,10 @@ export function validateSubmission(raw: unknown): ValidationResult {
     if (typeof a.size !== "number" || a.size <= 0 || a.size > MAX_FILE_BYTES)
       return { ok: false, error: `첨부 크기가 허용 범위를 벗어났습니다(최대 ${MAX_FILE_BYTES} bytes).` };
   }
+
+  // 근거 없는 항목은 등록 불가 (PRD 원칙2): 출처(URL·텍스트) 또는 첨부 중 최소 하나.
+  if (sources.length === 0 && attachments.length === 0)
+    return { ok: false, error: "출처(URL·텍스트) 또는 첨부 중 최소 하나가 필요합니다." };
 
   if (!nonEmptyString(o.turnstile_token)) return { ok: false, error: "turnstile_token 은 필수입니다." };
 

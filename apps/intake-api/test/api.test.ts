@@ -87,10 +87,32 @@ describe("POST /submissions", () => {
     expect(res.status).toBe(403);
   });
 
-  it("sources 가 비면 400 (출처 없으면 등록 불가)", async () => {
-    const body = { ...validBody(), sources: [] };
+  it("출처(URL/텍스트)도 첨부도 없으면 400 (근거 없으면 등록 불가)", async () => {
+    const body = { ...validBody(), sources: [], attachments: [] };
     const res = await call(post("/submissions", body, { ip: "10.0.0.2" }));
     expect(res.status).toBe(400);
+  });
+
+  it("source 에 url·text 가 둘 다 없으면 400", async () => {
+    const body = { ...validBody(), sources: [{ type: "submitter" }] };
+    const res = await call(post("/submissions", body, { ip: "10.0.0.21" }));
+    expect(res.status).toBe(400);
+  });
+
+  it("텍스트 출처만 있고 첨부가 없어도 200 (직접 입력 출처)", async () => {
+    mockTurnstile(true);
+    const body = { ...validBody(), sources: [{ text: "현장에서 직접 목격" }], attachments: [] };
+    const res = await call(post("/submissions", body, { ip: "10.0.0.22" }));
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { uploads: unknown[] };
+    expect(data.uploads).toHaveLength(0);
+  });
+
+  it("첨부만 있고 sources 가 없어도 200 (직접 업로드)", async () => {
+    mockTurnstile(true);
+    const { sources: _drop, ...rest } = validBody();
+    const res = await call(post("/submissions", rest, { ip: "10.0.0.23" }));
+    expect(res.status).toBe(200);
   });
 
   it("정상 제출은 200 + presigned URL + KV pending 기록", async () => {

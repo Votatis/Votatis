@@ -18,7 +18,8 @@ export interface Env {
 }
 
 export interface SourceInput {
-  url: string;
+  url?: string; // 웹사이트 출처. url 또는 text 중 하나 이상 필요.
+  text?: string; // 직접 입력한 출처(증언·설명 등). url 없이 단독 가능.
   type?: string; // news | official | social | submitter | crawler
   captured_at?: string;
   archive_url?: string;
@@ -47,7 +48,7 @@ export interface SubmissionInput {
   region?: RegionInput;
   occurred_at?: string;
   tags?: string[];
-  sources: SourceInput[];
+  sources?: SourceInput[]; // 출처(URL/텍스트) 또는 attachments 중 최소 하나 필요.
   attachments?: AttachmentInput[];
   exif?: unknown[]; // 클라이언트가 추출한 EXIF 요약. 원본 이미지는 서버를 경유하지 않는다.
   turnstile_token: string;

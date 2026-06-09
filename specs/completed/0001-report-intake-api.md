@@ -42,7 +42,7 @@ related:
 2. **첨부 직접 업로드** — 서버는 각 첨부에 대해 R2 presigned PUT URL을 발급한다. 클라이언트가 R2로 직접 업로드한다(Worker 메모리 경유 없음). presigned URL은 짧은 만료(예: 5분)와 고정 `r2_key`를 갖는다.
 3. **제출 확정 `POST /submissions/{id}/finalize`** — 업로드 완료 후 호출. 서버가 R2 객체를 읽어 magic bytes·크기를 검증하고 **SHA-256 해시를 직접 계산**한다. 통과 시 PRD 스키마 포맷의 GitHub Issue를 생성한다.
 4. **정규화** — 입력을 PRD §7 스키마(`occurred_at`/`collected_at` 분리, region 3단, sources에 captured_at 등)에 맞게 정규화한다. 판단·라벨링은 하지 않는다.
-5. **출처 필수** — sources가 비어 있으면 등록 거부(PRD 원칙2).
+5. **근거 필수** — 출처(sources의 url 또는 text) 또는 첨부(attachments) 중 최소 하나가 있어야 등록 가능. 셋 다 없으면 거부(PRD 원칙2). source 항목은 url(웹사이트) 또는 text(직접 입력) 중 하나 이상 필요.
 6. **익명 ID** — submitter는 익명 해시로만 기록. 실명·전화·이메일은 저장하지 않는다(PRD 원칙6).
 
 ### 비기능 (Best Practice 선택 반영)
@@ -96,7 +96,7 @@ related:
 
 - [x] `POST /submissions`가 유효 요청에 submission_id와 첨부별 presigned PUT URL을 반환한다. (test: 정상 제출)
 - [x] Turnstile 토큰이 없거나 검증 실패면 403으로 거부한다. (test: Turnstile 실패)
-- [x] sources가 비어 있으면 등록을 거부한다. (test: sources 빈)
+- [x] 출처(url/text)도 첨부도 없으면 등록을 거부한다. 출처는 url 또는 text 단독으로도 유효하고, 첨부만 있어도 등록 가능. (test: 근거 빈 / url·text 없는 source / 텍스트 출처만 / 첨부만)
 - [x] presigned URL로 R2에 직접 업로드가 성공한다(Worker 메모리를 거치지 않음). — 실 R2 버킷 `votatis-evidence`에 presigned PUT 200 확인(2026-06-09, aws4fetch 서명 → 직접 PUT → 객체 내용 검증).
 - [x] `finalize`가 R2 객체를 읽어 magic bytes 불일치/허용목록 외/크기 초과 파일을 거부한다. (test: magic bytes 불일치 → 400)
 - [x] `finalize`가 서버에서 계산한 SHA-256을 Issue에 기록한다(클라 추정값과 무관하게 정본). (test: 정상 finalize)
@@ -119,3 +119,5 @@ related:
 기능/기술이 크게 바뀐 변경만 한 줄씩. 단순 버그·오타·리팩터링은 제외.
 - 2026-06-09: 최초 작성
 - 2026-06-09: GitHub Issue 인증을 정적 PAT(`GITHUB_TOKEN`)에서 GitHub App(installation 토큰, `GITHUB_APP_ID`/`GITHUB_APP_PRIVATE_KEY`)으로 변경 — 봇 정체성 + 자동 만료 토큰. (요청: 채팅)
+- 2026-06-09: OpenAPI 3.1 문서 제공 추가 — `GET /openapi.json`(스펙) + `GET /reference`(`/docs` alias, Scalar API Reference UI, CDN standalone). 의존성 추가 없음. (요청: 채팅)
+- 2026-06-09: 출처 규칙 완화 — source 항목이 `url`(웹사이트) 또는 `text`(직접 입력) 중 하나면 유효. `sources`는 더 이상 필수가 아니며 출처(URL/텍스트)·첨부 중 최소 하나만 있으면 등록 가능. (요청: 채팅)

@@ -37,8 +37,11 @@ export function buildIssueBody(p: PendingSubmission, attachments: FinalizedAttac
   if (i.occurred_at) lines.push(`occurred_at: "${yamlEscape(i.occurred_at)}"`);
   lines.push(`collected_at: "${p.collected_at}"`);
   lines.push("sources:");
-  for (const s of i.sources) {
-    lines.push(`  - url: "${yamlEscape(s.url)}"`);
+  for (const s of i.sources ?? []) {
+    // url(웹사이트) 또는 text(직접 입력) 중 있는 것을 기록. 둘 다 있으면 둘 다.
+    if (s.url) lines.push(`  - url: "${yamlEscape(s.url)}"`);
+    else lines.push(`  - text: "${yamlEscape(s.text ?? "")}"`);
+    if (s.url && s.text) lines.push(`    text: "${yamlEscape(s.text)}"`);
     lines.push(`    type: "${yamlEscape(s.type ?? "submitter")}"`);
     if (s.captured_at) lines.push(`    captured_at: "${yamlEscape(s.captured_at)}"`);
     if (s.archive_url) lines.push(`    archive_url: "${yamlEscape(s.archive_url)}"`);
