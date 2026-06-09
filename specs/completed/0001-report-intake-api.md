@@ -126,3 +126,4 @@ related:
 - 2026-06-10: `wrangler.jsonc` KV·R2에 `preview_id`/`preview_bucket_name`(프로덕션 재사용) 추가 — `wrangler dev --remote`로 첨부 포함 흐름을 로컬에서 검증 가능하게. 운영 동작 불변. (요청: 채팅)
 - 2026-06-10: CORS를 다중 오리진으로 — `ALLOWED_ORIGIN`을 쉼표 구분 목록으로 파싱(`cors.ts`), 값에 로컬(`localhost:5173`)+배포(`votatis-web.pages.dev`) 추가. R2 버킷 CORS(`r2-cors.json`)도 두 오리진 허용. 프런트 Cloudflare Pages 배포 대비. (요청: 채팅)
 - 2026-06-10: GitHub Issue 본문에 첨부 이미지를 마크다운(`![filename](R2 public URL)`)으로 임베드 — `R2_PUBLIC_BASE_URL` var 추가(`https://pub-…r2.dev`), `buildIssueBody`가 첨부를 본문 "## 첨부"에 이미지로 표시(경로 세그먼트 인코딩, 슬래시 유지). (요청: 채팅)
+- 2026-06-10: Issue 본문 frontmatter를 `---` 구분자 대신 ` ```yaml ``` ` 코드블럭으로 감쌈 — GitHub 이슈에서 가독성 있게 렌더. (요청: 채팅)

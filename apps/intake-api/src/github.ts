@@ -32,7 +32,8 @@ export function buildIssueBody(
 ): string {
   const i = p.input;
   const lines: string[] = [];
-  lines.push("---");
+  // frontmatter 를 yaml 코드블럭으로 감싼다 — GitHub 이슈에서 가독성 있게 렌더된다.
+  lines.push("```yaml");
   lines.push(`submission_id: "${yamlEscape(p.submission_id)}"`);
   lines.push(`election: "${yamlEscape(i.election)}"`);
   lines.push(`title: "${yamlEscape(i.title)}"`);
@@ -68,7 +69,7 @@ export function buildIssueBody(
   lines.push(`submitter: "${p.submitter}"`);
   lines.push(`consent: ${i.consent ? "true" : "false"}`);
   lines.push(`license: "CC-BY-4.0"`);
-  lines.push("---");
+  lines.push("```");
   lines.push("");
   lines.push(i.body ?? "");
 

@@ -260,6 +260,9 @@ describe("유닛: 검증/스키마", () => {
     expect(body).toContain('submitter: "anon-deadbeef"');
     expect(body).toContain('status: "unverified"');
     expect(body).toContain("consent: true");
+    // frontmatter 는 yaml 코드블럭으로 감싼다(--- 구분자 아님)
+    expect(body.startsWith("```yaml\n")).toBe(true);
+    expect(body).toContain("\n```\n");
   });
 
   it("publicBaseUrl 주어지면 첨부를 마크다운 이미지로 임베드(경로 인코딩)", () => {
