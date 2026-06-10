@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Torch from "@/components/landing/Torch";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -13,7 +14,7 @@ export default function LoginForm() {
     <div className="login" style={{ background: "transparent", minHeight: "60vh" }}>
       <div className="login-card">
         <div className="lg">
-          <span className="m">V</span>Votatis
+          <Torch size={30} />Votatis
         </div>
         <div className="sub">관리자 콘솔 · 검토자 전용</div>
         <input

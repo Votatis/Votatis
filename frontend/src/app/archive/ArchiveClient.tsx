@@ -9,6 +9,7 @@ import {
   type VerifyStatus,
 } from "@/lib/types";
 import { IGrid, ISearch, IPin, IChart } from "@/components/mock/mock-icons";
+import Torch from "@/components/landing/Torch";
 
 const CATS: Category[] = ["A", "B", "C"];
 const STATUSES: VerifyStatus[] = [

@@ -12,6 +12,7 @@ import {
   IPlus,
   IBack,
 } from "@/components/mock/mock-icons";
+import Torch from "@/components/landing/Torch";
 
 type Step = "onb" | "s1" | "s2" | "s3" | "done";
 const CATS: Category[] = ["A", "B", "C"];
@@ -58,7 +59,7 @@ export default function ReportFlow() {
         {step === "onb" && (
           <div className="body">
             <div className="onb">
-              <div className="logo">V</div>
+              <Torch size={64} className="onb-logo" />
               <h2>현장의 증거를<br />출처와 함께</h2>
               <p>제보에는 위치와 카메라 권한이 필요합니다. 촬영 사진은 메타데이터를 보존해 검증에 사용됩니다.</p>
               <div className="perm">

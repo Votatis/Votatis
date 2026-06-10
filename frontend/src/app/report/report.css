@@ -92,3 +92,8 @@
   width: 20px;
   border-radius: 99px;
 }
+
+/* 온보딩 로고(Torch) 하단 여백 */
+.onb-logo {
+  margin-bottom: 24px;
+}
