@@ -2,7 +2,7 @@
 tldr: 코드 레포는 fork 구조 — origin push 는 3dulev/Votatis(fork), PR 은 업스트림 Lampas-2026/Votatis(default main)로 올린다(`gh pr create --repo Lampas-2026/Votatis --base main --head 3dulev:<branch>`). gh 쓰기 전 `gh api user`로 3dulev 계정인지 확인(아니면 `gh auth switch`). git commit author 와 gh API 인증은 별개다.
 tags: [convention, github, ops, project]
 last_retrieved: 2026-06-10
-retrieval_count: 1
+retrieval_count: 2
 ---
 
 ## 규칙 / 교훈

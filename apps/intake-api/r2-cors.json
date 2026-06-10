@@ -2,7 +2,7 @@
   "rules": [
     {
       "allowed": {
-        "origins": ["http://localhost:5173", "https://votatis-web.pages.dev"],
+        "origins": ["http://localhost:3000", "https://votatis-web.pages.dev"],
         "methods": ["PUT"],
         "headers": ["*"]
       },

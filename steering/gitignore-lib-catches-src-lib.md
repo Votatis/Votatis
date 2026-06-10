@@ -2,7 +2,7 @@
 tldr: 루트 .gitignore가 파이썬 템플릿 기반이라 `lib/`(line 17, venv용)가 앱 소스 디렉터리 `apps/*/src/lib/`까지 싸잡아 무시한다. 새 앱의 src/lib 소스가 조용히 미추적되니, `!apps/<app>/src/lib/` 예외를 추가해야 추적된다.
 tags: [pitfall, git, gitignore, monorepo, web]
 last_retrieved: 2026-06-10
-retrieval_count: 0
+retrieval_count: 1
 ---
 
 ## 규칙 / 교훈
@@ -17,3 +17,4 @@ retrieval_count: 0
 ## 적용
 - 새 앱/패키지에 `src/lib/`(또는 다른 `lib/` 소스)를 두면, 자동으로 미추적되니 `.gitignore`에 `!apps/<app>/src/lib/` 예외를 추가하고 `git check-ignore -v`로 확인한다.
 - 커밋 전 `git status`에 기대한 파일이 없으면 gitignore부터 의심.
+- **업스트림/외부에서 머지한 코드도 이 함정의 피해자일 수 있다**: Lampas-2026 upstream의 `frontend/`가 `src/lib/`가 ignore돼 커밋되지 않은 채 머지돼(예: `src/lib/types.ts` 누락) `@/lib/*` import가 깨지고 빌드 실패. 머지 후 빌드가 "Module not found: @/lib/..."면 누락 lib 소스 복원이 필요(원본 제공 or 재구성). `apps/frontend`도 예외(`!apps/frontend/src/lib/`) 추가 대상.

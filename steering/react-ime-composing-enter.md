@@ -2,7 +2,7 @@
 tldr: React 입력에서 한글(IME) 조합 중 Enter는 "조합 확정"용이라 키 핸들러가 같이 발동하면 자동완성 선택과 커밋이 충돌해 "내손2동동"처럼 글자가 겹친다. onKeyDown 맨 앞에서 ev.nativeEvent.isComposing이면 return 한다.
 tags: [pitfall, react, korean, ime]
 last_retrieved: 2026-06-10
-retrieval_count: 0
+retrieval_count: 1
 ---
 
 ## 규칙 / 교훈

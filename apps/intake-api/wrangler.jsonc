@@ -29,7 +29,7 @@
     "crons": ["*/30 * * * *"]
   },
   "vars": {
-    "ALLOWED_ORIGIN": "http://localhost:5173,https://votatis-web.pages.dev",
+    "ALLOWED_ORIGIN": "http://localhost:3000,https://votatis-web.pages.dev",
     "R2_ACCOUNT_ID": "4691f0338d03a2e7d000403d13b66264",
     "R2_BUCKET": "votatis-evidence"
   }

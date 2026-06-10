@@ -35,7 +35,7 @@
 
 | 키 | 현재 값 | 설명 |
 |----|---------|------|
-| `ALLOWED_ORIGIN` | `http://localhost:5173,https://votatis-web.pages.dev` | 쓰기(POST) CORS 허용 오리진(쉼표 구분). 읽기(GET)는 공개. |
+| `ALLOWED_ORIGIN` | `http://localhost:3000,https://votatis-web.pages.dev` | 쓰기(POST) CORS 허용 오리진(쉼표 구분). 읽기(GET)는 공개. |
 | `R2_ACCOUNT_ID` | `4691f0338d03a2e7d000403d13b66264` | presigned 서명용 R2 계정 ID |
 | `R2_BUCKET` | `votatis-evidence` | 첨부 저장 버킷 |
 
@@ -134,12 +134,12 @@ pnpm dev:local                   # = wrangler dev --var LOCAL_UPLOAD:true, http:
 
 ```bash
 # 1) 제출
-curl -s -X POST localhost:8787/submissions -H 'content-type: application/json' -H 'origin: http://localhost:5173' \
+curl -s -X POST localhost:8787/submissions -H 'content-type: application/json' -H 'origin: http://localhost:3000' \
   -d '{"election":"테스트","title":"로컬","attachments":[{"filename":"a.jpg","mime":"image/jpeg","size":22}],"turnstile_token":"dummy"}'
 # 2) 응답의 put_url(=…/_dev/upload/…) 로 파일 PUT
-curl -s -X PUT "<put_url>" -H 'origin: http://localhost:5173' --data-binary @a.jpg
+curl -s -X PUT "<put_url>" -H 'origin: http://localhost:3000' --data-binary @a.jpg
 # 3) finalize → 4) GET /reports 로 확인
-curl -s -X POST localhost:8787/submissions/<id>/finalize -H 'content-type: application/json' -H 'origin: http://localhost:5173' -d '{"finalize_token":"<token>"}'
+curl -s -X POST localhost:8787/submissions/<id>/finalize -H 'content-type: application/json' -H 'origin: http://localhost:3000' -d '{"finalize_token":"<token>"}'
 ```
 
 ### 5-2. 원격 모드 — 실제 R2·D1
