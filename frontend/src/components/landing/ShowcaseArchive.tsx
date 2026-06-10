@@ -145,6 +145,7 @@ export default function ShowcaseArchive() {
                   )}
                 </div>
                 <div
+                  className="rec-2col"
                   style={{
                     display: "grid",
                     gridTemplateColumns: "1fr 1fr",

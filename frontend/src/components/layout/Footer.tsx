@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Torch from "@/components/landing/Torch";
 
 const GITHUB = "https://github.com/Lampas-2026/Votatis";
 
@@ -9,7 +10,8 @@ export default function Footer() {
         <div className="foot-grid">
           <div className="foot-brand">
             <a className="brand" href="#top">
-              <span className="mark">V</span>Votatis
+              <Torch size={28} />
+              Votatis
             </a>
             <p>
               시민이 함께 만드는 검증 가능한 오픈소스 제보 아카이브. 코드와 데이터

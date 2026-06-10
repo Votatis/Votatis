@@ -1,11 +1,13 @@
 import Link from "next/link";
+import Torch from "@/components/landing/Torch";
 
 export default function Header() {
   return (
     <header className="nav">
       <div className="wrap nav-inner">
         <a className="brand" href="#top">
-          <span className="mark">V</span>Votatis
+          <Torch size={28} />
+          Votatis
         </a>
         <nav className="nav-links">
           <a href="#archive">공개 아카이브</a>

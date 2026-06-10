@@ -2,6 +2,7 @@ import "../../app-shell.css";
 import "../mock.css";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import Torch from "@/components/landing/Torch";
 
 export const metadata = {
   title: "관리자 콘솔 — Votatis",
@@ -14,7 +15,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       <header className="nav" style={{ background: "var(--g900)", borderBottom: "none" }}>
         <div className="wrap nav-inner">
           <Link className="brand" href="/free/admin/dashboard" style={{ color: "#fff" }}>
-            <span className="mark">V</span>관리자 콘솔
+            <Torch size={28} />관리자 콘솔
           </Link>
           <nav className="nav-links">
             <Link href="/free/preview" style={{ color: "var(--g300)" }}>

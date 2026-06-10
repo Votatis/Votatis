@@ -1338,3 +1338,379 @@ footer {
     transform: none;
   }
 }
+
+/* ══════════════════════════════════════════════════════════
+   추가 작업 (2026-06): 줄바꿈 정돈 · 노트북 비율 · 시각화 고도화
+   ══════════════════════════════════════════════════════════ */
+
+/* brand: 횃불 마크 + 텍스트 정렬 */
+.brand,
+.side-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Problem: 빅넘버 중앙 정렬 */
+.bignum-center {
+  text-align: center;
+}
+.bignum-center .bn p {
+  max-width: 30ch;
+  margin: 0 auto;
+}
+
+/* 노트북 비율: 브라우저 목업을 16:10 화면비로 */
+.hero-stage .browser,
+.showcase .browser {
+  width: 100%;
+}
+.showcase .browser-body,
+.hero-stage .browser-body {
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+.showcase .browser-body .dash,
+.hero-stage .browser-body .dash {
+  height: 100%;
+  min-height: 0;
+}
+.showcase .browser-body .dash-main,
+.hero-stage .browser-body .dash-main {
+  overflow: hidden;
+}
+@media (max-width: 980px) {
+  .showcase .browser-body,
+  .hero-stage .browser-body {
+    aspect-ratio: auto;
+  }
+}
+
+/* 모바일 쇼케이스: 디바이스 베젤 제거 → 프레임리스 카드 */
+.phone-stage {
+  display: flex;
+  justify-content: center;
+}
+.phone-stage .device {
+  width: 300px;
+  max-width: 100%;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.phone-stage .screen {
+  border-radius: 28px;
+  border: 1px solid var(--g200);
+  box-shadow: var(--sh-lg);
+}
+/* 베젤 없으면 노치도 불필요 */
+.phone-stage .notch {
+  display: none;
+}
+.phone-stage .sbar {
+  display: none;
+}
+
+/* ── Pipeline: 핸드폰 1자 흐름 ───────────────────────────── */
+.flow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 8px 4px 16px;
+  scrollbar-width: thin;
+}
+.fstep {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+  width: 150px;
+}
+.fphone {
+  width: 150px;
+  pointer-events: none;
+}
+.fphone .device {
+  width: 100%;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.fphone .screen {
+  border-radius: 16px;
+  border: 1px solid var(--g200);
+  box-shadow: var(--sh);
+}
+/* 베젤·노치·상태바 제거 */
+.fphone .notch,
+.fphone .sbar {
+  display: none;
+}
+/* 작은 폰 안에 화면이 더 들어오도록 내부 축소 */
+.fphone .body {
+  zoom: 0.62;
+}
+.fphone .pcontent {
+  overflow: hidden;
+}
+/* 흐름 화살표 가시성 */
+.farrow {
+  display: grid;
+  place-items: center;
+}
+.fmeta {
+  text-align: center;
+  margin-top: 16px;
+  padding: 0 6px;
+}
+.fmeta .fn {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--red);
+}
+.fmeta h4 {
+  font-size: 14.5px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 5px 0 5px;
+}
+.fmeta p {
+  font-size: 12px;
+  color: var(--g600);
+  line-height: 1.5;
+}
+.farrow {
+  position: absolute;
+  top: 130px;
+  right: -16px;
+  font-size: 20px;
+  color: var(--g300);
+  font-weight: 400;
+}
+@media (max-width: 980px) {
+  .flow {
+    justify-content: flex-start;
+  }
+}
+
+/* ── Principles: 신뢰도 시각화(아이콘 제거) ──────────────── */
+.prinlist {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 720px) {
+  .prinlist {
+    grid-template-columns: 1fr;
+  }
+}
+.prow2x {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  background: #fff;
+  border: 1px solid var(--g200);
+  border-radius: 16px;
+  padding: 22px 24px;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.prow2x:hover {
+  border-color: var(--red-line);
+  transform: translateY(-2px);
+}
+.prow2x .pk {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--red);
+  flex-shrink: 0;
+  width: 26px;
+  padding-top: 2px;
+  border-right: 2px solid var(--red-bg);
+}
+.prow2x .pbody {
+  min-width: 0;
+}
+.prow2x .pt2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 7px;
+  flex-wrap: wrap;
+}
+.prow2x h4 {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.prow2x .ptag {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--red-strong);
+  background: var(--red-bg);
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.prow2x p {
+  font-size: 14px;
+  color: var(--g600);
+  line-height: 1.6;
+}
+
+/* ── DataViz: KPI 스트립 · 적층바 · 축 ───────────────────── */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 48px;
+}
+@media (max-width: 640px) {
+  .kpi-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.kpi {
+  background: #fff;
+  border: 1px solid var(--g200);
+  border-radius: 16px;
+  padding: 20px 18px;
+  text-align: left;
+}
+.kpi .kv {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.kpi .kl {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--g700);
+  margin-top: 10px;
+}
+.kpi .kd {
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+.kpi .kd.up {
+  color: var(--red);
+}
+.kpi .kd.dn {
+  color: var(--g500);
+}
+
+.track.stack {
+  display: flex;
+  gap: 0;
+}
+.track.stack i {
+  border-radius: 0;
+}
+.track.stack i:first-child {
+  border-radius: 99px 0 0 99px;
+}
+.track.stack i.rev {
+  background: var(--red-300);
+  border-radius: 0 99px 99px 0;
+}
+.ch-xaxis {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--g400);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* ── CTA: 검정 풀블리드 + 민주주의 배경 ──────────────────── */
+.cta-sec {
+  position: relative;
+  background: var(--g900);
+  padding: 130px 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+.cta-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  opacity: 0.9;
+}
+.cta-inner {
+  text-align: center;
+  max-width: 760px;
+  margin: 0 auto;
+  position: relative;
+}
+.cta-inner h2 {
+  font-size: clamp(30px, 4.8vw, 50px);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.04em;
+  line-height: 1.28;
+  margin-bottom: 18px;
+}
+.cta-inner p {
+  font-size: 17px;
+  color: rgba(255, 255, 255, 0.62);
+  font-weight: 500;
+  margin-bottom: 36px;
+  line-height: 1.65;
+}
+.cta-sec .btn-soft {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+.cta-sec .btn-soft:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── 웹 브라우저 목업: 모바일 대응 ─────────────────────────────────────── */
+.prow-admin {
+  grid-template-columns: 1.15fr 0.85fr;
+}
+@media (max-width: 780px) {
+  /* 사이드바 숨겨지면 강제 세로높이 해제 */
+  .dash {
+    min-height: 0;
+  }
+  .prow-admin {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 640px) {
+  /* 타일 4열 → 2열 (숫자 안 짤리게) */
+  .tiles {
+    grid-template-columns: 1fr 1fr;
+  }
+  /* 본문 패딩 축소 */
+  .dash-main {
+    padding: 16px 14px;
+  }
+  .browser-body > div[style*="padding"] {
+    padding: 16px 14px !important;
+  }
+  /* 레코드 상세 출처·반론 2열 → 1열 */
+  .rec-2col {
+    grid-template-columns: 1fr !important;
+  }
+  /* 브라우저 주소창 폰트·여백 축소 */
+  .browser-bar {
+    height: 42px;
+    padding: 0 12px;
+  }
+  .url {
+    font-size: 11px;
+  }
+}

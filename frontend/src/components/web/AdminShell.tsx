@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { IGrid, IUsers, IList, ICheckSq, IImage, IChart, IEdit } from "@/components/mock/mock-icons";
+import Torch from "@/components/landing/Torch";
 
 export type AdminNav = "dashboard" | "members" | "reports" | "queue" | "evidence" | "content";
 
@@ -31,7 +32,7 @@ export default function AdminShell({
       <div className="dash">
         <aside className="dside">
           <div className="ds-logo">
-            <span className="ds-mk">V</span>관리자
+            <Torch size={24} />관리자
           </div>
           <div className="ds-sec">운영</div>
           {ITEMS.map((it) => (

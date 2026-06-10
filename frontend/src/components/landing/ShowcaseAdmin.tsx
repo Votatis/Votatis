@@ -1,5 +1,6 @@
 import Reveal from "./Reveal";
 import { Lock, CheckSquare, Chart, List, Gear, Check, Image, X } from "./icons";
+import Torch from "./Torch";
 
 export default function ShowcaseAdmin() {
   return (
@@ -22,7 +23,8 @@ export default function ShowcaseAdmin() {
               <div className="dash">
                 <aside className="dash-side">
                   <div className="side-logo">
-                    <span className="side-mark">V</span>관리자
+                    <Torch size={24} />
+                    관리자
                   </div>
                   <div className="side-sec">검증</div>
                   <div className="side-item on">
@@ -91,10 +93,7 @@ export default function ShowcaseAdmin() {
                     </div>
                   </div>
 
-                  <div
-                    className="prow"
-                    style={{ gridTemplateColumns: "1.15fr .85fr" }}
-                  >
+                  <div className="prow prow-admin">
                     <div className="panel">
                       <div className="ph">
                         대기 항목 <span className="more">우선순위순</span>
@@ -229,7 +228,9 @@ export default function ShowcaseAdmin() {
           </h2>
           <p className="desc">
             수집 단계는 아무것도 판단하지 않습니다. 검토 큐에서 사람이 원본과
-            선관위 공지를 대조해 상태를 부여하고, 통과한 데이터만 공개됩니다.
+            선관위 공지를 대조해 상태를 부여하고,
+            <br />
+            통과한 데이터만 공개됩니다.
           </p>
           <div className="feat">
             <div className="fi">

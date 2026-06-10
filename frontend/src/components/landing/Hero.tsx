@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Reveal from "./Reveal";
 import { Lock, Grid, Search, Pin, Chart } from "./icons";
+import Torch from "./Torch";
 
 export default function Hero() {
   return (
@@ -51,7 +52,8 @@ export default function Hero() {
               <div className="dash">
                 <aside className="dash-side">
                   <div className="side-logo">
-                    <span className="side-mark">V</span>Votatis
+                    <Torch size={24} />
+                    Votatis
                   </div>
                   <div className="side-sec">아카이브</div>
                   <div className="side-item on">

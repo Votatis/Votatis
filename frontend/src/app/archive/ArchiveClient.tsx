@@ -31,7 +31,7 @@ export default function ArchiveClient() {
       <div className="dash">
         <aside className="dside">
           <div className="ds-logo">
-            <span className="ds-mk">V</span>아카이브
+            <Torch size={24} />아카이브
           </div>
           <div className="ds-sec">아카이브</div>
           <div className="ds-item on">
