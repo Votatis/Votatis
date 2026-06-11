@@ -812,12 +812,12 @@ section.sec {
 
 .showcase {
   display: grid;
-  grid-template-columns: 0.82fr 1.18fr;
+  grid-template-columns: 0.9fr 1.1fr;
   gap: 56px;
   align-items: center;
 }
 .showcase.flip {
-  grid-template-columns: 1.18fr 0.82fr;
+  grid-template-columns: 1.1fr 0.9fr;
 }
 .showcase.flip .copy {
   order: 2;
@@ -833,7 +833,8 @@ section.sec {
   }
 }
 .copy h2 {
-  font-size: clamp(26px, 3.6vw, 40px);
+  font-size: clamp(26px, 3.4vw, 38px);
+  word-break: keep-all;
 }
 .feat {
   margin-top: 28px;
@@ -1374,10 +1375,23 @@ footer {
 .hero-stage .browser-body .dash {
   height: 100%;
   min-height: 0;
+  /* 좁은 쇼케이스 컬럼에서도 내부 레이아웃이 글자단위로 깨지지 않도록
+     데스크톱 폭을 보장하고, 넘치는 부분은 윈도우가 자른다(목업답게). */
+  min-width: 760px;
 }
 .showcase .browser-body .dash-main,
 .hero-stage .browser-body .dash-main {
   overflow: hidden;
+}
+/* 테이블·검증패널 텍스트 줄바꿈 보정 */
+.showcase .browser-body .tbl td,
+.showcase .browser-body .tbl th {
+  white-space: nowrap;
+}
+.showcase .browser-body .panel p,
+.showcase .browser-body .ph,
+.showcase .browser-body .kv {
+  word-break: keep-all;
 }
 @media (max-width: 980px) {
   .showcase .browser-body,
@@ -1475,10 +1489,23 @@ footer {
   background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #fff);
   z-index: 1;
 }
-/* 좁은 폰 안에서 제목이 글자 단위로 쪼개지지 않도록 */
+/* 좁은 폰 안에서 제목이 글자 단위로 쪼개지지 않도록 한 줄 말줄임 */
 .fphone .mn,
 .fphone .nm {
   min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fphone .mrec .mt {
+  flex-wrap: nowrap;
+}
+/* 완료 화면 등 본문 텍스트 단어 단위 줄바꿈 */
+.fphone .psuc h4,
+.fphone .psuc p,
+.fphone .ref {
+  word-break: keep-all;
+  white-space: normal;
 }
 .fmeta {
   text-align: center;
@@ -1524,6 +1551,9 @@ footer {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
+  max-width: 920px;
+  margin: 0 auto;
+  text-align: left; /* sec-center 상속 무효화 — 카드 내용은 좌측 */
 }
 @media (max-width: 720px) {
   .prinlist {

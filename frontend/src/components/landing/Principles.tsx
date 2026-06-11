@@ -11,7 +11,7 @@ const ITEMS = [
 
 export default function Principles() {
   return (
-    <section className="sec" id="principles">
+    <section className="sec sec-center" id="principles">
       <div className="wrap">
         <Reveal style={{ marginBottom: 48 }}>
           <p className="eyebrow">설계 원칙</p>
