@@ -177,8 +177,8 @@ export default function QueueClient() {
         </div>
         <div className="panel" style={{ display: "flex", flexDirection: "column" }}>
           <div className="ph">검증 패널</div>
-          <p style={{ fontSize: 12, color: "var(--g500)", lineHeight: 1.6 }}>
-            왼쪽에서 항목을 선택하면 원본 대조·근거 입력 화면으로 이동합니다. confirmed/disputed/debunked/corrected
+          <p style={{ fontSize: 12, color: "var(--g500)", lineHeight: 1.6, overflowWrap: "anywhere", wordBreak: "break-word" }}>
+            왼쪽에서 항목을 선택하면 원본 대조·근거 입력 화면으로 이동합니다. 사실확인/이견/반박/정정
             판정은 검증 방법과 최소 1개의 근거 링크가 필수입니다.
           </p>
           <div className="act" style={{ marginTop: "auto", opacity: 0.5, pointerEvents: "none" }}>

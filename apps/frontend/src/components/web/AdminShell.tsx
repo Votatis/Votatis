@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { IGrid, IUsers, ICheckSq, IImage, IChart, IEdit } from "@/components/mock/mock-icons";
+import { IGrid, IUsers, ICheckSq, IImage, IEdit } from "@/components/mock/mock-icons";
 import Torch from "@/components/landing/Torch";
 import { getUser, type AdminUser } from "@/lib/admin-auth";
 import { logout } from "@/lib/api/admin";
@@ -61,10 +61,6 @@ export default function AdminShell({
           <div className="ds-sec">콘텐츠</div>
           <Link href="/admin/dashboard" className={`ds-item${active === "content" ? " on" : ""}`}>
             <IEdit />정보·공지
-          </Link>
-          <div className="ds-sec">바로가기</div>
-          <Link href="/preview" className="ds-item">
-            <IChart />화면 미리보기
           </Link>
         </aside>
         <div className="dmain">

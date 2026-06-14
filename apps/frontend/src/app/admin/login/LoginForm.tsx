@@ -70,11 +70,6 @@ export default function LoginForm() {
         >
           {busy ? "확인 중…" : "로그인"}
         </button>
-        <div className="l2fa">
-          계정은 루트 관리자가 발급합니다. 비밀번호는 발급받은 재설정 링크에서 직접 설정하세요.
-          <br />
-          세션은 이 브라우저에만 저장되며 요청 시 인증 헤더로 전송됩니다.
-        </div>
       </div>
     </div>
   );

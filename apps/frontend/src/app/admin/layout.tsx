@@ -18,9 +18,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <Torch size={28} />관리자 콘솔
           </Link>
           <nav className="nav-links">
-            <Link href="/preview" style={{ color: "var(--g300)" }}>
-              화면 미리보기
-            </Link>
             <Link href="/" style={{ color: "var(--g300)" }}>
               서비스 홈
             </Link>

@@ -54,19 +54,34 @@ async function rawFetch(path: string, init: RequestInit | undefined, token: stri
   });
 }
 
-/** refresh 토큰으로 access 재발급(회전). 성공 시 세션 갱신, 실패 시 false. */
-async function tryRefresh(): Promise<boolean> {
-  const rt = getRefreshToken();
-  if (!rt) return false;
-  const res = await fetch(`${API_BASE_URL}/admin/auth/refresh`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ refresh_token: rt }),
-  });
-  if (!res.ok) return false;
-  const data = (await res.json()) as AdminSession;
-  updateTokens(data.access_token, data.refresh_token);
-  return true;
+// refresh 토큰은 호출 시마다 회전(기존 폐기+신규)된다. 여러 요청이 동시에 401 을 받으면
+// 각자 refresh 하려다 한쪽이 이미 폐기된 토큰을 써 실패 → clearSession → 억울한 재로그인.
+// 그래서 refresh 는 single-flight: 진행 중인 refresh 가 있으면 새로 시작하지 않고 그 결과를 공유한다.
+let refreshInFlight: Promise<boolean> | null = null;
+
+/** refresh 토큰으로 access 재발급(회전). 동시 호출은 1회로 합쳐 결과를 공유. */
+function tryRefresh(): Promise<boolean> {
+  if (refreshInFlight) return refreshInFlight;
+  refreshInFlight = (async () => {
+    const rt = getRefreshToken();
+    if (!rt) return false;
+    try {
+      const res = await fetch(`${API_BASE_URL}/admin/auth/refresh`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ refresh_token: rt }),
+      });
+      if (!res.ok) return false;
+      const data = (await res.json()) as AdminSession;
+      updateTokens(data.access_token, data.refresh_token);
+      return true;
+    } catch {
+      return false;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+  return refreshInFlight;
 }
 
 /** 인증 요청 — 401 이면 refresh 1회 후 재시도. 그래도 401 이면 세션 클리어 + throw. */
