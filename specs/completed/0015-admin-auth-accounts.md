@@ -106,3 +106,4 @@ related:
 - 2026-06-14: 최초 작성 (요청: 채팅 — 플랜 승인본 기반)
 - 2026-06-14: 구현 완료 — D1 3테이블(마이그레이션 0001), PBKDF2 해시, hono/jwt access(15분)+회전 refresh(7일 슬라이딩), /admin/auth/* + root전용 /admin/members/*, ADMIN_TOKEN break-glass, 프론트 username/password 로그인·refresh 자동재시도·회원관리·/admin/reset. 단위/통합 49 + 로컬 e2e 스모크 통과. in-review 이동. (요청: 채팅)
 - 2026-06-15: spec-review 통과 — 완료 조건 12/12 충족(테스트 49 + 로컬 e2e 스모크), QA 모드에서 MVP-PRD §11/§12 보완. completed 이동. (요청: 채팅)
+- 2026-06-15: 회원 생성 UI를 회원목록에서 분리 — 목록의 "＋ 회원 생성" 버튼 → 별도 페이지 `/admin/members/new`에서 생성·재설정 링크 발급. (요청: 채팅)
