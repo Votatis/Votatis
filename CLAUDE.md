@@ -10,7 +10,7 @@
 ## Steering — 프로젝트 지식 저장소 (필수 정책)
 
 `steering/`는 작업하면서 쌓인 규칙과 반복하면 안 되는 실수를 누적하는 디렉터리다.
-운영 규칙 전문은 `steering/README.md`에 있다. 핵심 동작:
+**이 절이 운영 규칙(정책)이며**, `steering/README.md`는 인덱스다(토큰 절약을 위해 SessionStart에는 인덱스의 `파일 — tldr`만 주입된다 — `.claude/hooks/steering-index.sh`). 핵심 동작:
 
 1. **세션 시작 시 회상**: 작업을 시작하기 전 `steering/README.md` 인덱스를 훑어, 지금 작업과 관련된 항목이 있으면 해당 파일을 읽고 따른다.
 2. **자동 캡처**: 대화 중 ①합의된 규칙/컨벤션 ②저지른 실수와 회피법 ③비자명한 결정의 이유가 나오면, `steering/<kebab-case>.md`로 저장한다(frontmatter: `tldr`, `tags`, `last_retrieved`, `retrieval_count`). 단, 코드·git·PRD로 알 수 있는 사실이나 일회성 정보는 저장하지 않는다.
