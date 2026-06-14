@@ -43,6 +43,7 @@ export const AttachmentRecordSchema = z
   })
   .openapi("Attachment");
 
+// 공개 검증/피드백 — 내부용 reviewer_note 는 제외(Votatis#2: 검토자 내부 의견은 비공개).
 export const VerificationSchema = z
   .object({
     reviewer: z.string().nullable(),
@@ -50,8 +51,24 @@ export const VerificationSchema = z
     reviewed_at: z.string().nullable(),
     notes: z.string().nullable(),
     evidence_links: z.array(z.string()).nullable(),
+    // 검토 피드백 스키마(Votatis#2) — 공개 노출 필드.
+    status_scope: z.string().nullable(),
+    claim: z.string().nullable(),
+    verified_facts: z.array(z.string()).nullable(),
+    assessment: z.array(z.string()).nullable(),
+    confirmed_scope: z.array(z.string()).nullable(),
+    not_confirmed: z.array(z.string()).nullable(),
+    possible_explanations: z.array(z.string()).nullable(),
+    missing_evidence: z.array(z.string()).nullable(),
+    public_summary: z.string().nullable(),
+    risk_level: z.string().nullable(),
   })
   .openapi("Verification");
+
+// 관리자 상세 — 내부용 reviewer_note 포함.
+export const AdminVerificationSchema = VerificationSchema.extend({
+  reviewer_note: z.string().nullable(),
+}).openapi("AdminVerification");
 
 export const ReportIdParamSchema = z.object({
   id: z.string().min(1).openapi({ param: { name: "id", in: "path" } }),

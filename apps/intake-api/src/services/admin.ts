@@ -94,6 +94,18 @@ export async function adminPatchReport(env: Env, id: string, patch: AdminPatch):
     if (v.method !== undefined) set.verificationMethod = v.method;
     if (v.notes !== undefined) set.verificationNotes = v.notes;
     if (v.evidence_links !== undefined) set.verificationEvidenceLinks = v.evidence_links;
+    // 검토 피드백 스키마(Votatis#2)
+    if (v.status_scope !== undefined) set.verificationStatusScope = v.status_scope;
+    if (v.claim !== undefined) set.verificationClaim = v.claim;
+    if (v.verified_facts !== undefined) set.verificationVerifiedFacts = v.verified_facts;
+    if (v.assessment !== undefined) set.verificationAssessment = v.assessment;
+    if (v.confirmed_scope !== undefined) set.verificationConfirmedScope = v.confirmed_scope;
+    if (v.not_confirmed !== undefined) set.verificationNotConfirmed = v.not_confirmed;
+    if (v.possible_explanations !== undefined) set.verificationPossibleExplanations = v.possible_explanations;
+    if (v.missing_evidence !== undefined) set.verificationMissingEvidence = v.missing_evidence;
+    if (v.reviewer_note !== undefined) set.verificationReviewerNote = v.reviewer_note;
+    if (v.public_summary !== undefined) set.verificationPublicSummary = v.public_summary;
+    if (v.risk_level !== undefined) set.verificationRiskLevel = v.risk_level;
   }
 
   if (JUDGED_STATUSES.has(targetStatus)) {

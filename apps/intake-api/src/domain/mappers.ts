@@ -10,6 +10,7 @@ function region(r: ReportRow) {
   };
 }
 
+/** 공개 검증/피드백 — 내부용 reviewer_note 는 제외한다. */
 function verification(r: ReportRow) {
   return {
     reviewer: r.verificationReviewer ?? null,
@@ -17,6 +18,16 @@ function verification(r: ReportRow) {
     reviewed_at: r.verificationReviewedAt ?? null,
     notes: r.verificationNotes ?? null,
     evidence_links: r.verificationEvidenceLinks ?? null,
+    status_scope: r.verificationStatusScope ?? null,
+    claim: r.verificationClaim ?? null,
+    verified_facts: r.verificationVerifiedFacts ?? null,
+    assessment: r.verificationAssessment ?? null,
+    confirmed_scope: r.verificationConfirmedScope ?? null,
+    not_confirmed: r.verificationNotConfirmed ?? null,
+    possible_explanations: r.verificationPossibleExplanations ?? null,
+    missing_evidence: r.verificationMissingEvidence ?? null,
+    public_summary: r.verificationPublicSummary ?? null,
+    risk_level: r.verificationRiskLevel ?? null,
   };
 }
 
@@ -70,10 +81,11 @@ export function toAdminSummary(r: ReportRow) {
   };
 }
 
-/** 관리자 상세 — 내부 필드(submitter·exif) 포함. staging/finalize_token 은 finalize 후 없음. */
+/** 관리자 상세 — 내부 필드(submitter·exif·reviewer_note) 포함. staging/finalize_token 은 finalize 후 없음. */
 export function toAdminDetail(r: ReportRow) {
   return {
     ...toPublicReport(r),
+    verification: { ...verification(r), reviewer_note: r.verificationReviewerNote ?? null },
     submitter: r.submitter,
     exif: r.exif ?? null,
   };

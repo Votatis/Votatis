@@ -31,6 +31,10 @@ export const PUBLISHABLE_STATUSES = ["confirmed", "disputed", "debunked", "corre
 /** 근거(method+evidence_links) 필수 판정 상태. reviewing/unverified 되돌림은 근거 불요구. */
 export const JUDGED_STATUSES = new Set<string>(["confirmed", "disputed", "debunked", "corrected"]);
 
+/** 검토 피드백 위험도(Votatis#2). 사안 심각도/추가 확인 필요성. */
+export const RISK_LEVELS = ["낮음", "낮음~중간", "중간", "중간~높음", "높음"] as const;
+export type RiskLevel = (typeof RISK_LEVELS)[number];
+
 // ── 관리자 인증 (spec 0015) ──────────────────────────────────────────────────
 /** 관리자 계정 역할. root 는 회원관리 포함, member 는 검증만. */
 export const ADMIN_ROLES = ["root", "member"] as const;

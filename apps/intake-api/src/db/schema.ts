@@ -74,6 +74,20 @@ export const reports = sqliteTable(
     verificationNotes: text("verification_notes"),
     verificationEvidenceLinks: text("verification_evidence_links", { mode: "json" }).$type<string[]>(),
 
+    // 검토 피드백 스키마 (spec 0016, Votatis#2) — 주장/사실/판단 분리·확인범위·공개요약·위험도.
+    // reviewerNote 만 내부용(공개 응답 비포함), 나머지는 공개 아카이브에 노출 가능.
+    verificationStatusScope: text("verification_status_scope"), // 확인됨의 확인 범위(부정선거 단정 금지)
+    verificationClaim: text("verification_claim"), // 제보자 주장(중립 요약)
+    verificationVerifiedFacts: text("verification_verified_facts", { mode: "json" }).$type<string[]>(),
+    verificationAssessment: text("verification_assessment", { mode: "json" }).$type<string[]>(),
+    verificationConfirmedScope: text("verification_confirmed_scope", { mode: "json" }).$type<string[]>(),
+    verificationNotConfirmed: text("verification_not_confirmed", { mode: "json" }).$type<string[]>(), // 과잉해석 차단
+    verificationPossibleExplanations: text("verification_possible_explanations", { mode: "json" }).$type<string[]>(),
+    verificationMissingEvidence: text("verification_missing_evidence", { mode: "json" }).$type<string[]>(),
+    verificationReviewerNote: text("verification_reviewer_note"), // 내부용(공개 비포함)
+    verificationPublicSummary: text("verification_public_summary"), // 외부 공개용 요약
+    verificationRiskLevel: text("verification_risk_level"), // 낮음~높음
+
     // pending 동안만 — finalize 후 null
     finalizeToken: text("finalize_token"),
     staging: text("staging", { mode: "json" }).$type<StagingItem[]>(),

@@ -1,6 +1,7 @@
 import { z } from "@hono/zod-openapi";
-import { ADMIN_STATUSES } from "../constants";
+import { ADMIN_STATUSES, RISK_LEVELS } from "../constants";
 import { ReportPublicSchema, ReportSummarySchema } from "./reports";
+import { AdminVerificationSchema } from "./common";
 
 export const AdminSessionInputSchema = z
   .object({ token: z.string().min(1) })
@@ -39,6 +40,7 @@ export const AdminReportListSchema = z
 export const AdminReportDetailSchema = ReportPublicSchema.extend({
   submitter: z.string(),
   exif: z.array(z.unknown()).nullable(),
+  verification: AdminVerificationSchema, // 내부용 reviewer_note 포함
 }).openapi("AdminReportDetail");
 
 export const AdminPatchSchema = z
@@ -51,6 +53,18 @@ export const AdminPatchSchema = z
         method: z.string().nullable().optional(),
         notes: z.string().nullable().optional(),
         evidence_links: z.array(z.string().url()).optional(),
+        // 검토 피드백 스키마(Votatis#2) 쓰기 필드.
+        status_scope: z.string().nullable().optional(),
+        claim: z.string().nullable().optional(),
+        verified_facts: z.array(z.string()).nullable().optional(),
+        assessment: z.array(z.string()).nullable().optional(),
+        confirmed_scope: z.array(z.string()).nullable().optional(),
+        not_confirmed: z.array(z.string()).nullable().optional(),
+        possible_explanations: z.array(z.string()).nullable().optional(),
+        missing_evidence: z.array(z.string()).nullable().optional(),
+        reviewer_note: z.string().nullable().optional(),
+        public_summary: z.string().nullable().optional(),
+        risk_level: z.enum(RISK_LEVELS).nullable().optional(),
       })
       .optional(),
     tags: z.array(z.string()).max(50).optional(),
