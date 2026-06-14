@@ -2,7 +2,7 @@
 tldr: wrangler 는 자격증명을 CLOUDFLARE_ACCOUNT_ID/CLOUDFLARE_API_TOKEN 에서 읽는다(CF_* 아님). 이 레포 .env 는 CF_ACCOUNT_ID/CF_API_TOKEN 을 쓰므로, 배포·시크릿·원격 D1 마이그레이션은 `bash scripts/cf-env.sh <cmd>` 래퍼로 실행(.env→CLOUDFLARE_* 매핑). 예: `bash scripts/cf-env.sh pnpm --filter votatis-intake-api deploy`.
 tags: [convention, deploy, cloudflare, wrangler, pitfall]
 last_retrieved: 2026-06-14
-retrieval_count: 0
+retrieval_count: 1
 ---
 
 ## 규칙 / 교훈
