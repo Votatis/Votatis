@@ -1,7 +1,7 @@
 ---
 id: 0016
 title: 관리자 UX 개선 + 공개 아카이브 API 연동 + 제보 검토 피드백 스키마 + 예시 시드
-status: in-progress
+status: completed
 created: 2026-06-15
 updated: 2026-06-15
 goal: docs/goals/003.md
@@ -54,13 +54,21 @@ goal: docs/goals/003.md
 
 ## 완료 조건 (Definition of Done)
 
-- [ ] 항목 1~9 구현. `pnpm -r typecheck`, `pnpm -r test`, frontend `build` 통과.
-- [ ] 새 라우트/스키마는 OpenAPI 반영, frontend schema.d.ts 재생성(openapi:gen) 일치.
-- [ ] 판정 가드: 판정 시 피드백 필수 필드 누락하면 400(테스트로 증명).
-- [ ] /archive가 API에서 publishable 데이터를 읽어 표시(로컬 시드로 확인).
-- [ ] 시드 스크립트로 9건 로컬 D1 삽입 재현 가능.
-- [ ] 동작 변경은 Changelog 기록, 운영 게시 항목은 loops/HUMAN.md.
+- [x] 항목 1~9 구현. `pnpm -r typecheck`(3/3), `pnpm -r test`(intake-api 49 + admin-mcp 12), frontend `build` 통과.
+- [x] 새 라우트/스키마 OpenAPI 반영, frontend schema.d.ts 재생성(openapi:gen) 일치.
+- [x] 판정 가드: 판정 시 피드백 필수(public_summary/risk_level/not_confirmed, confirmed 는 status_scope/confirmed_scope) 누락 시 400 — api.test.ts + admin-mcp verdict.test.ts 로 증명.
+- [x] /archive가 API(GET /reports, publishable)에서 데이터를 읽어 표시 — 로컬 dev E2E 로 9건 노출·상세 피드백 필드 확인(reviewer_note 는 공개 제외).
+- [x] 시드 스크립트로 9건 로컬 D1 삽입 재현 가능(seed:examples:local). 관리자 직접 등록(POST /admin/reports)도 로컬 E2E 통과.
+- [x] 동작 변경 Changelog 기록, 운영 게시 항목은 loops/HUMAN.md([열림] Goal 003).
+
+## 구현 노트 / 결정
+
+- 항목 1(카테고리): report 데이터 모델에 이미 `tags[0]=CATEGORY_FULL` 로 반영돼 있어 별도 컬럼 불필요. 관리자 직접 등록(항목 4)도 동일 매핑 사용 → 정합 유지.
+- 항목 2(세션): 원인은 refresh 토큰 회전 + 동시 401 레이스. `lib/api/admin.ts` single-flight refresh 로 해결.
+- 항목 7: 지금은 런타임 API 연동, 정적 인덱스(`archive.generated.json`)는 fallback+SSG `[id]` 라우트로 "static build 준비"만 유지. 런타임 상세는 `/archive/record?id=`.
+- `반려/보류` 상태는 추가하지 않음(기존 6상태 유지) — MVP 범위 밖, 후속.
 
 ## Changelog
 
 - 2026-06-15: 스펙 생성 (Goal 003, 요청: 채팅).
+- 2026-06-15: 구현 완료 — 관리자 세션 single-flight refresh, 로그인 문구/미리보기 링크 제거, 검증패널 오버플로우 수정, 검토 피드백 스키마(D1 0002)+판정 가드 강화, 관리자 직접 제보 등록 API/UI, /archive 런타임 API 연동, 예시 9건 시드. (요청: 채팅)
