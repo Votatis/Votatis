@@ -29,6 +29,13 @@ const STATUSES: VerifyStatus[] = [
 // 근거(검증 방법 + 링크 1개 이상)가 필수인 판정 상태. API 도 400 으로 강제(페르소나 5).
 const JUDGED: VerifyStatus[] = ["confirmed", "disputed", "debunked", "corrected"];
 
+// 검토 피드백 위험도(Votatis#2). 판정 시 필수.
+const RISK_OPTIONS = ["낮음", "낮음~중간", "중간", "중간~높음", "높음"] as const;
+type Risk = (typeof RISK_OPTIONS)[number] | "";
+
+// 줄바꿈 구분 textarea → 문자열 배열.
+const toLines = (s: string): string[] => s.split("\n").map((x) => x.trim()).filter(Boolean);
+
 // 합성/조작 위험 레벨 → 한국어. 보조 신호일 뿐 판정 근거 아님(페르소나 5).
 const SYNTHETIC_RISK_LABEL: Record<Analysis["synthetic_risk"]["level"], string> = {
   low: "낮음",
@@ -70,6 +77,14 @@ export default function EvidenceClient() {
   const [links, setLinks] = useState<string[]>([""]);
   const [tags, setTags] = useState("");
   const [rebuttals, setRebuttals] = useState<Rebuttal[]>([]);
+  // 검토 피드백 스키마(Votatis#2) 입력 상태.
+  const [publicSummary, setPublicSummary] = useState("");
+  const [riskLevel, setRiskLevel] = useState<Risk>("");
+  const [notConfirmed, setNotConfirmed] = useState(""); // 줄바꿈 구분
+  const [statusScope, setStatusScope] = useState("");
+  const [confirmedScope, setConfirmedScope] = useState(""); // 줄바꿈 구분
+  const [claim, setClaim] = useState("");
+  const [verifiedFacts, setVerifiedFacts] = useState(""); // 줄바꿈 구분
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -88,6 +103,13 @@ export default function EvidenceClient() {
     setLinks(ev.length ? ev : [""]);
     setTags((r.tags ?? []).join(", "));
     setRebuttals((r.rebuttals ?? []).map((rb) => ({ text: rb.text, source_url: rb.source_url })));
+    setPublicSummary(r.verification?.public_summary ?? "");
+    setRiskLevel((r.verification?.risk_level as Risk) ?? "");
+    setNotConfirmed((r.verification?.not_confirmed ?? []).join("\n"));
+    setStatusScope(r.verification?.status_scope ?? "");
+    setConfirmedScope((r.verification?.confirmed_scope ?? []).join("\n"));
+    setClaim(r.verification?.claim ?? "");
+    setVerifiedFacts((r.verification?.verified_facts ?? []).join("\n"));
     setAnalysis(null);
     setAnalyzeError(null);
   }, []);
@@ -183,6 +205,13 @@ export default function EvidenceClient() {
         method: method.trim() || undefined,
         notes: notes.trim() || undefined,
         evidence_links: cleanLinks,
+        public_summary: publicSummary.trim() || undefined,
+        risk_level: riskLevel || undefined,
+        not_confirmed: toLines(notConfirmed),
+        status_scope: statusScope.trim() || undefined,
+        confirmed_scope: toLines(confirmedScope),
+        claim: claim.trim() || undefined,
+        verified_facts: toLines(verifiedFacts),
       },
       tags: tags
         .split(",")
@@ -238,8 +267,15 @@ export default function EvidenceClient() {
     setTags([...current, tag].join(", "));
   }
 
-  // 근거 미충족 시 클라이언트 경고(서버도 400 으로 막음).
-  const evidenceMissing = needsEvidence && (!method.trim() || cleanLinks.length === 0);
+  // 근거·피드백 미충족 시 클라이언트 경고(서버도 400 으로 막음).
+  const feedbackMissing =
+    needsEvidence &&
+    (!method.trim() ||
+      cleanLinks.length === 0 ||
+      !publicSummary.trim() ||
+      !riskLevel ||
+      toLines(notConfirmed).length === 0 ||
+      (status === "confirmed" && (!statusScope.trim() || toLines(confirmedScope).length === 0)));
 
   const sub = id ? `evidence/${id} · 감사 로그 기록` : "식별자 미지정";
 
@@ -313,9 +349,10 @@ export default function EvidenceClient() {
 
             {/* 판정 폼 */}
             <div className="rsec" style={{ marginTop: 18 }}>판정</div>
-            {evidenceMissing && (
+            {feedbackMissing && (
               <div className="kv" style={{ color: "var(--red-strong)", fontWeight: 700 }}>
-                이 판정은 검증 방법과 최소 1개의 근거 링크가 필요합니다.
+                이 판정에는 검증 방법·근거 링크와 공개 요약·위험도·미확인 항목이 필요합니다
+                {status === "confirmed" ? " (확인됨은 확인 범위·확인된 항목도 필수)" : ""}.
               </div>
             )}
             <div className="seg" style={{ flexWrap: "wrap", marginBottom: 10 }}>
@@ -368,6 +405,90 @@ export default function EvidenceClient() {
             <div className="seg" style={{ marginBottom: 12 }}>
               <b onClick={() => setLinks([...links, ""])}>+ 링크 추가</b>
             </div>
+
+            {/* 검토 피드백 스키마(Votatis#2) — 판정 시 공개요약·위험도·미확인 필수, 확인됨은 확인범위 필수 */}
+            <div className="rsec" style={{ marginTop: 6 }}>검토 피드백</div>
+            <div className="kv">
+              <b>공개 요약(public_summary){needsEvidence ? " *" : ""}</b>
+            </div>
+            <textarea
+              className="inp"
+              placeholder="외부 공개용 중립 요약. 감정·단정 표현을 피하고 확인 범위를 명확히."
+              value={publicSummary}
+              onChange={(e) => setPublicSummary(e.target.value)}
+              rows={3}
+              style={{ height: "auto", minHeight: 72, padding: "10px 14px", resize: "vertical", display: "block" }}
+            />
+
+            <div className="kv">
+              <b>위험도(risk_level){needsEvidence ? " *" : ""}</b>
+            </div>
+            <div className="seg" style={{ flexWrap: "wrap", marginBottom: 12 }}>
+              {RISK_OPTIONS.map((r) => (
+                <b key={r} className={riskLevel === r ? "on" : ""} onClick={() => setRiskLevel(r)}>
+                  {r}
+                </b>
+              ))}
+            </div>
+
+            <div className="kv">
+              <b>미확인·과잉해석 차단(not_confirmed){needsEvidence ? " *" : ""}</b>
+            </div>
+            <textarea
+              className="inp"
+              placeholder={"확인되지 않은 주장을 한 줄에 하나씩.\n예) 부정선거 조작이 있었다는 주장\n예) 선거 결과에 영향을 주었다는 주장"}
+              value={notConfirmed}
+              onChange={(e) => setNotConfirmed(e.target.value)}
+              rows={3}
+              style={{ height: "auto", minHeight: 72, padding: "10px 14px", resize: "vertical", display: "block" }}
+            />
+
+            <div className="kv">
+              <b>확인 범위(status_scope){status === "confirmed" ? " *" : ""}</b>
+            </div>
+            <input
+              className="inp"
+              type="text"
+              placeholder="예: 봉인지 2겹 부착에 따른 봉인 관리 미흡 (부정선거 단정 금지)"
+              value={statusScope}
+              onChange={(e) => setStatusScope(e.target.value)}
+            />
+
+            <div className="kv">
+              <b>확인된 항목(confirmed_scope){status === "confirmed" ? " *" : ""}</b>
+            </div>
+            <textarea
+              className="inp"
+              placeholder={"확인된 범위를 한 줄에 하나씩.\n예) 봉인지 2겹 부착 정황\n예) 봉인 관리 미흡"}
+              value={confirmedScope}
+              onChange={(e) => setConfirmedScope(e.target.value)}
+              rows={2}
+              style={{ height: "auto", minHeight: 56, padding: "10px 14px", resize: "vertical", display: "block" }}
+            />
+
+            <div className="kv">
+              <b>제보자 주장(claim)</b>
+            </div>
+            <textarea
+              className="inp"
+              placeholder="제보자의 주장을 중립적으로 요약(검토자 판단은 넣지 않음)."
+              value={claim}
+              onChange={(e) => setClaim(e.target.value)}
+              rows={2}
+              style={{ height: "auto", minHeight: 56, padding: "10px 14px", resize: "vertical", display: "block" }}
+            />
+
+            <div className="kv">
+              <b>확인된 사실(verified_facts)</b>
+            </div>
+            <textarea
+              className="inp"
+              placeholder={"사진·영상·문서에서 직접 확인되는 사실만 한 줄에 하나씩(해석 제외)."}
+              value={verifiedFacts}
+              onChange={(e) => setVerifiedFacts(e.target.value)}
+              rows={2}
+              style={{ height: "auto", minHeight: 56, padding: "10px 14px", resize: "vertical", display: "block" }}
+            />
 
             <div className="kv">
               <b>메모</b>

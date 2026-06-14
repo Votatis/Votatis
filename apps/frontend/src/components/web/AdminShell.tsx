@@ -3,16 +3,17 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { IGrid, IUsers, ICheckSq, IImage, IEdit } from "@/components/mock/mock-icons";
+import { IGrid, IUsers, ICheckSq, IImage, IEdit, IPlus } from "@/components/mock/mock-icons";
 import Torch from "@/components/landing/Torch";
 import { getUser, type AdminUser } from "@/lib/admin-auth";
 import { logout } from "@/lib/api/admin";
 
-export type AdminNav = "dashboard" | "members" | "queue" | "evidence" | "content";
+export type AdminNav = "dashboard" | "members" | "queue" | "evidence" | "reports" | "content";
 
 const ITEMS: { key: AdminNav; label: string; href: string; Icon: typeof IGrid; rootOnly?: boolean }[] = [
   { key: "dashboard", label: "대시보드", href: "/admin/dashboard", Icon: IGrid },
   { key: "members", label: "회원", href: "/admin/members", Icon: IUsers, rootOnly: true },
+  { key: "reports", label: "제보 등록", href: "/admin/reports/new", Icon: IPlus },
   { key: "queue", label: "검토 큐", href: "/admin/queue", Icon: ICheckSq },
   { key: "evidence", label: "원본 데이터", href: "/admin/evidence", Icon: IImage },
 ];

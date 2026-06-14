@@ -17,6 +17,7 @@ import {
 export type AdminReportList = components["schemas"]["AdminReportList"];
 export type AdminReportSummary = components["schemas"]["AdminReportSummary"];
 export type AdminReportDetail = components["schemas"]["AdminReportDetail"];
+export type AdminReportCreate = components["schemas"]["AdminReportCreate"];
 export type AdminPatch = components["schemas"]["AdminPatch"];
 export type Stats = components["schemas"]["Stats"];
 export type Analysis = components["schemas"]["Analysis"];
@@ -199,6 +200,17 @@ export async function listAdminReports(params: AdminListParams = {}): Promise<Ad
   const res = await adminFetch(`/admin/reports?${qs.toString()}`);
   if (!res.ok) throw new AdminApiError(res.status, await parseError(res, "큐를 불러오지 못했습니다."));
   return (await res.json()) as AdminReportList;
+}
+
+/** 관리자 직접 제보 등록(POST /admin/reports) — 검수 전 상태로 즉시 생성. */
+export async function createAdminReport(input: AdminReportCreate): Promise<AdminReportDetail> {
+  const res = await adminFetch("/admin/reports", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) throw new AdminApiError(res.status, await parseError(res, "제보 등록에 실패했습니다."));
+  return (await res.json()) as AdminReportDetail;
 }
 
 export async function getAdminReport(id: string): Promise<AdminReportDetail> {
