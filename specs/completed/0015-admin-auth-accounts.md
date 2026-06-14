@@ -1,9 +1,9 @@
 ---
 id: "0015"
 title: 관리자 인증 — 루트 계정 + 회원관리 + JWT(access/refresh)
-status: in-review
+status: completed
 created: 2026-06-14
-updated: 2026-06-14
+updated: 2026-06-15
 related:
   - "specs/completed/0008-admin-verification-api.md (현 ADMIN_TOKEN Bearer 인증 대체)"
   - "specs/completed/0009-admin-console-wiring.md (프론트 로그인/세션)"
@@ -105,3 +105,4 @@ related:
 기능/기술이 크게 바뀐 변경만 한 줄씩. 단순 버그·오타·리팩터링은 제외.
 - 2026-06-14: 최초 작성 (요청: 채팅 — 플랜 승인본 기반)
 - 2026-06-14: 구현 완료 — D1 3테이블(마이그레이션 0001), PBKDF2 해시, hono/jwt access(15분)+회전 refresh(7일 슬라이딩), /admin/auth/* + root전용 /admin/members/*, ADMIN_TOKEN break-glass, 프론트 username/password 로그인·refresh 자동재시도·회원관리·/admin/reset. 단위/통합 49 + 로컬 e2e 스모크 통과. in-review 이동. (요청: 채팅)
+- 2026-06-15: spec-review 통과 — 완료 조건 12/12 충족(테스트 49 + 로컬 e2e 스모크), QA 모드에서 MVP-PRD §11/§12 보완. completed 이동. (요청: 채팅)

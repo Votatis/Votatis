@@ -2,7 +2,7 @@
 tldr: intake-api/src 는 레이어 구조 — routes/(HTTP)·services/(로직)·domain/(순수변환)·schemas/·middleware/·lib/(인프라)·db/ + 루트(app·index·env·constants·router). 새 엔드포인트는 routes+service로 추가하고 src 루트에 평면 파일 만들지 말 것. 라우트/스키마 리팩터링이 HTTP 계약을 안 깼는지는 `openapi:emit` 후 `diff <(jq -S . old.json) <(jq -S . new.json)` 가 0인지로 증명(키 순서만 바뀌고 내용 동일).
 tags: [convention, architecture, intake-api, refactor, openapi]
 last_retrieved: 2026-06-14
-retrieval_count: 0
+retrieval_count: 1
 ---
 
 ## 규칙 / 교훈

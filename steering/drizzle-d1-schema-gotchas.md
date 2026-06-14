@@ -1,8 +1,8 @@
 ---
 tldr: drizzle-orm 0.36(D1/sqliteTable)에서 인덱스 등 extraConfig 콜백은 배열 `(t)=>[...]`이 아니라 객체 `(t)=>({ name: index(...).on(...) })` 형태여야 한다(배열형은 TS2769 "IndexBuilder[] not assignable to SQLiteTableExtraConfig"). 마이그레이션은 drizzle-kit generate(파일만) → wrangler d1 migrations apply 로 적용.
 tags: [pitfall, drizzle, d1, cloudflare]
-last_retrieved: 2026-06-10
-retrieval_count: 0
+last_retrieved: 2026-06-14
+retrieval_count: 1
 ---
 
 ## 규칙 / 교훈

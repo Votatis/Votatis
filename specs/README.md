@@ -28,4 +28,4 @@ specs/
 | 0012 | AI 분석 백엔드 (자동 태깅 / 신뢰도 / 합성 위험) — 보조 신호 | completed | 2026-06-14 | 2026-06-14 | completed/0012-ai-analysis-backend.md |
 | 0013 | intake-api src 디렉터리 재구성 + 레이어 리팩터링 (동작 불변) | completed | 2026-06-14 | 2026-06-14 | completed/0013-intake-api-src-restructure.md |
 | 0014 | 검증 관리 MCP 서버 (votatis-admin-mcp) — 관리자 API 래퍼 | completed | 2026-06-14 | 2026-06-14 | completed/0014-admin-mcp-server.md |
-| 0015 | 관리자 인증 — 루트 계정 + 회원관리 + JWT(access/refresh) | in-review | 2026-06-14 | 2026-06-14 | in-review/0015-admin-auth-accounts.md |
+| 0015 | 관리자 인증 — 루트 계정 + 회원관리 + JWT(access/refresh) | completed | 2026-06-14 | 2026-06-15 | completed/0015-admin-auth-accounts.md |

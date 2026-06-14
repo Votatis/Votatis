@@ -2,7 +2,7 @@
 tldr: Cloudflare Worker 테스트(@cloudflare/vitest-pool-workers)는 ①miniflare/wrangler 양쪽에 compatibilityFlags "nodejs_compat" 필수, ②테스트에서 R2/KV/D1을 직접 쓰면 isolatedStorage:false 로 꺼야 "Isolated storage failed" 회피, ③pnpm은 onlyBuiltDependencies로 workerd·esbuild 빌드를 허용해야 함, ④D1은 readD1Migrations+applyD1Migrations 로 스키마를 주입해야 테이블이 생긴다.
 tags: [pitfall, cloudflare, testing, pnpm, d1]
 last_retrieved: 2026-06-14
-retrieval_count: 2
+retrieval_count: 3
 ---
 
 ## 규칙 / 교훈
