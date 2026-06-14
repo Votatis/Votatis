@@ -21,3 +21,4 @@ specs/
 | 0005 | 랜딩 페이지 + 제보 페이지 분리 | completed | 2026-06-10 | 2026-06-10 | completed/0005-landing-page.md |
 | 0006 | D1 기반 제보 저장 + 정식 조회 API (Hono + OpenAPI + Zod) | completed | 2026-06-10 | 2026-06-10 | completed/0006-d1-report-store-api.md |
 | 0007 | frontend(Next.js) apps/frontend 통합 + 제보 기능 이식 + SSG, apps/web 폐기 | completed | 2026-06-10 | 2026-06-10 | completed/0007-frontend-monorepo-ssg-migration.md |
+| 0008 | 관리자 검증 API + 인증 (검증 큐 / 상태 판정 / 증거 열람) | in-review | 2026-06-14 | 2026-06-14 | in-review/0008-admin-verification-api.md |

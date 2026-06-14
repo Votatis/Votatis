@@ -238,6 +238,249 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 공개 레코드 집계 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Stats"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminSessionInput"];
+                };
+            };
+            responses: {
+                /** @description 토큰 유효 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminSessionResult"];
+                    };
+                };
+                /** @description 토큰 불일치 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    status?: "unverified" | "reviewing" | "confirmed" | "disputed" | "debunked" | "corrected";
+                    election?: string;
+                    sido?: string;
+                    sigungu?: string;
+                    tag?: string;
+                    q?: string;
+                    limit?: number;
+                    offset?: number | null;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 검수 큐 목록 + 상태별 카운트 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminReportList"];
+                    };
+                };
+                /** @description 인증 필요 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/reports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 상세(내부 필드 포함) */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminReportDetail"];
+                    };
+                };
+                /** @description 인증 필요 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 없음 */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminPatch"];
+                };
+            };
+            responses: {
+                /** @description 갱신된 상세 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminReportDetail"];
+                    };
+                };
+                /** @description 근거 누락 등 검증 실패 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 필요 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 없음 */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -350,6 +593,65 @@ export interface components {
             verification: components["schemas"]["Verification"];
             created_at: string;
             updated_at: string;
+        };
+        Stats: {
+            total: number;
+            by_status: {
+                [key: string]: number;
+            };
+            by_election: {
+                election: string;
+                count: number;
+            }[];
+            daily: {
+                date: string;
+                count: number;
+            }[];
+        };
+        AdminSessionResult: {
+            /** @enum {boolean} */
+            ok: true;
+        };
+        AdminSessionInput: {
+            token: string;
+        };
+        AdminReportSummary: components["schemas"]["ReportSummary"] & {
+            submitter: string;
+            updated_at: string;
+        };
+        AdminReportList: {
+            items: components["schemas"]["AdminReportSummary"][];
+            total: number;
+            counts: {
+                [key: string]: number;
+            };
+            limit: number;
+            offset: number;
+        };
+        AdminReportDetail: components["schemas"]["Report"] & {
+            submitter: string;
+            exif: unknown[] | null;
+        };
+        AdminPatch: {
+            /** @enum {string} */
+            status?: "unverified" | "reviewing" | "confirmed" | "disputed" | "debunked" | "corrected";
+            reviewer?: string;
+            verification?: {
+                reviewer?: string | null;
+                method?: string | null;
+                notes?: string | null;
+                evidence_links?: string[];
+            };
+            tags?: string[];
+            rebuttals?: {
+                text: string;
+                /** Format: uri */
+                source_url?: string;
+            }[];
+            related?: string[];
+            title?: string;
+            summary?: string;
+            body?: string;
         };
     };
     responses: never;

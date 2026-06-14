@@ -168,3 +168,87 @@ export const SubmissionIdParamSchema = z.object({
 });
 
 export const ErrorSchema = z.object({ error: z.string() }).openapi("Error");
+
+// ── 관리자(검수) ──────────────────────────────────────────────────────────────
+
+/** 검수 큐에 노출 가능한 상태(pending 제외). */
+const ADMIN_STATUSES = [
+  "unverified",
+  "reviewing",
+  "confirmed",
+  "disputed",
+  "debunked",
+  "corrected",
+] as const;
+
+export const AdminSessionInputSchema = z
+  .object({ token: z.string().min(1) })
+  .openapi("AdminSessionInput");
+
+export const AdminSessionResultSchema = z
+  .object({ ok: z.literal(true) })
+  .openapi("AdminSessionResult");
+
+export const AdminListQuerySchema = z.object({
+  status: z.enum(ADMIN_STATUSES).optional(),
+  election: z.string().optional(),
+  sido: z.string().optional(),
+  sigungu: z.string().optional(),
+  tag: z.string().optional(),
+  q: z.string().optional(), // 제목/요약/본문 키워드
+  limit: z.coerce.number().int().positive().max(100).default(20),
+  offset: z.coerce.number().int().nonnegative().default(0),
+});
+
+export const AdminReportSummarySchema = ReportSummarySchema.extend({
+  submitter: z.string(),
+  updated_at: z.string(),
+}).openapi("AdminReportSummary");
+
+export const AdminReportListSchema = z
+  .object({
+    items: z.array(AdminReportSummarySchema),
+    total: z.number().int(),
+    counts: z.record(z.string(), z.number().int()),
+    limit: z.number().int(),
+    offset: z.number().int(),
+  })
+  .openapi("AdminReportList");
+
+export const AdminReportDetailSchema = ReportPublicSchema.extend({
+  submitter: z.string(),
+  exif: z.array(z.unknown()).nullable(),
+}).openapi("AdminReportDetail");
+
+export const AdminPatchSchema = z
+  .object({
+    status: z.enum(ADMIN_STATUSES).optional(),
+    reviewer: z.string().optional(),
+    verification: z
+      .object({
+        reviewer: z.string().nullable().optional(),
+        method: z.string().nullable().optional(),
+        notes: z.string().nullable().optional(),
+        evidence_links: z.array(z.string().url()).optional(),
+      })
+      .optional(),
+    tags: z.array(z.string()).max(50).optional(),
+    rebuttals: z
+      .array(z.object({ text: z.string().min(1), source_url: z.string().url().optional() }))
+      .optional(),
+    related: z.array(z.string()).optional(),
+    title: z.string().min(1).optional(),
+    summary: z.string().optional(),
+    body: z.string().optional(),
+  })
+  .refine((v) => Object.keys(v).length > 0, { message: "수정할 필드가 없습니다." })
+  .openapi("AdminPatch");
+
+export const StatsSchema = z
+  .object({
+    total: z.number().int(),
+    by_status: z.record(z.string(), z.number().int()),
+    by_election: z.array(z.object({ election: z.string(), count: z.number().int() })),
+    daily: z.array(z.object({ date: z.string(), count: z.number().int() })),
+  })
+  .openapi("Stats");

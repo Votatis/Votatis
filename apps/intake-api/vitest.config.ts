@@ -21,6 +21,7 @@ export default defineWorkersConfig({
             TURNSTILE_SECRET: "test-secret",
             R2_ACCESS_KEY_ID: "test-akid",
             R2_SECRET_ACCESS_KEY: "test-secret-key",
+            ADMIN_TOKEN: "test-admin-token",
             TEST_MIGRATIONS: migrations,
           },
         },

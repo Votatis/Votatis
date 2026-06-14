@@ -167,8 +167,21 @@ API 응답:
 - 응답: `{ report_id, collected_at, attachments }`
 - 제보자에게 접수번호와 검증 예상 기간 표시
 
-**D1 → 공개 배포 변환:**
-검증 완료(confirmed/disputed/debunked/corrected) 항목을 GitHub 레포의 `/data/{election}/{id}.md`로 자동 또는 수동 커밋
+**D1 → GitHub 마크다운 변환 (공개 배포):**
+
+검증 완료(confirmed/disputed/debunked/corrected) 항목을 GitHub 레포의 마크다운으로 변환·커밋하는 배포 파이프라인.
+
+- **대상**: status가 검증 완료 상태이고 아직 공개되지 않은 D1 `reports` 행
+- **변환**: D1 행 → §7 스키마의 YAML 프런트매터 + 본문 마크다운
+  - 프런트매터: id, election, status, region(시도/시군구/읍면동), counting_unit, occurred_at, collected_at, tags, sources, attachments, rebuttals, license
+  - 본문: title, summary, 검증 근거, 반박 기록
+  - 첨부는 R2 키/공개 URL로 기록 (원본 바이너리는 레포에 넣지 않음)
+  - 개인 식별 정보 마스킹 적용, submitter는 익명 해시만
+- **출력 경로**: `/data/{election}/{id}.md`
+- **실행**: 관리자 페이지의 "공개" 액션 또는 배치 스크립트(자체 스크립트/GitHub Action)
+  - GitHub 커밋 push → 정적 사이트 재빌드 트리거
+  - D1에 published 상태/공개 시각 기록 (재배포·갱신 추적)
+- **갱신**: 이미 공개된 항목의 status가 바뀌면(예: confirmed→corrected) 같은 경로 파일을 덮어쓰는 멱등 커밋
 
 ## 9. 검색과 인덱싱
 
@@ -190,10 +203,10 @@ API 응답:
 **개발 중 (v1):**
 - 🔄 관리자 페이지 (제보 목록 조회, 검증 판정, 상태 업데이트)
 - 🔄 AI 분석 백엔드 (제출 내용 분석, 태그 추천, 신뢰도 평가)
+- 🔄 공개 데이터 배포 (D1 → GitHub 마크다운 변환 스크립트, §8 참조)
+- 🔄 정적 사이트 (검색/필터, 아카이브 뷰)
 
 **계획 (v1 이후):**
-- 공개 데이터 배포 스크립트 (D1 → GitHub 마크다운 변환)
-- 정적 사이트 (검색/필터, 아카이브 뷰)
 - 벡터 검색 (Cloudflare Vectorize)
 
 ## 11. 웹 기획

@@ -31,8 +31,10 @@
   "vars": {
     "ALLOWED_ORIGIN": "http://localhost:3000,https://votatis-web.pages.dev",
     "R2_ACCOUNT_ID": "4691f0338d03a2e7d000403d13b66264",
-    "R2_BUCKET": "votatis-evidence"
+    "R2_BUCKET": "votatis-evidence",
+    // 로컬/개발 전용 관리자 토큰. 운영은 절대 이 값을 쓰지 말고 `wrangler secret put ADMIN_TOKEN` 로 덮어쓴다.
+    "ADMIN_TOKEN": "dev-admin-token"
   }
   // Secrets (wrangler secret put / .dev.vars):
-  //   TURNSTILE_SECRET, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
+  //   TURNSTILE_SECRET, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, ADMIN_TOKEN(운영)
 }

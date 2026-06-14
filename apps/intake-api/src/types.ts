@@ -12,6 +12,8 @@ export interface Env {
   TURNSTILE_SECRET: string;
   R2_ACCESS_KEY_ID: string;
   R2_SECRET_ACCESS_KEY: string;
+  // 관리자(검수) 공유 토큰. 미설정이면 /admin/* 기능 잠금. 운영은 wrangler secret 으로 주입.
+  ADMIN_TOKEN?: string;
 
   // Dev 전용(.dev.vars / --var). "true"면 presigned R2 대신 워커 자체 업로드 경로(/_dev/upload)를
   // 써서 CF 접근(R2 자격증명) 없이 로컬 miniflare R2 로 첨부 흐름을 돌린다. 운영엔 두지 않는다.

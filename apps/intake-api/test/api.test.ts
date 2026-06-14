@@ -306,6 +306,124 @@ describe("로컬 업로드 shim (LOCAL_UPLOAD)", () => {
   });
 });
 
+describe("관리자 검증 API (/admin/*)", () => {
+  const ADMIN = "test-admin-token";
+  const ELECTION = "관리자테스트선거-A";
+
+  function adminReq(path: string, opts: { method?: string; body?: unknown; token?: string | null } = {}) {
+    const headers: Record<string, string> = { origin: ORIGIN };
+    if (opts.body !== undefined) headers["content-type"] = "application/json";
+    if (opts.token !== null) headers["authorization"] = `Bearer ${opts.token ?? ADMIN}`;
+    return new Request(`https://api.test${path}`, {
+      method: opts.method ?? "GET",
+      headers,
+      body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+    });
+  }
+
+  async function seedUnverified(ip: string, extra: Record<string, unknown> = {}): Promise<string> {
+    const body = { ...validBody(), election: ELECTION, tags: ["관리자태그"], ...extra };
+    const s = await startSubmission(ip, body);
+    await env.EVIDENCE_BUCKET.put(s.uploads[0].staging_key, JPEG);
+    const fin = await call(
+      post(`/submissions/${s.submission_id}/finalize`, { finalize_token: s.finalize_token }, { ip }),
+    );
+    expect(fin.status).toBe(200);
+    return s.submission_id;
+  }
+
+  it("토큰 없으면 401, 틀리면 401, 맞으면 200", async () => {
+    expect((await call(adminReq("/admin/reports", { token: null }))).status).toBe(401);
+    expect((await call(adminReq("/admin/reports", { token: "wrong" }))).status).toBe(401);
+    expect((await call(adminReq("/admin/reports"))).status).toBe(200);
+  });
+
+  it("POST /admin/session 이 토큰을 검증한다", async () => {
+    expect((await call(adminReq("/admin/session", { method: "POST", body: { token: "wrong" }, token: null }))).status).toBe(401);
+    const ok = await call(adminReq("/admin/session", { method: "POST", body: { token: ADMIN }, token: null }));
+    expect(ok.status).toBe(200);
+    expect((await ok.json() as { ok: boolean }).ok).toBe(true);
+  });
+
+  it("GET /admin/reports 가 큐 목록 + 상태별 카운트를 반환", async () => {
+    const id = await seedUnverified("10.6.0.1");
+    const res = await call(adminReq(`/admin/reports?election=${encodeURIComponent(ELECTION)}`));
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { items: { id: string; submitter: string }[]; counts: Record<string, number> };
+    expect(data.items.map((i) => i.id)).toContain(id);
+    expect(data.items[0].submitter).toMatch(/^anon-/);
+    expect(data.counts.unverified).toBeGreaterThan(0);
+  });
+
+  it("GET /admin/reports/{id} 가 내부 필드(submitter)를 포함", async () => {
+    const id = await seedUnverified("10.6.0.2");
+    const res = await call(adminReq(`/admin/reports/${id}`));
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { submitter: string; verification: unknown };
+    expect(data.submitter).toMatch(/^anon-/);
+    expect(data.verification).toBeTruthy();
+  });
+
+  it("PATCH 로 reviewing 전이는 근거 없이 가능", async () => {
+    const id = await seedUnverified("10.6.0.3");
+    const res = await call(adminReq(`/admin/reports/${id}`, { method: "PATCH", body: { status: "reviewing" } }));
+    expect(res.status).toBe(200);
+    expect((await res.json() as { status: string }).status).toBe("reviewing");
+  });
+
+  it("근거 없는 confirmed 전이는 400, 근거 있으면 200 + reviewed_at 기록", async () => {
+    const id = await seedUnverified("10.6.0.4");
+    const noEvidence = await call(adminReq(`/admin/reports/${id}`, { method: "PATCH", body: { status: "confirmed" } }));
+    expect(noEvidence.status).toBe(400);
+
+    const ok = await call(adminReq(`/admin/reports/${id}`, {
+      method: "PATCH",
+      body: {
+        status: "confirmed",
+        reviewer: "reviewer-a1",
+        verification: { method: "선관위 공지 교차확인", evidence_links: ["https://example.com/nec"] },
+        tags: ["관리자태그", "확인됨"],
+        rebuttals: [{ text: "선관위는 즉시 보충했다고 발표", source_url: "https://example.com/nec2" }],
+      },
+    }));
+    expect(ok.status).toBe(200);
+    const data = (await ok.json()) as { status: string; verification: { reviewed_at: string | null; method: string | null }; rebuttals: unknown[] };
+    expect(data.status).toBe("confirmed");
+    expect(data.verification.reviewed_at).toBeTruthy();
+    expect(data.verification.method).toBe("선관위 공지 교차확인");
+    expect(data.rebuttals).toHaveLength(1);
+  });
+
+  it("GET /admin/reports/{id}/attachments/{idx} 가 인증 하에 바이트를 반환", async () => {
+    const id = await seedUnverified("10.6.0.5");
+    const unauth = await call(adminReq(`/admin/reports/${id}/attachments/0`, { token: null }));
+    expect(unauth.status).toBe(401);
+
+    const res = await call(adminReq(`/admin/reports/${id}/attachments/0`));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toBe("image/jpeg");
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    expect(bytes[0]).toBe(0xff);
+  });
+
+  it("GET /stats 는 인증 없이 공개 집계를 반환", async () => {
+    await seedUnverified("10.6.0.6");
+    const res = await call(get("/stats"));
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { total: number; by_status: Record<string, number>; by_election: unknown[] };
+    expect(data.total).toBeGreaterThan(0);
+    expect(Object.keys(data.by_status).length).toBeGreaterThan(0);
+  });
+
+  it("관리자 GET 도 허용되지 않은 오리진은 403", async () => {
+    const req = new Request("https://api.test/admin/reports", {
+      method: "GET",
+      headers: { origin: "https://evil.test", authorization: `Bearer ${ADMIN}` },
+    });
+    expect((await call(req)).status).toBe(403);
+  });
+});
+
 describe("문서 / 유닛", () => {
   it("LOCAL_UPLOAD off(기본)면 PUT /_dev/upload 는 404", async () => {
     const res = await call(put("https://api.test/_dev/upload/_staging/x/y.jpg", JPEG));

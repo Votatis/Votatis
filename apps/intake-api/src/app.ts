@@ -8,6 +8,15 @@ import { getDb } from "./db/client";
 import { createSubmission } from "./submissions";
 import { finalizeSubmission } from "./finalize";
 import { listReports, getReport } from "./reports";
+import {
+  isAdmin,
+  safeEqual,
+  adminListReports,
+  adminGetReport,
+  adminPatchReport,
+  adminGetAttachment,
+  publicStats,
+} from "./admin";
 import { clientIp } from "./util";
 import {
   SubmissionInputSchema,
@@ -20,6 +29,13 @@ import {
   ReportIdParamSchema,
   ReportPublicSchema,
   ErrorSchema,
+  AdminSessionInputSchema,
+  AdminSessionResultSchema,
+  AdminListQuerySchema,
+  AdminReportListSchema,
+  AdminReportDetailSchema,
+  AdminPatchSchema,
+  StatsSchema,
 } from "./schemas";
 
 const app = new OpenAPIHono<{ Bindings: Env }>({
@@ -33,32 +49,46 @@ const app = new OpenAPIHono<{ Bindings: Env }>({
 });
 
 // ── CORS ─────────────────────────────────────────────────────────────────
-// 쓰기(POST)는 허용 오리진만(0001 동작 계승). 읽기(GET)는 공개 API 라 전체 허용.
+// 쓰기(POST/PUT/PATCH)는 허용 오리진만(0001 동작 계승). 공개 읽기(GET)는 전체 허용.
+// 단 /admin/* 는 읽기여도 허용 오리진만(내부 도구) + Authorization 헤더 허용.
 app.use("*", async (c, next) => {
   const origin = c.req.header("Origin") ?? null;
-  // 쓰기(POST/PUT)는 허용 오리진만. PUT 은 로컬 업로드 shim(/_dev/upload) 용.
-  const isWrite = c.req.method === "POST" || c.req.method === "PUT";
+  const isAdminPath = c.req.path.startsWith("/admin");
+  const isWriteMethod = c.req.method === "POST" || c.req.method === "PUT" || c.req.method === "PATCH";
+  // 오리진 제한 대상: 모든 쓰기 + /admin 의 모든 메서드.
+  const restricted = isWriteMethod || isAdminPath;
 
   if (c.req.method === "OPTIONS") {
     const headers: Record<string, string> = { vary: "Origin" };
     if (isOriginAllowed(c.env, origin)) {
       headers["access-control-allow-origin"] = origin as string;
-      headers["access-control-allow-methods"] = "GET, POST, PUT, OPTIONS";
-      headers["access-control-allow-headers"] = "content-type";
+      headers["access-control-allow-methods"] = "GET, POST, PUT, PATCH, OPTIONS";
+      headers["access-control-allow-headers"] = "content-type, authorization";
       headers["access-control-max-age"] = "86400";
     }
     return c.body(null, 204, headers);
   }
 
-  if (isWrite && !isOriginAllowed(c.env, origin)) {
+  if (restricted && !isOriginAllowed(c.env, origin)) {
     return c.json({ error: "허용되지 않은 오리진입니다." }, 403);
   }
 
   c.header("vary", "Origin");
-  if (isWrite) {
+  if (restricted) {
     if (isOriginAllowed(c.env, origin)) c.header("access-control-allow-origin", origin as string);
   } else {
     c.header("access-control-allow-origin", "*");
+  }
+  await next();
+});
+
+// ── 관리자 인증(Bearer ADMIN_TOKEN) ─────────────────────────────────────────
+// /admin/session(로그인) 자체는 토큰 없이 접근 가능(토큰 검증이 목적). 나머지 /admin/* 는 게이트.
+app.use("/admin/*", async (c, next) => {
+  if (c.req.method === "OPTIONS") return next();
+  if (c.req.path === "/admin/session") return next();
+  if (!isAdmin(c.env, c.req.header("Authorization") ?? null)) {
+    return c.json({ error: "관리자 인증이 필요합니다." }, 401);
   }
   await next();
 });
@@ -163,6 +193,117 @@ app.openapi(reportGetRoute, async (c) => {
   const report = await getReport(c.env, id);
   if (!report) return c.json({ error: "제보를 찾을 수 없습니다." }, 404);
   return c.json(report, 200);
+});
+
+// ── GET /stats (공개 집계) ────────────────────────────────────────────────────
+const statsRoute = createRoute({
+  method: "get",
+  path: "/stats",
+  responses: {
+    200: { content: { "application/json": { schema: StatsSchema } }, description: "공개 레코드 집계" },
+  },
+});
+
+app.openapi(statsRoute, async (c) => {
+  const result = await publicStats(c.env);
+  return c.json(result, 200);
+});
+
+// ── POST /admin/session (로그인 검증) ─────────────────────────────────────────
+const adminSessionRoute = createRoute({
+  method: "post",
+  path: "/admin/session",
+  request: { body: { content: { "application/json": { schema: AdminSessionInputSchema } } } },
+  responses: {
+    200: { content: { "application/json": { schema: AdminSessionResultSchema } }, description: "토큰 유효" },
+    401: { content: { "application/json": { schema: ErrorSchema } }, description: "토큰 불일치" },
+  },
+});
+
+app.openapi(adminSessionRoute, async (c) => {
+  const { token } = c.req.valid("json");
+  if (!c.env.ADMIN_TOKEN || !safeEqual(token, c.env.ADMIN_TOKEN)) {
+    return c.json({ error: "토큰이 일치하지 않습니다." }, 401);
+  }
+  return c.json({ ok: true as const }, 200);
+});
+
+// ── GET /admin/reports (검수 큐) ──────────────────────────────────────────────
+const adminListRoute = createRoute({
+  method: "get",
+  path: "/admin/reports",
+  request: { query: AdminListQuerySchema },
+  responses: {
+    200: { content: { "application/json": { schema: AdminReportListSchema } }, description: "검수 큐 목록 + 상태별 카운트" },
+    401: { content: { "application/json": { schema: ErrorSchema } }, description: "인증 필요" },
+  },
+});
+
+app.openapi(adminListRoute, async (c) => {
+  const q = c.req.valid("query");
+  const result = await adminListReports(c.env, q);
+  return c.json(result, 200);
+});
+
+// ── GET /admin/reports/{id} (내부 필드 포함 상세) ─────────────────────────────
+const adminGetRoute = createRoute({
+  method: "get",
+  path: "/admin/reports/{id}",
+  request: { params: ReportIdParamSchema },
+  responses: {
+    200: { content: { "application/json": { schema: AdminReportDetailSchema } }, description: "상세(내부 필드 포함)" },
+    401: { content: { "application/json": { schema: ErrorSchema } }, description: "인증 필요" },
+    404: { content: { "application/json": { schema: ErrorSchema } }, description: "없음" },
+  },
+});
+
+app.openapi(adminGetRoute, async (c) => {
+  const { id } = c.req.valid("param");
+  const report = await adminGetReport(c.env, id);
+  if (!report) return c.json({ error: "제보를 찾을 수 없습니다." }, 404);
+  return c.json(report, 200);
+});
+
+// ── PATCH /admin/reports/{id} (상태 판정 + 검증 기록 + 교정) ──────────────────
+const adminPatchRoute = createRoute({
+  method: "patch",
+  path: "/admin/reports/{id}",
+  request: {
+    params: ReportIdParamSchema,
+    body: { content: { "application/json": { schema: AdminPatchSchema } } },
+  },
+  responses: {
+    200: { content: { "application/json": { schema: AdminReportDetailSchema } }, description: "갱신된 상세" },
+    400: { content: { "application/json": { schema: ErrorSchema } }, description: "근거 누락 등 검증 실패" },
+    401: { content: { "application/json": { schema: ErrorSchema } }, description: "인증 필요" },
+    404: { content: { "application/json": { schema: ErrorSchema } }, description: "없음" },
+  },
+});
+
+app.openapi(adminPatchRoute, async (c) => {
+  const { id } = c.req.valid("param");
+  const patch = c.req.valid("json");
+  const r = await adminPatchReport(c.env, id, patch);
+  if (!r.ok) return c.json({ error: r.error }, r.status);
+  return c.json(r.report, 200);
+});
+
+// ── GET /admin/reports/{id}/attachments/{idx} (증거 바이트 스트리밍) ──────────
+// 비공개 R2 객체를 인증 게이트로 직접 스트리밍. <img>가 헤더를 못 보내는 한계는
+// 프론트가 Bearer fetch→blob→objectURL 로 우회. (auth 미들웨어가 /admin/* 게이트)
+app.get("/admin/reports/:id/attachments/:idx", async (c) => {
+  const id = c.req.param("id");
+  const idx = Number(c.req.param("idx"));
+  if (!Number.isInteger(idx) || idx < 0) return c.json({ error: "잘못된 첨부 index 입니다." }, 400);
+  const found = await adminGetAttachment(c.env, id, idx);
+  if (!found) return c.json({ error: "첨부를 찾을 수 없습니다." }, 404);
+  return new Response(found.obj.body, {
+    status: 200,
+    headers: {
+      "content-type": found.mime,
+      "cache-control": "private, max-age=60",
+    },
+  });
 });
 
 // ── OpenAPI 문서 + Scalar UI ─────────────────────────────────────────────────
