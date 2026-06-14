@@ -101,7 +101,7 @@ export default function EvidenceClient() {
         hydrate(r);
       } catch (e) {
         if (e instanceof AdminApiError && e.status === 401) {
-          router.push("/free/admin/login");
+          router.push("/admin/login");
           return;
         }
         setLoadError(e instanceof AdminApiError ? e.message : "제보를 불러오지 못했습니다.");
@@ -115,7 +115,7 @@ export default function EvidenceClient() {
   // 인증 가드 + 최초 로드.
   useEffect(() => {
     if (!getAdminToken()) {
-      router.push("/free/admin/login");
+      router.push("/admin/login");
       return;
     }
     if (id) loadRecord(id);
@@ -201,7 +201,7 @@ export default function EvidenceClient() {
       setSaved(true);
     } catch (e) {
       if (e instanceof AdminApiError && e.status === 401) {
-        router.push("/free/admin/login");
+        router.push("/admin/login");
         return;
       }
       setSaveError(e instanceof AdminApiError ? e.message : "판정 저장에 실패했습니다.");
@@ -219,7 +219,7 @@ export default function EvidenceClient() {
       setAnalysis(result);
     } catch (e) {
       if (e instanceof AdminApiError && e.status === 401) {
-        router.push("/free/admin/login");
+        router.push("/admin/login");
         return;
       }
       setAnalyzeError(e instanceof AdminApiError ? e.message : "분석에 실패했습니다.");

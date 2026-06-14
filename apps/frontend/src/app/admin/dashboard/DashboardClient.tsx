@@ -27,7 +27,7 @@ export default function DashboardClient() {
 
   useEffect(() => {
     if (!getAdminToken()) {
-      router.push("/free/admin/login");
+      router.push("/admin/login");
       return;
     }
     (async () => {
@@ -36,7 +36,7 @@ export default function DashboardClient() {
         setData(res);
       } catch (e) {
         if (e instanceof AdminApiError && e.status === 401) {
-          router.push("/free/admin/login");
+          router.push("/admin/login");
           return;
         }
         setError(e instanceof AdminApiError ? e.message : "현황을 불러오지 못했습니다.");
@@ -66,7 +66,7 @@ export default function DashboardClient() {
         <div className="panel">
           <div className="ph">
             최근 제보{" "}
-            <Link href="/free/admin/queue" className="more">
+            <Link href="/admin/queue" className="more">
               검토 큐
             </Link>
           </div>
@@ -103,7 +103,7 @@ export default function DashboardClient() {
                   {data!.items.map((r) => (
                     <tr
                       key={r.id}
-                      onClick={() => router.push(`/free/admin/evidence?id=${encodeURIComponent(r.id)}`)}
+                      onClick={() => router.push(`/admin/evidence?id=${encodeURIComponent(r.id)}`)}
                     >
                       <td className="mut">{STATUS_LABEL[r.status as VerifyStatus] ?? r.status}</td>
                       <td className="nm">{r.title}</td>

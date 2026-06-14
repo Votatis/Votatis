@@ -6,11 +6,11 @@ import Torch from "@/components/landing/Torch";
 export type AdminNav = "dashboard" | "members" | "reports" | "queue" | "evidence" | "content";
 
 const ITEMS: { key: AdminNav; label: string; href: string; Icon: typeof IGrid; cnt?: string }[] = [
-  { key: "dashboard", label: "대시보드", href: "/free/admin/dashboard", Icon: IGrid },
-  { key: "members", label: "회원", href: "/free/admin/members", Icon: IUsers },
-  { key: "reports", label: "제보", href: "/free/admin/queue", Icon: IList },
-  { key: "queue", label: "검토 큐", href: "/free/admin/queue", Icon: ICheckSq },
-  { key: "evidence", label: "원본 데이터", href: "/free/admin/evidence", Icon: IImage },
+  { key: "dashboard", label: "대시보드", href: "/admin/dashboard", Icon: IGrid },
+  { key: "members", label: "회원", href: "/admin/members", Icon: IUsers },
+  { key: "reports", label: "제보", href: "/admin/queue", Icon: IList },
+  { key: "queue", label: "검토 큐", href: "/admin/queue", Icon: ICheckSq },
+  { key: "evidence", label: "원본 데이터", href: "/admin/evidence", Icon: IImage },
 ];
 
 /** 관리자 콘솔 공용 셸 (사이드바 + 메인). 실동작 레이아웃. */
@@ -43,11 +43,11 @@ export default function AdminShell({
             </Link>
           ))}
           <div className="ds-sec">콘텐츠</div>
-          <Link href="/free/admin/dashboard" className={`ds-item${active === "content" ? " on" : ""}`}>
+          <Link href="/admin/dashboard" className={`ds-item${active === "content" ? " on" : ""}`}>
             <IEdit />정보·공지
           </Link>
           <div className="ds-sec">바로가기</div>
-          <Link href="/free/preview" className="ds-item">
+          <Link href="/preview" className="ds-item">
             <IChart />화면 미리보기
           </Link>
         </aside>

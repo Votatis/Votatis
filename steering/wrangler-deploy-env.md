@@ -2,7 +2,7 @@
 tldr: wrangler 자격증명은 CLOUDFLARE_ACCOUNT_ID/CLOUDFLARE_API_TOKEN(CF_* 아님) → .env 의 CF_* 는 `bash scripts/cf-env.sh <cmd>` 로 매핑. ⚠️배포는 `pnpm --filter <pkg> run deploy`(run 없으면 pnpm 내장 deploy와 충돌). ⚠️secret 이름을 wrangler.jsonc `vars` 에 두지 말 것 — deploy 가 plaintext var 로 동명 secret 을 덮어쓴다(로컬은 .dev.vars, 운영은 secret).
 tags: [convention, deploy, cloudflare, wrangler, pitfall, secrets]
 last_retrieved: 2026-06-14
-retrieval_count: 2
+retrieval_count: 3
 ---
 
 ## 규칙 / 교훈

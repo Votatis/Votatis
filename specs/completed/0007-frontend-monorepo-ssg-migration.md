@@ -3,7 +3,7 @@ id: "0007"
 title: frontend(Next.js)를 apps/frontend로 통합 + 제보 기능 이식 + SSG, apps/web 폐기
 status: completed   # not-started | in-progress | in-review | completed
 created: 2026-06-10
-updated: 2026-06-10
+updated: 2026-06-14
 related:
   - "specs/completed/0006-d1-report-store-api.md (intake API 계약: 2단계 업로드/report_id)"
   - "specs/completed/0004-report-flow-wizard.md (apps/web 제보 마법사)"
@@ -120,3 +120,4 @@ upstream 머지로 루트에 `frontend/`(Next.js 16 + React 19 + Tailwind 4)가 
 - 2026-06-10: 최초 작성
 - 2026-06-10: API 연동을 손으로 적던 lib/api 이식 대신 **생성형 OpenAPI 클라이언트**(intake-api openapi.json 방출 → openapi-typescript 타입 + openapi-fetch, generate/check로 타입 동기화)로 명시. (요청: 채팅)
 - 2026-06-10: 구현 완료 — frontend→apps/frontend(pnpm), SSG(output:export), 제보 파이프라인 이식(RegionAutocomplete+행정동 데이터·EXIF/이미지·Turnstile·2단계 업로드·체크박스/consent), OpenAPI 타입 클라(emit/gen/check), CORS 3000 정합, apps/web 삭제. upstream 누락 `src/lib/types.ts` 재구성(카테고리/유형 분류 — 추후 실제 분류로 교체 가능). Playwright E2E로 제출→report_id 검증. typecheck/test(23)/SSG(36)/타입동기화 통과. in-review 이동.
+- 2026-06-14: upstream 잔재 `/free` 라우트 prefix 제거 — `free/{admin,mock,preview}` → `app/{admin,mock,preview}`(`/free/admin`→`/admin` 등). 코드 내 `/free/` 참조 일괄 치환, 이동 파일의 `app-shell.css` 상대경로 깊이 보정, frontend Pages 재배포. (요청: 채팅)

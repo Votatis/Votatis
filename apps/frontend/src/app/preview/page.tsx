@@ -1,4 +1,4 @@
-import "../../app-shell.css";
+import "../app-shell.css";
 import "../mock.css";
 import Link from "next/link";
 import { SCREENS } from "@/components/mock/registry";
@@ -80,7 +80,7 @@ export default function PreviewPage() {
                       tags={[
                         { label: s.meta },
                         ...(s.tag ? [{ label: s.tag }] : []),
-                        { label: "개별 화면 ↗", href: `/free/mock/${s.slug}` },
+                        { label: "개별 화면 ↗", href: `/mock/${s.slug}` },
                         ...(s.realPath ? [{ label: "실동작 ↗", href: s.realPath }] : []),
                       ]}
                     />

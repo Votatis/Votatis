@@ -77,7 +77,7 @@ export const SCREENS: MockScreen[] = [
     name: "관리자 로그인",
     meta: "admin.votatis.kr/login",
     tag: "2FA",
-    realPath: "/free/admin/login",
+    realPath: "/admin/login",
     notes: [
       { h: "접근 제어", p: "관리자 계정만 접근, 2FA 필수. 제보자·열람자는 진입 불가" },
       { h: "보안", p: "HTTPS/TLS 1.3, Rate limit, 로그인 시도·세션 감사" },
@@ -94,7 +94,7 @@ export const SCREENS: MockScreen[] = [
     group: "admin",
     name: "관리자 대시보드 · 회원/제보/정보",
     meta: "admin.votatis.kr/dashboard",
-    realPath: "/free/admin/dashboard",
+    realPath: "/admin/dashboard",
     notes: [
       { h: "관리 범위", p: "회원가입·인증 확인, 제보·정보·공지 관리, 검토 큐 진입, 원본 데이터 접근" },
       { h: "권한", p: "관리자 전용. 실명 미저장·익명 ID 표기. 민감 작업 감사 로그" },
@@ -111,7 +111,7 @@ export const SCREENS: MockScreen[] = [
     group: "admin",
     name: "회원 관리 · 목록·상세",
     meta: "admin.votatis.kr/members",
-    realPath: "/free/admin/members",
+    realPath: "/admin/members",
     notes: [
       { h: "구성", p: "회원 목록(가입·제보수·인증·상태) + 선택 시 상세 패널(활동 로그·제재)" },
       { h: "개인정보", p: "실명·연락처 비저장. 익명 ID 기준 관리. 정지·삭제는 감사 로그 기록" },
@@ -128,7 +128,7 @@ export const SCREENS: MockScreen[] = [
     group: "admin",
     name: "검토 큐 · 검증 패널",
     meta: "admin.votatis.kr/queue",
-    realPath: "/free/admin/queue",
+    realPath: "/admin/queue",
     notes: [
       { h: "상호작용", p: "행 선택 → 패널 로드. 승인/보완/거절은 근거 입력 후 상태 부여. 보완은 재검토 큐로" },
       { h: "연동", p: "GitHub Issue = 검토 큐. 승인 시 승격 스크립트가 공개 레포 커밋" },
@@ -146,7 +146,7 @@ export const SCREENS: MockScreen[] = [
     name: "원본 데이터 검수 · 공익 감시",
     meta: "admin.votatis.kr/evidence",
     tag: "감사 로그",
-    realPath: "/free/admin/evidence/0153",
+    realPath: "/admin/evidence/0153",
     notes: [
       { h: "프라이버시", p: "관리자만 원본 열람, 공개본 자동 마스킹. 부상자·연행 등 민감 제보 최소 노출 우선" },
       { h: "감사", p: "모든 원본 열람·다운로드 기록. 무결성 해시로 변조 검증" },

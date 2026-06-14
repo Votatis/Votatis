@@ -1,5 +1,5 @@
 /* ── 목업 전용 스타일 (web.html 윈도우 프레임 + app.html 디바이스 프레임) ──
-   /free/preview 갤러리와 /free/mock/[screen] 개별 화면에서만 사용.            */
+   /preview 갤러리와 /mock/[screen] 개별 화면에서만 사용.            */
 
 .board {
   max-width: 1120px;

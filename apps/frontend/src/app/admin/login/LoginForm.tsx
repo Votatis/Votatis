@@ -21,7 +21,7 @@ export default function LoginForm() {
       const ok = await verifyAdminToken(token.trim());
       if (ok) {
         setAdminToken(token.trim());
-        router.push("/free/admin/dashboard");
+        router.push("/admin/dashboard");
       } else {
         setError("토큰이 올바르지 않습니다. 다시 확인하세요.");
       }

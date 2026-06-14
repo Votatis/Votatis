@@ -1,4 +1,4 @@
-import "../../../app-shell.css";
+import "../../app-shell.css";
 import "../../mock.css";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -34,7 +34,7 @@ export default async function MockScreenPage({
     <div className="mock-canvas">
       <nav className="preview-nav">
         <div className="inner">
-          <Link href="/free/preview" style={{ fontWeight: 800, color: "var(--g900)" }}>
+          <Link href="/preview" style={{ fontWeight: 800, color: "var(--g900)" }}>
             ← 전체 화면
           </Link>
           {s.realPath && <a href={s.realPath}>실동작 화면 ↗</a>}

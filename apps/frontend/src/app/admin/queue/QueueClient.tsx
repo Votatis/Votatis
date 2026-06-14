@@ -59,7 +59,7 @@ export default function QueueClient() {
         setData(res);
       } catch (e) {
         if (e instanceof AdminApiError && e.status === 401) {
-          router.push("/free/admin/login");
+          router.push("/admin/login");
           return;
         }
         setError(e instanceof AdminApiError ? e.message : "큐를 불러오지 못했습니다.");
@@ -72,7 +72,7 @@ export default function QueueClient() {
 
   useEffect(() => {
     if (!getAdminToken()) {
-      router.push("/free/admin/login");
+      router.push("/admin/login");
       return;
     }
     load(active.status, q);
@@ -158,7 +158,7 @@ export default function QueueClient() {
                 </thead>
                 <tbody>
                   {items.map((r) => (
-                    <tr key={r.id} onClick={() => router.push(`/free/admin/evidence?id=${encodeURIComponent(r.id)}`)}>
+                    <tr key={r.id} onClick={() => router.push(`/admin/evidence?id=${encodeURIComponent(r.id)}`)}>
                       <td>
                         <span className={`chip sm c-${chipClass(r.status)}`}>
                           <span className="pt" />
