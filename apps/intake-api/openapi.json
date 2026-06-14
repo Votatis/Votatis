@@ -491,62 +491,6 @@
           "updated_at"
         ]
       },
-      "Stats": {
-        "type": "object",
-        "properties": {
-          "total": {
-            "type": "integer"
-          },
-          "by_status": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "integer"
-            }
-          },
-          "by_election": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "election": {
-                  "type": "string"
-                },
-                "count": {
-                  "type": "integer"
-                }
-              },
-              "required": [
-                "election",
-                "count"
-              ]
-            }
-          },
-          "daily": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "date": {
-                  "type": "string"
-                },
-                "count": {
-                  "type": "integer"
-                }
-              },
-              "required": [
-                "date",
-                "count"
-              ]
-            }
-          }
-        },
-        "required": [
-          "total",
-          "by_status",
-          "by_election",
-          "daily"
-        ]
-      },
       "AdminSessionResult": {
         "type": "object",
         "properties": {
@@ -827,6 +771,62 @@
         "required": [
           "records"
         ]
+      },
+      "Stats": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "by_status": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            }
+          },
+          "by_election": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "election": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "election",
+                "count"
+              ]
+            }
+          },
+          "daily": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "date",
+                "count"
+              ]
+            }
+          }
+        },
+        "required": [
+          "total",
+          "by_status",
+          "by_election",
+          "daily"
+        ]
       }
     },
     "parameters": {}
@@ -1099,22 +1099,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/stats": {
-      "get": {
-        "responses": {
-          "200": {
-            "description": "공개 레코드 집계",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Stats"
                 }
               }
             }
@@ -1442,6 +1426,22 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "공개 레코드 집계",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stats"
                 }
               }
             }

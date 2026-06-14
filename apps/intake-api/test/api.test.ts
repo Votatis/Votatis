@@ -6,11 +6,11 @@ import {
 } from "cloudflare:test";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import worker from "../src/index";
-import { detectImageType } from "../src/validation";
-import { sha256Hex } from "../src/util";
-import { cleanupPending } from "../src/cleanup";
-import { recordToMarkdown, recordRelPath, type PublicRecord } from "../src/export-md";
-import { analyzeRecord } from "../src/analyze";
+import { detectImageType } from "../src/lib/media";
+import { sha256Hex } from "../src/lib/crypto";
+import { cleanupPending } from "../src/services/cleanup";
+import { recordToMarkdown, recordRelPath, type PublicRecord } from "../src/domain/markdown";
+import { analyzeRecord } from "../src/domain/analyzer";
 
 const ORIGIN = "https://app.test";
 const JPEG = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00]);

@@ -1,3 +1,5 @@
+// 해시·식별자 생성. (구 util.ts 의 암호/ID 부분)
+
 export async function sha256Hex(data: ArrayBuffer | Uint8Array): Promise<string> {
   const view = data instanceof Uint8Array ? data : new Uint8Array(data);
   const digest = await crypto.subtle.digest("SHA-256", view);
@@ -13,14 +15,4 @@ export async function anonSubmitterId(ip: string | null, userAgent: string | nul
 
 export function randomId(): string {
   return crypto.randomUUID().replace(/-/g, "").slice(0, 12);
-}
-
-export function clientIp(request: Request): string | null {
-  return request.headers.get("CF-Connecting-IP") ?? request.headers.get("X-Forwarded-For");
-}
-
-/** 경로 조작/위험 문자를 제거한 안전한 파일명. */
-export function sanitizeFilename(name: string): string {
-  const base = name.split(/[\\/]/).pop() ?? "file";
-  return base.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 128) || "file";
 }

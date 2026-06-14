@@ -1,7 +1,7 @@
 import { and, eq, lt } from "drizzle-orm";
-import type { Env } from "./types";
-import { reports } from "./db/schema";
-import { getDb } from "./db/client";
+import type { Env } from "../env";
+import { reports } from "../db/schema";
+import { getDb } from "../db/client";
 
 // 만료된 pending(업로드 미완료) 레코드 정리 TTL. staging R2 객체는 R2 lifecycle 이 정리한다.
 export const PENDING_TTL_MS = 60 * 60 * 1000; // 1h

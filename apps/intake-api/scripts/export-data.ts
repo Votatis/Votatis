@@ -10,7 +10,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { recordToMarkdown, recordRelPath, type PublicRecord } from "../src/export-md";
+import { recordToMarkdown, recordRelPath, type PublicRecord } from "../src/domain/markdown";
 
 const API_URL = process.env.API_URL ?? "http://localhost:8787";
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN ?? "dev-admin-token";

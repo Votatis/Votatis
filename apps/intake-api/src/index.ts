@@ -1,6 +1,6 @@
-import type { Env } from "./types";
+import type { Env } from "./env";
 import app from "./app";
-import { cleanupPending } from "./cleanup";
+import { cleanupPending } from "./services/cleanup";
 
 export default {
   fetch: app.fetch,

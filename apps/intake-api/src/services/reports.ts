@@ -1,10 +1,10 @@
 import { and, count, desc, eq, gte, lte, ne, sql, type SQL } from "drizzle-orm";
 import type { z } from "@hono/zod-openapi";
-import type { Env } from "./types";
-import type { ReportListQuerySchema } from "./schemas";
-import { reports } from "./db/schema";
-import { getDb } from "./db/client";
-import { toPublicReport, toSummary } from "./reports-map";
+import type { Env } from "../env";
+import type { ReportListQuerySchema } from "../schemas";
+import { reports } from "../db/schema";
+import { getDb } from "../db/client";
+import { toPublicReport, toSummary } from "../domain/mappers";
 
 type ListQuery = z.infer<typeof ReportListQuerySchema>;
 

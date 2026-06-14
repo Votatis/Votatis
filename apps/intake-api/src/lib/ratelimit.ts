@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import type { DB } from "./db/client";
-import { rateLimits } from "./db/schema";
+import type { DB } from "../db/client";
+import { rateLimits } from "../db/schema";
 
 // 고정 윈도우 rate limit (IP 기준). KV 제거에 따라 D1 로 이전.
 // 결과적 일관성/정밀 카운팅은 아니지만 MVP 남용 방지에는 충분하다.

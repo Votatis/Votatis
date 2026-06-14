@@ -1,10 +1,11 @@
 import { and, eq } from "drizzle-orm";
-import type { Env } from "./types";
-import type { AttachmentRecord } from "./db/schema";
-import { reports } from "./db/schema";
-import { getDb } from "./db/client";
-import { detectImageType, ALLOWED_MIME, MAX_FILE_BYTES } from "./validation";
-import { sha256Hex } from "./util";
+import type { Env } from "../env";
+import type { AttachmentRecord } from "../db/schema";
+import { reports } from "../db/schema";
+import { getDb } from "../db/client";
+import { detectImageType } from "../lib/media";
+import { ALLOWED_MIME, MAX_FILE_BYTES } from "../constants";
+import { sha256Hex } from "../lib/crypto";
 
 export type FinalizeResult =
   | { ok: true; report_id: string; attachments: AttachmentRecord[] }

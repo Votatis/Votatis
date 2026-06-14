@@ -1,3 +1,5 @@
+// Worker 바인딩/환경 타입. (구 types.ts — 상태 상수는 constants.ts 로 이동)
+
 export interface Env {
   // Bindings
   EVIDENCE_BUCKET: R2Bucket;
@@ -27,18 +29,3 @@ export interface Env {
 export function isLocalUpload(env: Env): boolean {
   return env.LOCAL_UPLOAD === "true" || env.LOCAL_UPLOAD === "1";
 }
-
-/** 모든 verification 상태(검수 스펙에서 전이). pending 은 업로드 미완료 내부상태. */
-export const REPORT_STATUSES = [
-  "pending",
-  "unverified",
-  "reviewing",
-  "confirmed",
-  "disputed",
-  "debunked",
-  "corrected",
-] as const;
-export type ReportStatus = (typeof REPORT_STATUSES)[number];
-
-/** 조회 API 로 노출 가능한 상태(내부 pending 제외). */
-export const PUBLIC_STATUSES = REPORT_STATUSES.filter((s) => s !== "pending");

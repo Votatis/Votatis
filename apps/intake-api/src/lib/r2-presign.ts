@@ -1,5 +1,5 @@
 import { AwsClient } from "aws4fetch";
-import type { Env } from "./types";
+import type { Env } from "../env";
 
 /**
  * R2 객체에 대한 presigned PUT URL을 발급한다 (aws4fetch, Workers 호환).

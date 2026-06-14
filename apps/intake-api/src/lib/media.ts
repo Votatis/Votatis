@@ -1,7 +1,10 @@
-export const ALLOWED_MIME_LIST = ["image/jpeg", "image/png", "image/gif", "image/webp"] as const;
-export const ALLOWED_MIME = new Set<string>(ALLOWED_MIME_LIST);
-export const MAX_FILE_BYTES = 15 * 1024 * 1024; // 15MB
-export const MAX_ATTACHMENTS = 10;
+// 첨부 미디어 처리 — 안전한 파일명, magic bytes 타입 판별. (제약 상수는 constants.ts)
+
+/** 경로 조작/위험 문자를 제거한 안전한 파일명. */
+export function sanitizeFilename(name: string): string {
+  const base = name.split(/[\\/]/).pop() ?? "file";
+  return base.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 128) || "file";
+}
 
 /**
  * 바이트 시그니처(magic bytes)로 실제 이미지 타입을 판별한다.
