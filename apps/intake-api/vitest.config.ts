@@ -22,6 +22,7 @@ export default defineWorkersConfig({
             R2_ACCESS_KEY_ID: "test-akid",
             R2_SECRET_ACCESS_KEY: "test-secret-key",
             ADMIN_TOKEN: "test-admin-token",
+            JWT_SECRET: "test-jwt-secret-0123456789",
             TEST_MIGRATIONS: migrations,
           },
         },

@@ -15,7 +15,12 @@ export interface Env {
   R2_ACCESS_KEY_ID: string;
   R2_SECRET_ACCESS_KEY: string;
   // 관리자(검수) 공유 토큰. 미설정이면 /admin/* 기능 잠금. 운영은 wrangler secret 으로 주입.
+  // spec 0015: 루트 계정 부트스트랩 비밀번호 + Bearer break-glass(root)로도 계속 사용.
   ADMIN_TOKEN?: string;
+
+  // spec 0015: access JWT(HS256) 서명 비밀키. 미설정이면 계정 로그인 비활성(안전한 기본값).
+  // 운영은 wrangler secret 으로 주입.
+  JWT_SECRET?: string;
 
   // 선택적 Workers AI 바인딩(검증 보조 분석 증강). 미바인딩이면 휴리스틱만 사용. 프로비저닝은 운영자 몫.
   AI?: Ai;

@@ -12,7 +12,7 @@ import {
   type AdminReportList,
   type AdminReportSummary,
 } from "@/lib/api/admin";
-import { getAdminToken } from "@/lib/admin-auth";
+import { getAccessToken } from "@/lib/admin-auth";
 
 // 탭 → 실제 검증 상태. 대기=unverified, 검토중=reviewing, 완료=confirmed,
 // 그 외 판정(이견/반박/정정)은 "그외" 탭에서 status 미지정으로 전체를 본다.
@@ -71,7 +71,7 @@ export default function QueueClient() {
   );
 
   useEffect(() => {
-    if (!getAdminToken()) {
+    if (!getAccessToken()) {
       router.push("/admin/login");
       return;
     }

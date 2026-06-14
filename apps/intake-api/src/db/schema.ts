@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, index, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 /** JSON 컬럼에 들어가는 출처 한 건. url(웹사이트) 또는 text(직접 입력) 중 하나 이상. */
 export interface SourceRecord {
@@ -99,3 +99,70 @@ export const rateLimits = sqliteTable("rate_limits", {
 
 export type ReportRow = typeof reports.$inferSelect;
 export type ReportInsert = typeof reports.$inferInsert;
+
+// ── 관리자 인증 (spec 0015) ──────────────────────────────────────────────────
+
+/**
+ * 관리자/검증자 계정. role=root 는 회원관리 가능, member 는 검증만.
+ * passwordHash 는 회원이 재설정 링크로 비밀번호를 정하기 전까지 null.
+ */
+export const adminUsers = sqliteTable(
+  "admin_users",
+  {
+    id: text("id").primaryKey(),
+    username: text("username").notNull(),
+    name: text("name").notNull(),
+    passwordHash: text("password_hash"), // null = 아직 비밀번호 미설정(재설정 링크 대기)
+    role: text("role").notNull(), // root | member
+    status: text("status").notNull().default("active"), // active | disabled
+    lastLoginAt: text("last_login_at"),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (t) => ({
+    usernameIdx: uniqueIndex("uniq_admin_users_username").on(t.username),
+  }),
+);
+
+/**
+ * 리프레시 토큰. 원문이 아니라 sha256 해시만 저장. 사용 시마다 회전(기존 폐기+신규).
+ * expiresAt 은 epoch 초, 슬라이딩(마지막 사용 +7일). 7일 미사용이면 만료.
+ */
+export const adminRefreshTokens = sqliteTable(
+  "admin_refresh_tokens",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id").notNull(),
+    tokenHash: text("token_hash").notNull(),
+    expiresAt: integer("expires_at").notNull(),
+    lastUsedAt: text("last_used_at"),
+    revokedAt: text("revoked_at"),
+    createdAt: text("created_at").notNull(),
+  },
+  (t) => ({
+    userIdx: index("idx_admin_refresh_user").on(t.userId),
+    tokenHashIdx: index("idx_admin_refresh_token_hash").on(t.tokenHash),
+  }),
+);
+
+/** 비밀번호 재설정 토큰. 해시 저장, 24h·1회용. usedAt 채워지면 재사용 불가. */
+export const adminPasswordResetTokens = sqliteTable(
+  "admin_password_reset_tokens",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id").notNull(),
+    tokenHash: text("token_hash").notNull(),
+    expiresAt: integer("expires_at").notNull(),
+    usedAt: text("used_at"),
+    createdAt: text("created_at").notNull(),
+  },
+  (t) => ({
+    tokenHashIdx: index("idx_admin_reset_token_hash").on(t.tokenHash),
+    userIdx: index("idx_admin_reset_user").on(t.userId),
+  }),
+);
+
+export type AdminUserRow = typeof adminUsers.$inferSelect;
+export type AdminUserInsert = typeof adminUsers.$inferInsert;
+export type AdminRefreshTokenRow = typeof adminRefreshTokens.$inferSelect;
+export type AdminPasswordResetTokenRow = typeof adminPasswordResetTokens.$inferSelect;

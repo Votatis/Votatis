@@ -15,7 +15,7 @@ import {
   type AdminPatch,
   type Analysis,
 } from "@/lib/api/admin";
-import { getAdminToken } from "@/lib/admin-auth";
+import { getAccessToken } from "@/lib/admin-auth";
 
 const STATUSES: VerifyStatus[] = [
   "unverified",
@@ -114,7 +114,7 @@ export default function EvidenceClient() {
 
   // 인증 가드 + 최초 로드.
   useEffect(() => {
-    if (!getAdminToken()) {
+    if (!getAccessToken()) {
       router.push("/admin/login");
       return;
     }

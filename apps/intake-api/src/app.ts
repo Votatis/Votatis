@@ -1,24 +1,32 @@
 // 앱 조립 — 미들웨어 + 도메인별 라우트 sub-app 마운트 + OpenAPI 문서. (라우트 정의는 routes/* 에 있다)
 import { createRouter } from "./router";
 import { corsMiddleware } from "./middleware/cors";
-import { adminAuthMiddleware } from "./middleware/admin-auth";
+import { adminAuthMiddleware, requireRoot } from "./middleware/admin-auth";
 import { metaRoutes } from "./routes/meta";
 import { submissionsRoutes } from "./routes/submissions";
 import { reportsRoutes } from "./routes/reports";
 import { adminRoutes } from "./routes/admin";
+import { adminAuthRoutes } from "./routes/admin-auth";
+import { adminMembersRoutes } from "./routes/admin-members";
 import { statsRoutes } from "./routes/stats";
 
 const app = createRouter();
 
 // ── 미들웨어 ─────────────────────────────────────────────────────────────────
-// CORS: 공개 읽기는 전체 허용, 쓰기·/admin 은 허용 오리진만. /admin/*: Bearer ADMIN_TOKEN 게이트.
+// CORS: 공개 읽기는 전체 허용, 쓰기·/admin 은 허용 오리진만.
+// /admin/*: JWT access 또는 ADMIN_TOKEN break-glass 게이트(로그인/리프레시/재설정은 bypass).
+// /admin/members*: 추가로 root 전용.
 app.use("*", corsMiddleware);
 app.use("/admin/*", adminAuthMiddleware);
+app.use("/admin/members", requireRoot);
+app.use("/admin/members/*", requireRoot);
 
 // ── 도메인 라우트 ────────────────────────────────────────────────────────────
 app.route("/", metaRoutes);
 app.route("/", submissionsRoutes);
 app.route("/", reportsRoutes);
+app.route("/", adminAuthRoutes);
+app.route("/", adminMembersRoutes);
 app.route("/", adminRoutes);
 app.route("/", statsRoutes);
 

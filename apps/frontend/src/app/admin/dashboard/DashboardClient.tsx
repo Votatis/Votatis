@@ -8,7 +8,7 @@ import { Tile, HBar } from "@/components/ui";
 import { IList } from "@/components/mock/mock-icons";
 import { STATUS_LABEL, type VerifyStatus } from "@/lib/types";
 import { listAdminReports, AdminApiError, type AdminReportList } from "@/lib/api/admin";
-import { getAdminToken } from "@/lib/admin-auth";
+import { getAccessToken } from "@/lib/admin-auth";
 
 const ORDER: VerifyStatus[] = [
   "unverified",
@@ -26,7 +26,7 @@ export default function DashboardClient() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!getAdminToken()) {
+    if (!getAccessToken()) {
       router.push("/admin/login");
       return;
     }
