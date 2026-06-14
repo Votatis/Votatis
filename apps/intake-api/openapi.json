@@ -744,6 +744,89 @@
             "type": "string"
           }
         }
+      },
+      "Analysis": {
+        "type": "object",
+        "properties": {
+          "suggested_tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "credibility": {
+            "type": "object",
+            "properties": {
+              "score": {
+                "type": "number"
+              },
+              "signals": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "score",
+              "signals"
+            ]
+          },
+          "synthetic_risk": {
+            "type": "object",
+            "properties": {
+              "level": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "review",
+                  "unknown"
+                ]
+              },
+              "signals": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "level",
+              "signals"
+            ]
+          },
+          "summary_hint": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "heuristic",
+              "heuristic+ai"
+            ]
+          }
+        },
+        "required": [
+          "suggested_tags",
+          "credibility",
+          "synthetic_risk",
+          "summary_hint",
+          "source"
+        ]
+      },
+      "AdminExport": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Report"
+            }
+          }
+        },
+        "required": [
+          "records"
+        ]
       }
     },
     "parameters": {}
@@ -1282,6 +1365,79 @@
           },
           "404": {
             "description": "없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/reports/{id}/analyze": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "보조 분석 신호(휴리스틱±AI)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Analysis"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/export": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "검증 완료 레코드(공개 필드)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminExport"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
             "content": {
               "application/json": {
                 "schema": {

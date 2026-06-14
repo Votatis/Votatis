@@ -10,6 +10,7 @@ export type AdminReportSummary = components["schemas"]["AdminReportSummary"];
 export type AdminReportDetail = components["schemas"]["AdminReportDetail"];
 export type AdminPatch = components["schemas"]["AdminPatch"];
 export type Stats = components["schemas"]["Stats"];
+export type Analysis = components["schemas"]["Analysis"];
 
 export class AdminApiError extends Error {
   constructor(readonly status: number, message: string) {
@@ -97,6 +98,13 @@ export async function fetchAttachmentObjectUrl(id: string, idx: number): Promise
   if (!res.ok) throw new AdminApiError(res.status, await parseError(res, "첨부를 불러오지 못했습니다."));
   const blob = await res.blob();
   return URL.createObjectURL(blob);
+}
+
+/** 검증 보조 분석(POST /admin/reports/{id}/analyze) — 휴리스틱±AI. 보조 신호일 뿐 판정 근거 아님. */
+export async function analyzeAdminReport(id: string): Promise<Analysis> {
+  const res = await adminFetch(`/admin/reports/${encodeURIComponent(id)}/analyze`, { method: "POST" });
+  if (!res.ok) throw new AdminApiError(res.status, await parseError(res, "분석에 실패했습니다."));
+  return (await res.json()) as Analysis;
 }
 
 /** 공개 통계(GET /stats) — 인증 불필요. (런타임 집계; 정적 통계는 archive.ts 사용) */

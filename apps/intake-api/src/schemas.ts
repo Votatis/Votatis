@@ -244,6 +244,19 @@ export const AdminPatchSchema = z
   .refine((v) => Object.keys(v).length > 0, { message: "수정할 필드가 없습니다." })
   .openapi("AdminPatch");
 
+export const AnalysisSchema = z
+  .object({
+    suggested_tags: z.array(z.string()),
+    credibility: z.object({ score: z.number(), signals: z.array(z.string()) }),
+    synthetic_risk: z.object({
+      level: z.enum(["low", "review", "unknown"]),
+      signals: z.array(z.string()),
+    }),
+    summary_hint: z.string(),
+    source: z.enum(["heuristic", "heuristic+ai"]),
+  })
+  .openapi("Analysis");
+
 export const AdminExportSchema = z
   .object({ records: z.array(ReportPublicSchema) })
   .openapi("AdminExport");

@@ -16,6 +16,7 @@ import {
   adminPatchReport,
   adminGetAttachment,
   adminExport,
+  analyzeReport,
   publicStats,
 } from "./admin";
 import { clientIp } from "./util";
@@ -37,6 +38,7 @@ import {
   AdminReportDetailSchema,
   AdminPatchSchema,
   AdminExportSchema,
+  AnalysisSchema,
   StatsSchema,
 } from "./schemas";
 
@@ -306,6 +308,25 @@ app.get("/admin/reports/:id/attachments/:idx", async (c) => {
       "cache-control": "private, max-age=60",
     },
   });
+});
+
+// ── POST /admin/reports/{id}/analyze (검증 보조 신호) ─────────────────────────
+const adminAnalyzeRoute = createRoute({
+  method: "post",
+  path: "/admin/reports/{id}/analyze",
+  request: { params: ReportIdParamSchema },
+  responses: {
+    200: { content: { "application/json": { schema: AnalysisSchema } }, description: "보조 분석 신호(휴리스틱±AI)" },
+    401: { content: { "application/json": { schema: ErrorSchema } }, description: "인증 필요" },
+    404: { content: { "application/json": { schema: ErrorSchema } }, description: "없음" },
+  },
+});
+
+app.openapi(adminAnalyzeRoute, async (c) => {
+  const { id } = c.req.valid("param");
+  const analysis = await analyzeReport(c.env, id);
+  if (!analysis) return c.json({ error: "제보를 찾을 수 없습니다." }, 404);
+  return c.json(analysis, 200);
 });
 
 // ── GET /admin/export (공개 배포 대상 추출) ───────────────────────────────────

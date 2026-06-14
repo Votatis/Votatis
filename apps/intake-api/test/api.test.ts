@@ -10,6 +10,7 @@ import { detectImageType } from "../src/validation";
 import { sha256Hex } from "../src/util";
 import { cleanupPending } from "../src/cleanup";
 import { recordToMarkdown, recordRelPath, type PublicRecord } from "../src/export-md";
+import { analyzeRecord } from "../src/analyze";
 
 const ORIGIN = "https://app.test";
 const JPEG = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00]);
@@ -498,6 +499,68 @@ describe("공개 배포 export (마크다운 + /admin/export)", () => {
     // 공개 필드 — submitter 없음
     const txt = JSON.stringify(data);
     expect(txt).not.toContain("submitter");
+  });
+});
+
+describe("검증 보조 분석 (analyze)", () => {
+  const ADMIN = "test-admin-token";
+
+  it("analyzeRecord: 키워드 태그 추천 + 신뢰도 신호 + 합성위험(결정적)", () => {
+    const a = analyzeRecord({
+      title: "개표소 투표지 부족",
+      summary: "사전투표지 소진 보고",
+      body: "봉인 스티커가 훼손됨. CCTV 확인 필요.",
+      tags: [],
+      sources: [
+        { url: "https://news.example/a", type: "news", archive_url: "https://web.archive.org/x" },
+        { url: "https://b.example", type: "social" },
+      ],
+      attachments: [{ sha256: "abc", mime: "image/jpeg" }],
+      exif: [{ Make: "Apple" }],
+    });
+    expect(a.suggested_tags).toEqual(expect.arrayContaining(["개표", "투표지", "사전투표", "봉인", "CCTV"]));
+    expect(a.credibility.score).toBeGreaterThan(0.5);
+    expect(a.synthetic_risk.level).toBe("low"); // exif 있음
+    expect(a.source).toBe("heuristic");
+  });
+
+  it("analyzeRecord: 첨부 exif 없으면 합성위험 review, 텍스트만이면 신뢰도 신호에 교차검증", () => {
+    const a = analyzeRecord({
+      title: "목격",
+      summary: null,
+      body: "직접 봤다",
+      tags: [],
+      sources: [{ text: "현장 목격" }],
+      attachments: [{ sha256: "x", mime: "image/png" }],
+      exif: [],
+    });
+    expect(a.synthetic_risk.level).toBe("review");
+    expect(a.credibility.signals.join(" ")).toContain("교차검증");
+  });
+
+  it("POST /admin/reports/{id}/analyze: 인증 하에 분석 반환, 미인증 401, 없는 id 404", async () => {
+    const s = await startSubmission("10.8.0.1", { ...validBody(), election: "분석테스트", body: "개표 봉인 훼손" });
+    await env.EVIDENCE_BUCKET.put(s.uploads[0].staging_key, JPEG);
+    await call(post(`/submissions/${s.submission_id}/finalize`, { finalize_token: s.finalize_token }, { ip: "10.8.0.1" }));
+
+    const unauth = new Request(`https://api.test/admin/reports/${s.submission_id}/analyze`, { method: "POST", headers: { origin: ORIGIN } });
+    expect((await call(unauth)).status).toBe(401);
+
+    const ok = new Request(`https://api.test/admin/reports/${s.submission_id}/analyze`, {
+      method: "POST",
+      headers: { origin: ORIGIN, authorization: `Bearer ${ADMIN}` },
+    });
+    const res = await call(ok);
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { suggested_tags: string[]; source: string };
+    expect(data.suggested_tags).toEqual(expect.arrayContaining(["개표", "봉인"]));
+    expect(data.source).toBe("heuristic");
+
+    const notFound = new Request(`https://api.test/admin/reports/nope/analyze`, {
+      method: "POST",
+      headers: { origin: ORIGIN, authorization: `Bearer ${ADMIN}` },
+    });
+    expect((await call(notFound)).status).toBe(404);
   });
 });
 

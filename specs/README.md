@@ -25,3 +25,4 @@ specs/
 | 0009 | 관리자 콘솔 API 연동 (로그인 / 검토 큐 / 증거 검수 / 대시보드) | in-review | 2026-06-14 | 2026-06-14 | in-review/0009-admin-console-wiring.md |
 | 0010 | 공개 아카이브 / 검색 / 통계 정적 연동 | in-review | 2026-06-14 | 2026-06-14 | in-review/0010-public-archive-search-stats.md |
 | 0011 | D1 → GitHub 마크다운 export + 빌드타임 공개 인덱스 | in-review | 2026-06-14 | 2026-06-14 | in-review/0011-d1-markdown-export-pipeline.md |
+| 0012 | AI 분석 백엔드 (자동 태깅 / 신뢰도 / 합성 위험) — 보조 신호 | in-review | 2026-06-14 | 2026-06-14 | in-review/0012-ai-analysis-backend.md |

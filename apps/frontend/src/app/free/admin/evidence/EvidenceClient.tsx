@@ -9,9 +9,11 @@ import {
   getAdminReport,
   patchAdminReport,
   fetchAttachmentObjectUrl,
+  analyzeAdminReport,
   AdminApiError,
   type AdminReportDetail,
   type AdminPatch,
+  type Analysis,
 } from "@/lib/api/admin";
 import { getAdminToken } from "@/lib/admin-auth";
 
@@ -26,6 +28,18 @@ const STATUSES: VerifyStatus[] = [
 
 // 근거(검증 방법 + 링크 1개 이상)가 필수인 판정 상태. API 도 400 으로 강제(페르소나 5).
 const JUDGED: VerifyStatus[] = ["confirmed", "disputed", "debunked", "corrected"];
+
+// 합성/조작 위험 레벨 → 한국어. 보조 신호일 뿐 판정 근거 아님(페르소나 5).
+const SYNTHETIC_RISK_LABEL: Record<Analysis["synthetic_risk"]["level"], string> = {
+  low: "낮음",
+  review: "원본 대조 권장",
+  unknown: "평가 대상 아님",
+};
+
+const ANALYSIS_SOURCE_LABEL: Record<Analysis["source"], string> = {
+  heuristic: "휴리스틱",
+  "heuristic+ai": "휴리스틱+AI",
+};
 
 interface Rebuttal {
   text: string;
@@ -60,6 +74,11 @@ export default function EvidenceClient() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
+  // AI 보조 분석 상태(버튼 클릭 시에만 실행 — 자동 실행 안 함).
+  const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analyzeError, setAnalyzeError] = useState<string | null>(null);
+
   const hydrate = useCallback((r: AdminReportDetail) => {
     setRecord(r);
     setStatus((r.status as VerifyStatus) ?? "reviewing");
@@ -69,6 +88,8 @@ export default function EvidenceClient() {
     setLinks(ev.length ? ev : [""]);
     setTags((r.tags ?? []).join(", "));
     setRebuttals((r.rebuttals ?? []).map((rb) => ({ text: rb.text, source_url: rb.source_url })));
+    setAnalysis(null);
+    setAnalyzeError(null);
   }, []);
 
   const loadRecord = useCallback(
@@ -187,6 +208,34 @@ export default function EvidenceClient() {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function runAnalysis() {
+    if (!id || analyzing) return;
+    setAnalyzing(true);
+    setAnalyzeError(null);
+    try {
+      const result = await analyzeAdminReport(id);
+      setAnalysis(result);
+    } catch (e) {
+      if (e instanceof AdminApiError && e.status === 401) {
+        router.push("/free/admin/login");
+        return;
+      }
+      setAnalyzeError(e instanceof AdminApiError ? e.message : "분석에 실패했습니다.");
+    } finally {
+      setAnalyzing(false);
+    }
+  }
+
+  // 제안 태그를 판정 폼의 태그 상태(쉼표 구분 문자열)에 추가. 이미 있으면 무시.
+  function addSuggestedTag(tag: string) {
+    const current = tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+    if (current.includes(tag)) return;
+    setTags([...current, tag].join(", "));
   }
 
   // 근거 미충족 시 클라이언트 경고(서버도 400 으로 막음).
@@ -455,6 +504,92 @@ export default function EvidenceClient() {
 
             <div className="rsec" style={{ marginTop: 12 }}>접근 로그</div>
             <div className="kv">현재 세션 열람 기록이 감사 로그에 남습니다.</div>
+
+            {/* AI 보조 분석 — 보조 신호일 뿐, 최종 판단은 검수자(페르소나 5). */}
+            <div className="rsec" style={{ marginTop: 16 }}>AI 분석 (보조 신호)</div>
+            <div className="kv" style={{ color: "var(--g500)" }}>
+              이 분석은 <b>비공식 보조 신호</b>이며 판정 근거가 아닙니다. 최종 판단은 검수자가 직접 내립니다.
+            </div>
+
+            <div className="act">
+              <div
+                className="a1"
+                style={analyzing ? { opacity: 0.6, pointerEvents: "none" } : undefined}
+                onClick={runAnalysis}
+              >
+                {analyzing ? "분석 중…" : "분석 실행"}
+              </div>
+            </div>
+
+            {analyzeError && (
+              <div className="kv" style={{ color: "var(--red-strong)", fontWeight: 700 }}>
+                {analyzeError}
+              </div>
+            )}
+
+            {analysis && (
+              <>
+                <div className="kv" style={{ marginTop: 6 }}>
+                  <b>출처</b> {ANALYSIS_SOURCE_LABEL[analysis.source]}
+                </div>
+
+                <div className="kv" style={{ marginTop: 8 }}>
+                  <b>신뢰도 점수</b> {Math.round(analysis.credibility.score * 100)}%
+                </div>
+                {analysis.credibility.signals.length > 0 && (
+                  <ul style={{ margin: "4px 0 0", paddingLeft: 18 }}>
+                    {analysis.credibility.signals.map((s, i) => (
+                      <li key={i} className="kv" style={{ margin: 0 }}>
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                <div className="kv" style={{ marginTop: 8 }}>
+                  <b>합성·조작 위험</b> {SYNTHETIC_RISK_LABEL[analysis.synthetic_risk.level]}
+                </div>
+                {analysis.synthetic_risk.signals.length > 0 && (
+                  <ul style={{ margin: "4px 0 0", paddingLeft: 18 }}>
+                    {analysis.synthetic_risk.signals.map((s, i) => (
+                      <li key={i} className="kv" style={{ margin: 0 }}>
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {analysis.suggested_tags.length > 0 && (
+                  <>
+                    <div className="kv" style={{ marginTop: 8 }}>
+                      <b>제안 태그</b>
+                    </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4 }}>
+                      {analysis.suggested_tags.map((tag) => (
+                        <span key={tag} className="chip sm c-unv">
+                          {tag}
+                          <b
+                            onClick={() => addSuggestedTag(tag)}
+                            style={{ cursor: "pointer", marginLeft: 2 }}
+                          >
+                            + 추가
+                          </b>
+                        </span>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {analysis.summary_hint && (
+                  <>
+                    <div className="kv" style={{ marginTop: 8 }}>
+                      <b>요약 힌트</b>
+                    </div>
+                    <div className="kv">{analysis.summary_hint}</div>
+                  </>
+                )}
+              </>
+            )}
           </div>
         </div>
       )}
