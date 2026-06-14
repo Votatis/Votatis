@@ -378,12 +378,27 @@ describe("관리자 검증 API (/admin/*)", () => {
     const noEvidence = await call(adminReq(`/admin/reports/${id}`, { method: "PATCH", body: { status: "confirmed" } }));
     expect(noEvidence.status).toBe(400);
 
+    // 근거는 있으나 피드백(public_summary/risk_level/not_confirmed) 누락 → 여전히 400
+    const noFeedback = await call(adminReq(`/admin/reports/${id}`, {
+      method: "PATCH",
+      body: { status: "confirmed", verification: { method: "교차확인", evidence_links: ["https://example.com/nec"] } },
+    }));
+    expect(noFeedback.status).toBe(400);
+
     const ok = await call(adminReq(`/admin/reports/${id}`, {
       method: "PATCH",
       body: {
         status: "confirmed",
         reviewer: "reviewer-a1",
-        verification: { method: "선관위 공지 교차확인", evidence_links: ["https://example.com/nec"] },
+        verification: {
+          method: "선관위 공지 교차확인",
+          evidence_links: ["https://example.com/nec"],
+          public_summary: "봉인 관리 미흡 정황이 확인된다. 다만 부정선거를 단정할 수는 없다.",
+          risk_level: "중간",
+          not_confirmed: ["부정선거 조작이 있었다는 주장"],
+          status_scope: "봉인 관리 미흡",
+          confirmed_scope: ["봉인지 2겹 부착 정황"],
+        },
         tags: ["관리자태그", "확인됨"],
         rebuttals: [{ text: "선관위는 즉시 보충했다고 발표", source_url: "https://example.com/nec2" }],
       },
@@ -401,7 +416,18 @@ describe("관리자 검증 API (/admin/*)", () => {
     // 먼저 근거와 함께 confirmed
     const ok = await call(adminReq(`/admin/reports/${id}`, {
       method: "PATCH",
-      body: { status: "confirmed", verification: { method: "교차확인", evidence_links: ["https://example.com/e"] } },
+      body: {
+        status: "confirmed",
+        verification: {
+          method: "교차확인",
+          evidence_links: ["https://example.com/e"],
+          public_summary: "확인 범위 내 정황 확인.",
+          risk_level: "중간",
+          not_confirmed: ["부정선거 조작 주장"],
+          status_scope: "표출 정합성 미흡",
+          confirmed_scope: ["화면상 수치 감소"],
+        },
+      },
     }));
     expect(ok.status).toBe(200);
     // status 없이 method 만 null 로 — confirmed 인 채 근거 제거 시도 → 400
@@ -477,7 +503,7 @@ describe("공개 배포 export (마크다운 + /admin/export)", () => {
       rebuttals: [{ text: "반박", source_url: "https://example.com/r" }],
       related: ["x-2"],
       license: "CC-BY-4.0",
-      verification: { reviewer: "rev-1", method: "교차확인", reviewed_at: "2026-06-04T09:00:00+09:00", notes: null, evidence_links: ["https://example.com/e"] },
+      verification: { reviewer: "rev-1", method: "교차확인", reviewed_at: "2026-06-04T09:00:00+09:00", notes: null, evidence_links: ["https://example.com/e"], status_scope: null, claim: null, verified_facts: null, assessment: null, confirmed_scope: null, not_confirmed: null, possible_explanations: null, missing_evidence: null, public_summary: null, risk_level: null },
       created_at: "2026-06-03T22:10:00+09:00",
       updated_at: "2026-06-04T09:00:00+09:00",
     };
@@ -497,7 +523,7 @@ describe("공개 배포 export (마크다운 + /admin/export)", () => {
       id: "x-1", status: "confirmed", election, title: "t", summary: null, body: null,
       region: {}, occurred_at: null, collected_at: "2026-06-03T22:10:00+09:00",
       tags: [], sources: [], attachments: [], rebuttals: null, related: null, license: "CC-BY-4.0",
-      verification: { reviewer: null, method: null, reviewed_at: null, notes: null, evidence_links: null },
+      verification: { reviewer: null, method: null, reviewed_at: null, notes: null, evidence_links: null, status_scope: null, claim: null, verified_facts: null, assessment: null, confirmed_scope: null, not_confirmed: null, possible_explanations: null, missing_evidence: null, public_summary: null, risk_level: null },
       created_at: "2026-06-03T22:10:00+09:00", updated_at: "2026-06-03T22:10:00+09:00",
     });
     expect(recordRelPath(base("..")).includes("/../")).toBe(false);
@@ -515,7 +541,18 @@ describe("공개 배포 export (마크다운 + /admin/export)", () => {
     await call(post(`/submissions/${conf.submission_id}/finalize`, { finalize_token: conf.finalize_token }, { ip: "10.7.0.2" }));
     const patched = await call(adminReq(`/admin/reports/${conf.submission_id}`, {
       method: "PATCH",
-      body: { status: "confirmed", verification: { method: "교차확인", evidence_links: ["https://example.com/e"] } },
+      body: {
+        status: "confirmed",
+        verification: {
+          method: "교차확인",
+          evidence_links: ["https://example.com/e"],
+          public_summary: "확인 범위 내 정황 확인.",
+          risk_level: "중간",
+          not_confirmed: ["부정선거 조작 주장"],
+          status_scope: "관리 미흡",
+          confirmed_scope: ["정황 확인"],
+        },
+      },
     }));
     expect(patched.status).toBe(200);
 
