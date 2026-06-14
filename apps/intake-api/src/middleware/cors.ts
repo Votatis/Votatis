@@ -9,13 +9,17 @@ export function isOriginAllowed(env: Env, origin: string | null): boolean {
 }
 
 /**
- * CORS. 쓰기(POST/PUT/PATCH)는 허용 오리진만(0001 동작 계승). 공개 읽기(GET)는 전체 허용.
+ * CORS. 쓰기(POST/PUT/PATCH/DELETE)는 허용 오리진만(0001 동작 계승). 공개 읽기(GET)는 전체 허용.
  * 단 /admin/* 는 읽기여도 허용 오리진만(내부 도구) + Authorization 헤더 허용.
  */
 export const corsMiddleware: MiddlewareHandler<{ Bindings: Env }> = async (c, next) => {
   const origin = c.req.header("Origin") ?? null;
   const isAdminPath = c.req.path.startsWith("/admin");
-  const isWriteMethod = c.req.method === "POST" || c.req.method === "PUT" || c.req.method === "PATCH";
+  const isWriteMethod =
+    c.req.method === "POST" ||
+    c.req.method === "PUT" ||
+    c.req.method === "PATCH" ||
+    c.req.method === "DELETE";
   // 오리진 제한 대상: 모든 쓰기 + /admin 의 모든 메서드.
   const restricted = isWriteMethod || isAdminPath;
 
@@ -23,7 +27,7 @@ export const corsMiddleware: MiddlewareHandler<{ Bindings: Env }> = async (c, ne
     const headers: Record<string, string> = { vary: "Origin" };
     if (isOriginAllowed(c.env, origin)) {
       headers["access-control-allow-origin"] = origin as string;
-      headers["access-control-allow-methods"] = "GET, POST, PUT, PATCH, OPTIONS";
+      headers["access-control-allow-methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS";
       headers["access-control-allow-headers"] = "content-type, authorization";
       headers["access-control-max-age"] = "86400";
     }

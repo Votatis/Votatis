@@ -80,7 +80,7 @@ export default function NewMemberClient() {
         </button>
       }
     >
-      <div className="prow adm">
+      <div style={{ maxWidth: 640 }}>
         <div className="panel" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div className="ph">새 검증자 계정</div>
           <div style={{ padding: "0 14px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
@@ -107,45 +107,41 @@ export default function NewMemberClient() {
               </b>
             </div>
             {error && <div style={{ color: "var(--red-strong)", fontSize: 13 }}>{error}</div>}
-            <button
-              className="btn btn-primary"
-              disabled={busy || !username.trim() || !name.trim()}
-              onClick={onCreate}
-              style={{ marginTop: 4 }}
-            >
-              {busy ? "생성 중…" : "회원 생성 + 재설정 링크 발급"}
-            </button>
-          </div>
-        </div>
+            {!issued && (
+              <button
+                className="btn btn-primary"
+                disabled={busy || !username.trim() || !name.trim()}
+                onClick={onCreate}
+                style={{ marginTop: 4 }}
+              >
+                {busy ? "생성 중…" : "회원 생성 + 재설정 링크 발급"}
+              </button>
+            )}
 
-        <div className="panel" style={{ display: "flex", flexDirection: "column" }}>
-          <div className="ph">발급된 재설정 링크</div>
-          <div style={{ padding: "0 14px 14px" }}>
-            {issued ? (
+            {issued && (
               <div style={linkBox}>
                 <div style={{ fontSize: 12.5, color: "var(--g700)", marginBottom: 6 }}>
                   <b>{issued.username}</b> 비밀번호 재설정 링크 (24시간 유효 · 1회용) — 본인에게 직접 전달하세요.
                 </div>
                 <div style={{ display: "flex", gap: 8 }}>
                   <input className="inp" readOnly value={issued.link} style={{ flex: 1, fontSize: 12 }} />
-                  <button className="btn btn-soft" onClick={copyLink}>
+                  <button className="btn btn-soft" onClick={copyLink} style={{ whiteSpace: "nowrap" }}>
                     {copied ? "복사됨" : "복사"}
                   </button>
                 </div>
                 <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-                  <button className="btn btn-soft" onClick={() => setIssued(null)}>
+                  <button className="btn btn-soft" onClick={() => setIssued(null)} style={{ whiteSpace: "nowrap" }}>
                     계속 생성
                   </button>
-                  <button className="btn btn-primary" onClick={() => router.push("/admin/members")}>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => router.push("/admin/members")}
+                    style={{ whiteSpace: "nowrap" }}
+                  >
                     회원 목록으로
                   </button>
                 </div>
               </div>
-            ) : (
-              <p style={{ fontSize: 12.5, color: "var(--g500)", lineHeight: 1.6 }}>
-                회원을 생성하면 비밀번호 재설정 링크가 여기에 표시됩니다. 비밀번호는 회원이 링크에서 직접
-                설정하며(서버는 평문을 저장하지 않음), 이메일 발송은 없으니 관리자가 안전한 경로로 링크를 전달합니다.
-              </p>
             )}
           </div>
         </div>

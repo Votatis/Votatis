@@ -127,7 +127,7 @@ export default function MembersClient() {
         </button>
       }
     >
-      <div className="prow adm">
+      <div>
         <div className="panel">
           <div className="ph">회원 목록</div>
           {error && <div style={{ padding: "10px 14px", color: "var(--red-strong)", fontSize: 13 }}>{error}</div>}
