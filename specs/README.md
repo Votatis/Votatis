@@ -29,3 +29,4 @@ specs/
 | 0013 | intake-api src 디렉터리 재구성 + 레이어 리팩터링 (동작 불변) | completed | 2026-06-14 | 2026-06-14 | completed/0013-intake-api-src-restructure.md |
 | 0014 | 검증 관리 MCP 서버 (votatis-admin-mcp) — 관리자 API 래퍼 | completed | 2026-06-14 | 2026-06-14 | completed/0014-admin-mcp-server.md |
 | 0015 | 관리자 인증 — 루트 계정 + 회원관리 + JWT(access/refresh) | completed | 2026-06-14 | 2026-06-15 | completed/0015-admin-auth-accounts.md |
+| 0016 | 관리자 UX 개선 + 공개 아카이브 API 연동 + 제보 검토 피드백 스키마 + 예시 시드 | in-progress | 2026-06-15 | 2026-06-15 | in-progress/0016-admin-ux-archive-feedback.md |

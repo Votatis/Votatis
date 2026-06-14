@@ -29,3 +29,12 @@
 - **기록 안 함**: 단순 버그 수정, 오타·문구 수정, 리팩터링처럼 동작이 그대로인 변경.
 - **위치 결정**: `specs/{in-progress,completed,not-started}`에서 변경과 가장 관련된 스펙을 찾는다. 마땅한 스펙이 없으면 사용자에게 "관련 스펙이 없는데 새로 만들지" 물어보고, 임의로 만들지 않는다.
 - **형식**: `- YYYY-MM-DD: <무엇이 어떻게 바뀌었나> (요청: 채팅)` 한 줄. frontmatter의 `updated`도 함께 갱신한다.
+
+## 브랜치·커밋 협업 전략 (필수 정책)
+
+브랜치 네이밍, 커밋 컨벤션, PR/머지 흐름, AI의 git 작업 권한은 `docs/branch-commit-strategy.md`에 정의된다. 사람과 AI가 모두 따른다. 핵심:
+
+- 작업은 main이 아닌 **토픽 브랜치**(`<type>/<짧은-설명>`, 스펙 연동 시 `<type>/<spec-id>-<이름>`)에서 한다. GitHub Flow.
+- 커밋은 `type(scope): 한글 설명 (spec: <id>)` 형식. type은 `feat / fix / refactor / docs / chore / ops / steering`.
+- main은 **직접 push 금지**, PR을 통해서만 **Merge commit**으로 머지한다(squash 아님).
+- **AI는 브랜치·커밋·push·PR 생성까지** 하되 사용자가 명시 요청할 때만 한다. **main 머지는 항상 사람이** 리뷰 후 수행한다.

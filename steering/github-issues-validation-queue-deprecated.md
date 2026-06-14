@@ -1,8 +1,8 @@
 ---
 tldr: GitHub Issues 검증 큐 완전 폐기. 모든 검증/저장은 Cloudflare D1로만 처리. 관리자 페이지 UI에서 검수. GitHub 레포는 공개 데이터 배포용으로만 사용.
 tags: [decision, architecture, github, d1, deprecated]
-last_retrieved: 2026-06-14
-retrieval_count: 0
+last_retrieved: 2026-06-15
+retrieval_count: 1
 ---
 
 ## 결정
