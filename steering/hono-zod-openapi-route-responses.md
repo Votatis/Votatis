@@ -1,8 +1,8 @@
 ---
 tldr: @hono/zod-openapi 의 .openapi(route,handler) 는 핸들러가 반환할 수 있는 모든 status 를 createRoute 의 responses 에 선언해야 타입 통과한다 — 공유 HttpError(status 유니온)를 catch 해 c.json({error}, e.status) 로 응답하면 그 유니온의 모든 코드(400/401/403/404/409/503 등)를 선언해야 함. 그리고 공유 responses 객체에 `as const` 를 붙이면 응답의 json content 추론이 깨져 200 외 반환이 거부된다 → as const 빼라.
 tags: [pitfall, hono, openapi, typescript, intake-api]
-last_retrieved: 2026-06-14
-retrieval_count: 1
+last_retrieved: 2026-06-15
+retrieval_count: 2
 ---
 
 ## 규칙 / 교훈

@@ -1,8 +1,8 @@
 ---
 tldr: Next dev 포트 3000 = intake-api ALLOWED_ORIGIN 이어야 CORS 통과. 불일치면 'API 200인데 브라우저만 실패' → --var ALLOWED_ORIGIN으로 맞춤.
 tags: [pitfall, cors, frontend, intake-api]
-last_retrieved: 2026-06-14
-retrieval_count: 6
+last_retrieved: 2026-06-15
+retrieval_count: 7
 ---
 
 ## 규칙 / 교훈

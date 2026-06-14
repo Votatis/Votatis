@@ -1,8 +1,8 @@
 ---
 tldr: Next 16 `output: 'export'`(SSG)에서 동적 라우트(`[id]`)는 generateStaticParams가 **빈 배열이면 "missing generateStaticParams" 에러**로 빌드 실패한다. 최소 1개 sentinel param 반환 + `export const dynamicParams = false`로 풀어야 한다(나머지 id는 404). 또 `.next` 캐시 탓에 에러가 라우트별로 번갈아 보고되니 수정 후 `rm -rf .next`. **빌드타임에 모르는 런타임 id(예: 관리자 검수 대상)는 `[id]` path-param 대신 `?id=` 쿼리파라미터 페이지 + `useSearchParams`(Suspense 감싸기)로 만들어야 정적 export 가능.**
 tags: [pitfall, nextjs, ssg, frontend]
-last_retrieved: 2026-06-14
-retrieval_count: 1
+last_retrieved: 2026-06-15
+retrieval_count: 2
 ---
 
 ## 규칙 / 교훈
