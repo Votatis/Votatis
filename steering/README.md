@@ -49,9 +49,9 @@ retrieval_count: 0           # 참조된 누적 횟수
 
 | 파일 | tldr | tags | 마지막 회수 | 회수 |
 |------|------|------|------------|------|
-| [cloudflare-vitest-pool-workers-setup.md](cloudflare-vitest-pool-workers-setup.md) | Worker 테스트 셋업 함정: nodejs_compat 플래그, isolatedStorage:false, pnpm onlyBuiltDependencies, D1은 readD1Migrations+applyD1Migrations로 스키마 주입. | pitfall, cloudflare, testing, pnpm, d1 | 2026-06-10 | 1 |
-| [monorepo-apps-layout.md](monorepo-apps-layout.md) | 코드는 apps/&lt;name&gt;/ 아래 pnpm workspace로. 루트는 specs/steering/docs/공통설정만. | convention, project, monorepo, pnpm | 2026-06-10 | 4 |
-| [pnpm-filter-run-script.md](pnpm-filter-run-script.md) | package.json의 deploy 같은 스크립트는 `pnpm --filter <pkg> run deploy`로. run 없이 쓰면 pnpm 내장 deploy와 충돌. | pitfall, pnpm, monorepo | 2026-06-10 | 3 |
+| [cloudflare-vitest-pool-workers-setup.md](cloudflare-vitest-pool-workers-setup.md) | Worker 테스트 셋업 함정: nodejs_compat 플래그, isolatedStorage:false, pnpm onlyBuiltDependencies, D1은 readD1Migrations+applyD1Migrations로 스키마 주입. | pitfall, cloudflare, testing, pnpm, d1 | 2026-06-14 | 2 |
+| [monorepo-apps-layout.md](monorepo-apps-layout.md) | 코드는 apps/&lt;name&gt;/ 아래 pnpm workspace로. 루트는 specs/steering/docs/공통설정만. | convention, project, monorepo, pnpm | 2026-06-14 | 5 |
+| [pnpm-filter-run-script.md](pnpm-filter-run-script.md) | package.json의 deploy 같은 스크립트는 `pnpm --filter <pkg> run deploy`로. run 없이 쓰면 pnpm 내장 deploy와 충돌. | pitfall, pnpm, monorepo | 2026-06-14 | 4 |
 | [korea-region-dataset.md](korea-region-dataset.md) | 전국 행정구역 데이터. "내손1동"처럼 분동·생활 단위가 필요하면 행정동, "리"가 필요하면 법정동. 행정동은 juso administrationCode.tsv로 만들고 출장소 제외·세종 단층·전북 명칭만 보정. 산출물은 apps/frontend/src/data/regions.*.json. | reference, data, korea-region | 2026-06-10 | 2 |
 | [intake-api-local-flow-test.md](intake-api-local-flow-test.md) | intake-api 로컬 실행 두 모드: dev:local(LOCAL_UPLOAD shim, CF 없이 첨부까지) vs dev:remote(실 R2·D1). TURNSTILE 테스트키 + D1 db:migrate:local 선적용. 함정: wrangler dev는 .dev.vars/바인딩 변경 핫리로드 안 함 → 재시작 필수. | pitfall, testing, cloudflare, intake-api, d1 | 2026-06-10 | 9 |
 | [spec-workflow-rules-go-in-skill.md](spec-workflow-rules-go-in-skill.md) | 스펙 스킬(spec-create/implement/review)의 워크플로우 규칙은 steering이 아니라 해당 SKILL.md 본문에 둔다. | convention, workflow, spec, steering | 2026-06-10 | 2 |
