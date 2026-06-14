@@ -17,7 +17,22 @@ export interface QueueParams {
 export interface VerdictBody {
   status?: string;
   reviewer?: string;
-  verification?: { method?: string; notes?: string; evidence_links?: string[] };
+  verification?: {
+    method?: string;
+    notes?: string;
+    evidence_links?: string[];
+    public_summary?: string;
+    risk_level?: string;
+    status_scope?: string;
+    claim?: string;
+    verified_facts?: string[];
+    assessment?: string[];
+    confirmed_scope?: string[];
+    not_confirmed?: string[];
+    possible_explanations?: string[];
+    missing_evidence?: string[];
+    reviewer_note?: string;
+  };
   tags?: string[];
   rebuttals?: { text: string; source_url?: string }[];
 }

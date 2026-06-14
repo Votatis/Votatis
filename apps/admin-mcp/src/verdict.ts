@@ -18,11 +18,20 @@ export interface VerdictInput {
   status: string;
   method?: string;
   evidence_links?: string[];
+  // 검토 피드백 스키마(Votatis#2) — judged 판정 시 일부 필수.
+  public_summary?: string;
+  risk_level?: string;
+  not_confirmed?: string[];
+  status_scope?: string;
+  confirmed_scope?: string[];
 }
 
 export type VerdictCheck = { ok: true } | { ok: false; error: string };
 
-/** judged 판정이면 method + evidence_links≥1 을 요구. 누락 시 API 호출 없이 거부. */
+/**
+ * judged 판정이면 method + evidence_links≥1 에 더해 검토 피드백(public_summary·risk_level·not_confirmed)을 요구.
+ * confirmed 는 확인 범위(status_scope·confirmed_scope)도 필수. 누락 시 API 호출 없이 거부.
+ */
 export function validateVerdict(input: VerdictInput): VerdictCheck {
   if (!(ADMIN_STATUSES as readonly string[]).includes(input.status)) {
     return { ok: false, error: `status 는 ${ADMIN_STATUSES.join(" / ")} 중 하나여야 합니다.` };
@@ -39,6 +48,21 @@ export function validateVerdict(input: VerdictInput): VerdictCheck {
       return {
         ok: false,
         error: "확정/이견/반박/정정 판정에는 근거 링크(evidence_links) 1개 이상이 필요합니다.",
+      };
+    }
+    if (!input.public_summary || !input.public_summary.trim() || !input.risk_level || !input.risk_level.trim() ||
+        !input.not_confirmed || input.not_confirmed.length === 0) {
+      return {
+        ok: false,
+        error:
+          "판정에는 공개 요약(public_summary)·위험도(risk_level)·미확인 항목(not_confirmed 1개 이상)이 필요합니다. (페르소나5: 과잉해석 차단)",
+      };
+    }
+    if (input.status === "confirmed" && (!input.status_scope || !input.status_scope.trim() ||
+        !input.confirmed_scope || input.confirmed_scope.length === 0)) {
+      return {
+        ok: false,
+        error: "확인됨 판정에는 확인 범위(status_scope)와 확인된 항목(confirmed_scope 1개 이상)이 필요합니다. (부정선거 단정 금지)",
       };
     }
   }

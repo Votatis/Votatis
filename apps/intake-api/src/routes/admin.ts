@@ -5,6 +5,7 @@ import {
   adminListReports,
   adminGetReport,
   adminPatchReport,
+  adminCreateReport,
   adminGetAttachment,
   adminExport,
 } from "../services/admin";
@@ -15,6 +16,7 @@ import {
   AdminListQuerySchema,
   AdminReportListSchema,
   AdminReportDetailSchema,
+  AdminReportCreateSchema,
   AdminPatchSchema,
   AdminExportSchema,
   AnalysisSchema,
@@ -58,6 +60,25 @@ adminRoutes.openapi(adminListRoute, async (c) => {
   const q = c.req.valid("query");
   const result = await adminListReports(c.env, q);
   return c.json(result, 200);
+});
+
+// ── POST /admin/reports (관리자 직접 제보 등록) ───────────────────────────────
+const adminCreateRoute = createRoute({
+  method: "post",
+  path: "/admin/reports",
+  request: { body: { content: { "application/json": { schema: AdminReportCreateSchema } } } },
+  responses: {
+    201: { content: { "application/json": { schema: AdminReportDetailSchema } }, description: "생성된 제보 상세" },
+    400: { content: { "application/json": { schema: ErrorSchema } }, description: "유효하지 않은 입력" },
+    401: { content: { "application/json": { schema: ErrorSchema } }, description: "인증 필요" },
+  },
+});
+
+adminRoutes.openapi(adminCreateRoute, async (c) => {
+  const input = c.req.valid("json");
+  const reviewer = c.get("adminUser")?.username ?? null;
+  const report = await adminCreateReport(c.env, input, reviewer);
+  return c.json(report, 201);
 });
 
 // ── GET /admin/reports/{id} (내부 필드 포함 상세) ─────────────────────────────

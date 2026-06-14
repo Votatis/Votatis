@@ -1121,7 +1121,48 @@ export interface paths {
             };
         };
         put?: never;
-        post?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminReportCreate"];
+                };
+            };
+            responses: {
+                /** @description 생성된 제보 상세 */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminReportDetail"];
+                    };
+                };
+                /** @description 유효하지 않은 입력 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 필요 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -1457,6 +1498,16 @@ export interface components {
             reviewed_at: string | null;
             notes: string | null;
             evidence_links: string[] | null;
+            status_scope: string | null;
+            claim: string | null;
+            verified_facts: string[] | null;
+            assessment: string[] | null;
+            confirmed_scope: string[] | null;
+            not_confirmed: string[] | null;
+            possible_explanations: string[] | null;
+            missing_evidence: string[] | null;
+            public_summary: string | null;
+            risk_level: string | null;
         };
         Report: {
             id: string;
@@ -1557,9 +1608,25 @@ export interface components {
             limit: number;
             offset: number;
         };
+        AdminVerification: components["schemas"]["Verification"] & {
+            reviewer_note: string | null;
+        };
         AdminReportDetail: components["schemas"]["Report"] & {
+            verification?: components["schemas"]["AdminVerification"];
             submitter: string;
             exif: unknown[] | null;
+        };
+        AdminReportCreate: {
+            election: string;
+            title: string;
+            summary?: string;
+            body?: string;
+            region?: components["schemas"]["Region"];
+            occurred_at?: string;
+            tags?: string[];
+            sources?: components["schemas"]["Source"][];
+            /** @enum {string} */
+            status?: "unverified" | "reviewing";
         };
         AdminPatch: {
             /** @enum {string} */
@@ -1570,6 +1637,18 @@ export interface components {
                 method?: string | null;
                 notes?: string | null;
                 evidence_links?: string[];
+                status_scope?: string | null;
+                claim?: string | null;
+                verified_facts?: string[] | null;
+                assessment?: string[] | null;
+                confirmed_scope?: string[] | null;
+                not_confirmed?: string[] | null;
+                possible_explanations?: string[] | null;
+                missing_evidence?: string[] | null;
+                reviewer_note?: string | null;
+                public_summary?: string | null;
+                /** @enum {string|null} */
+                risk_level?: "낮음" | "낮음~중간" | "중간" | "중간~높음" | "높음" | null;
             };
             tags?: string[];
             rebuttals?: {

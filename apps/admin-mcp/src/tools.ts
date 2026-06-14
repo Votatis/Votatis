@@ -92,7 +92,7 @@ export function registerTools(server: McpServer, client: AdminClient): void {
     {
       title: "판정 기록",
       description:
-        "제보 상태를 판정/갱신한다. ⚠️ confirmed/disputed/debunked/corrected 판정에는 검증 방법(method)과 근거 링크(evidence_links 1개 이상)가 반드시 필요하다 — 없으면 거부된다. 페르소나5 규율: 근거 없는 판정 금지, '우리 편' 자료일수록 더 엄격히. tags·rebuttals(양측 기록)·notes 도 함께 남길 수 있다.",
+        "제보 상태를 판정/갱신한다. ⚠️ confirmed/disputed/debunked/corrected 판정에는 검증 방법(method)·근거 링크(evidence_links 1개 이상)와 함께 공개 요약(public_summary)·위험도(risk_level)·미확인 항목(not_confirmed 1개 이상)이 반드시 필요하다. confirmed 는 확인 범위(status_scope)·확인된 항목(confirmed_scope)도 필수(부정선거 단정 금지). 없으면 거부된다. 페르소나5 규율: 근거 없는 판정 금지, 주장과 사실을 분리하고 과잉해석을 차단한다.",
       inputSchema: {
         id: z.string(),
         status: z.enum(ADMIN_STATUSES),
@@ -102,6 +102,18 @@ export function registerTools(server: McpServer, client: AdminClient): void {
         tags: z.array(z.string()).optional(),
         rebuttals: z.array(z.object({ text: z.string(), source_url: z.string().url().optional() })).optional(),
         reviewer: z.string().optional(),
+        // 검토 피드백 스키마(Votatis#2)
+        public_summary: z.string().optional(),
+        risk_level: z.enum(["낮음", "낮음~중간", "중간", "중간~높음", "높음"]).optional(),
+        status_scope: z.string().optional(),
+        claim: z.string().optional(),
+        verified_facts: z.array(z.string()).optional(),
+        assessment: z.array(z.string()).optional(),
+        confirmed_scope: z.array(z.string()).optional(),
+        not_confirmed: z.array(z.string()).optional(),
+        possible_explanations: z.array(z.string()).optional(),
+        missing_evidence: z.array(z.string()).optional(),
+        reviewer_note: z.string().optional(),
       },
     },
     async (args) => {
@@ -112,7 +124,22 @@ export function registerTools(server: McpServer, client: AdminClient): void {
         reviewer: args.reviewer,
         tags: args.tags,
         rebuttals: args.rebuttals,
-        verification: { method: args.method, notes: args.notes, evidence_links: args.evidence_links },
+        verification: {
+          method: args.method,
+          notes: args.notes,
+          evidence_links: args.evidence_links,
+          public_summary: args.public_summary,
+          risk_level: args.risk_level,
+          status_scope: args.status_scope,
+          claim: args.claim,
+          verified_facts: args.verified_facts,
+          assessment: args.assessment,
+          confirmed_scope: args.confirmed_scope,
+          not_confirmed: args.not_confirmed,
+          possible_explanations: args.possible_explanations,
+          missing_evidence: args.missing_evidence,
+          reviewer_note: args.reviewer_note,
+        },
       };
       return guarded(() => client.recordVerdict(args.id, body));
     },

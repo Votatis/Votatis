@@ -354,6 +354,84 @@
             "items": {
               "type": "string"
             }
+          },
+          "status_scope": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "claim": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "verified_facts": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "assessment": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "confirmed_scope": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "not_confirmed": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "possible_explanations": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "missing_evidence": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "public_summary": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "risk_level": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         },
         "required": [
@@ -361,7 +439,17 @@
           "method",
           "reviewed_at",
           "notes",
-          "evidence_links"
+          "evidence_links",
+          "status_scope",
+          "claim",
+          "verified_facts",
+          "assessment",
+          "confirmed_scope",
+          "not_confirmed",
+          "possible_explanations",
+          "missing_evidence",
+          "public_summary",
+          "risk_level"
         ]
       },
       "Report": {
@@ -790,6 +878,27 @@
           "offset"
         ]
       },
+      "AdminVerification": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Verification"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "reviewer_note": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "reviewer_note"
+            ]
+          }
+        ]
+      },
       "AdminReportDetail": {
         "allOf": [
           {
@@ -798,6 +907,9 @@
           {
             "type": "object",
             "properties": {
+              "verification": {
+                "$ref": "#/components/schemas/AdminVerification"
+              },
               "submitter": {
                 "type": "string"
               },
@@ -814,6 +926,55 @@
               "exif"
             ]
           }
+        ]
+      },
+      "AdminReportCreate": {
+        "type": "object",
+        "properties": {
+          "election": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "region": {
+            "$ref": "#/components/schemas/Region"
+          },
+          "occurred_at": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 50
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Source"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "unverified",
+              "reviewing"
+            ]
+          }
+        },
+        "required": [
+          "election",
+          "title"
         ]
       },
       "AdminPatch": {
@@ -860,6 +1021,97 @@
                   "type": "string",
                   "format": "uri"
                 }
+              },
+              "status_scope": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "claim": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "verified_facts": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "assessment": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "confirmed_scope": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "not_confirmed": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "possible_explanations": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "missing_evidence": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "reviewer_note": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "public_summary": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "risk_level": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "낮음",
+                  "낮음~중간",
+                  "중간",
+                  "중간~높음",
+                  "높음"
+                ]
               }
             }
           },
@@ -2183,6 +2435,49 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminReportList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminReportCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "생성된 제보 상세",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminReportDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "유효하지 않은 입력",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }

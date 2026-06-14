@@ -1,7 +1,7 @@
 import { z } from "@hono/zod-openapi";
 import { ADMIN_STATUSES, RISK_LEVELS } from "../constants";
 import { ReportPublicSchema, ReportSummarySchema } from "./reports";
-import { AdminVerificationSchema } from "./common";
+import { AdminVerificationSchema, SourceSchema, RegionSchema } from "./common";
 
 export const AdminSessionInputSchema = z
   .object({ token: z.string().min(1) })
@@ -78,6 +78,22 @@ export const AdminPatchSchema = z
   })
   .refine((v) => Object.keys(v).length > 0, { message: "수정할 필드가 없습니다." })
   .openapi("AdminPatch");
+
+// 관리자 직접 제보 등록(spec 0016) — 공개 2단계 업로드(Turnstile/presign) 대신 텍스트·출처·카테고리로 즉시 생성.
+// 생성 상태는 검수 전 상태(unverified/reviewing)만 — 판정(confirmed 등)은 PATCH 판정 경로로만.
+export const AdminReportCreateSchema = z
+  .object({
+    election: z.string().min(1),
+    title: z.string().min(1),
+    summary: z.string().optional(),
+    body: z.string().optional(),
+    region: RegionSchema.optional(),
+    occurred_at: z.string().optional(),
+    tags: z.array(z.string()).max(50).optional(), // tags[0] = 카테고리 라벨(투개표/사전투표/전산집계)
+    sources: z.array(SourceSchema).optional(),
+    status: z.enum(["unverified", "reviewing"]).optional(),
+  })
+  .openapi("AdminReportCreate");
 
 export const AnalysisSchema = z
   .object({

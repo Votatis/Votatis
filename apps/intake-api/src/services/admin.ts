@@ -5,10 +5,52 @@ import { getDb } from "../db/client";
 import { reports } from "../db/schema";
 import { JUDGED_STATUSES, PUBLISHABLE_STATUSES } from "../constants";
 import { toAdminSummary, toAdminDetail, toPublicReport } from "../domain/mappers";
-import type { AdminListQuerySchema, AdminPatchSchema } from "../schemas";
+import { randomId } from "../lib/crypto";
+import type { AdminListQuerySchema, AdminPatchSchema, AdminReportCreateSchema } from "../schemas";
 
 type AdminListQuery = z.infer<typeof AdminListQuerySchema>;
 type AdminPatch = z.infer<typeof AdminPatchSchema>;
+type AdminReportCreate = z.infer<typeof AdminReportCreateSchema>;
+
+/** 관리자 직접 제보 등록 — 검수 전 상태로 즉시 생성(업로드/Turnstile 없음). */
+export async function adminCreateReport(env: Env, input: AdminReportCreate, reviewer: string | null) {
+  const db = getDb(env);
+  const id = randomId();
+  const now = new Date().toISOString();
+  await db.insert(reports).values({
+    id,
+    status: input.status ?? "unverified",
+    election: input.election,
+    title: input.title,
+    summary: input.summary ?? null,
+    body: input.body ?? null,
+    sido: input.region?.sido ?? null,
+    sigungu: input.region?.sigungu ?? null,
+    eupMyeonDong: input.region?.eup_myeon_dong ?? null,
+    occurredAt: input.occurred_at ?? null,
+    collectedAt: now,
+    tags: input.tags ?? [],
+    sources: input.sources ?? [],
+    attachments: [],
+    exif: null,
+    rebuttals: null,
+    related: null,
+    consent: true, // 관리자 직접 입력
+    submitter: `admin:${reviewer ?? "console"}`,
+    license: "CC-BY-4.0",
+    verificationReviewer: null,
+    verificationMethod: null,
+    verificationReviewedAt: null,
+    verificationNotes: null,
+    verificationEvidenceLinks: null,
+    finalizeToken: null,
+    staging: null,
+    createdAt: now,
+    updatedAt: now,
+  });
+  const row = (await db.select().from(reports).where(eq(reports.id, id)).limit(1))[0];
+  return toAdminDetail(row!);
+}
 
 function buildAdminWhere(q: Partial<AdminListQuery>): SQL | undefined {
   const conds: SQL[] = [ne(reports.status, "pending")];
@@ -110,14 +152,45 @@ export async function adminPatchReport(env: Env, id: string, patch: AdminPatch):
 
   if (JUDGED_STATUSES.has(targetStatus)) {
     // 패치가 해당 키를 명시하면(설령 null 이어도) 그 값이 최종값 — null 로 근거를 지우며 판정 유지 못 하게.
-    const method = v && "method" in v ? v.method : row.verificationMethod;
-    const links = v && v.evidence_links !== undefined ? v.evidence_links : row.verificationEvidenceLinks ?? [];
+    // 병합값: 패치가 키를 주면 그 값, 아니면 기존 행 값.
+    const mergedStr = (key: keyof NonNullable<typeof v>, col: string | null) =>
+      v && key in v ? ((v[key] as string | null | undefined) ?? null) : col;
+    const mergedArr = (key: keyof NonNullable<typeof v>, col: string[] | null) =>
+      v && v[key] !== undefined ? ((v[key] as string[] | null) ?? []) : col ?? [];
+
+    const method = mergedStr("method", row.verificationMethod);
+    const links = mergedArr("evidence_links", row.verificationEvidenceLinks ?? null);
     if (!method || links.length === 0) {
       return {
         ok: false,
         status: 400,
         error: "확정/이견/반박/정정 판정에는 검증 방법(method)과 근거 링크(evidence_links) 1개 이상이 필요합니다.",
       };
+    }
+
+    // 검토 피드백 필수(페르소나 5: 확증편향·과잉해석 차단). 공개요약·위험도·미확인항목.
+    const publicSummary = mergedStr("public_summary", row.verificationPublicSummary);
+    const riskLevel = mergedStr("risk_level", row.verificationRiskLevel);
+    const notConfirmed = mergedArr("not_confirmed", row.verificationNotConfirmed ?? null);
+    if (!publicSummary?.trim() || !riskLevel?.trim() || notConfirmed.length === 0) {
+      return {
+        ok: false,
+        status: 400,
+        error: "판정에는 공개 요약(public_summary)·위험도(risk_level)·미확인 항목(not_confirmed 1개 이상)이 필요합니다.",
+      };
+    }
+
+    // '확인됨'(confirmed)은 확인 범위를 반드시 제한해야 한다(부정선거 단정 금지).
+    if (targetStatus === "confirmed") {
+      const statusScope = mergedStr("status_scope", row.verificationStatusScope);
+      const confirmedScope = mergedArr("confirmed_scope", row.verificationConfirmedScope ?? null);
+      if (!statusScope?.trim() || confirmedScope.length === 0) {
+        return {
+          ok: false,
+          status: 400,
+          error: "확인됨 판정에는 확인 범위(status_scope)와 확인된 항목(confirmed_scope 1개 이상)이 필요합니다.",
+        };
+      }
     }
   }
 

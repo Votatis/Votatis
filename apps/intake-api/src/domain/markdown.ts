@@ -24,6 +24,17 @@ export interface PublicRecord {
     reviewed_at: string | null;
     notes: string | null;
     evidence_links: string[] | null;
+    // 검토 피드백 스키마(Votatis#2) — 공개 노출 필드.
+    status_scope: string | null;
+    claim: string | null;
+    verified_facts: string[] | null;
+    assessment: string[] | null;
+    confirmed_scope: string[] | null;
+    not_confirmed: string[] | null;
+    possible_explanations: string[] | null;
+    missing_evidence: string[] | null;
+    public_summary: string | null;
+    risk_level: string | null;
   };
   created_at: string;
   updated_at: string;
@@ -129,6 +140,24 @@ export function recordToMarkdown(r: PublicRecord): string {
     for (const l of v.evidence_links) fm.push(`    - ${y(l)}`);
   } else {
     fm.push("  evidence_links: []");
+  }
+  // 검토 피드백(Votatis#2) — 값이 있을 때만 frontmatter 에 싣는다(빈 항목 노이즈 방지). verification 하위(2칸 들여쓰기).
+  if (v.status_scope) fm.push(`  status_scope: ${y(v.status_scope)}`);
+  if (v.risk_level) fm.push(`  risk_level: ${y(v.risk_level)}`);
+  if (v.public_summary) fm.push(`  public_summary: ${y(v.public_summary)}`);
+  if (v.claim) fm.push(`  claim: ${y(v.claim)}`);
+  for (const [key, arr] of [
+    ["verified_facts", v.verified_facts],
+    ["assessment", v.assessment],
+    ["confirmed_scope", v.confirmed_scope],
+    ["not_confirmed", v.not_confirmed],
+    ["possible_explanations", v.possible_explanations],
+    ["missing_evidence", v.missing_evidence],
+  ] as const) {
+    if (arr && arr.length) {
+      fm.push(`  ${key}:`);
+      for (const item of arr) fm.push(`    - ${y(item)}`);
+    }
   }
 
   fm.push(...emitRebuttals(r.rebuttals));
