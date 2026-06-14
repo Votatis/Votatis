@@ -1,14 +1,13 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { IGrid, IUsers, IList, ICheckSq, IImage, IChart, IEdit } from "@/components/mock/mock-icons";
+import { IGrid, IUsers, ICheckSq, IImage, IChart, IEdit } from "@/components/mock/mock-icons";
 import Torch from "@/components/landing/Torch";
 
-export type AdminNav = "dashboard" | "members" | "reports" | "queue" | "evidence" | "content";
+export type AdminNav = "dashboard" | "members" | "queue" | "evidence" | "content";
 
 const ITEMS: { key: AdminNav; label: string; href: string; Icon: typeof IGrid; cnt?: string }[] = [
   { key: "dashboard", label: "대시보드", href: "/admin/dashboard", Icon: IGrid },
   { key: "members", label: "회원", href: "/admin/members", Icon: IUsers },
-  { key: "reports", label: "제보", href: "/admin/queue", Icon: IList },
   { key: "queue", label: "검토 큐", href: "/admin/queue", Icon: ICheckSq },
   { key: "evidence", label: "원본 데이터", href: "/admin/evidence", Icon: IImage },
 ];
