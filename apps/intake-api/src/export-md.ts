@@ -41,6 +41,7 @@ export function slug(s: string): string {
       .trim()
       .replace(/[\\/:*?"<>|]+/g, "-") // 경로·파일 금지문자
       .replace(/\s+/g, "-")
+      .replace(/^\.+/, "") // 선행 점 제거 — "."/".." 경로 탈출 방지
       .replace(/-+/g, "-")
       .replace(/^-|-$/g, "")
       .slice(0, 80) || "untitled"

@@ -396,6 +396,25 @@ describe("관리자 검증 API (/admin/*)", () => {
     expect(data.rebuttals).toHaveLength(1);
   });
 
+  it("판정 후 method:null 로 근거를 지우려 하면 400(판정 무결성 유지)", async () => {
+    const id = await seedUnverified("10.6.0.7");
+    // 먼저 근거와 함께 confirmed
+    const ok = await call(adminReq(`/admin/reports/${id}`, {
+      method: "PATCH",
+      body: { status: "confirmed", verification: { method: "교차확인", evidence_links: ["https://example.com/e"] } },
+    }));
+    expect(ok.status).toBe(200);
+    // status 없이 method 만 null 로 — confirmed 인 채 근거 제거 시도 → 400
+    const bypass = await call(adminReq(`/admin/reports/${id}`, {
+      method: "PATCH",
+      body: { verification: { method: null } },
+    }));
+    expect(bypass.status).toBe(400);
+    // DB 는 여전히 method 유지
+    const after = await call(adminReq(`/admin/reports/${id}`));
+    expect((await after.json() as { verification: { method: string | null } }).verification.method).toBe("교차확인");
+  });
+
   it("GET /admin/reports/{id}/attachments/{idx} 가 인증 하에 바이트를 반환", async () => {
     const id = await seedUnverified("10.6.0.5");
     const unauth = await call(adminReq(`/admin/reports/${id}/attachments/0`, { token: null }));
@@ -471,6 +490,18 @@ describe("공개 배포 export (마크다운 + /admin/export)", () => {
     expect(md).not.toContain("submitter");
     expect(md).not.toContain("exif");
     expect(recordRelPath(rec)).toBe("data/제9회-지방선거/x-1.md");
+  });
+
+  it("recordRelPath 는 '.'/'..' election 경로 탈출을 막는다", () => {
+    const base = (election: string): PublicRecord => ({
+      id: "x-1", status: "confirmed", election, title: "t", summary: null, body: null,
+      region: {}, occurred_at: null, collected_at: "2026-06-03T22:10:00+09:00",
+      tags: [], sources: [], attachments: [], rebuttals: null, related: null, license: "CC-BY-4.0",
+      verification: { reviewer: null, method: null, reviewed_at: null, notes: null, evidence_links: null },
+      created_at: "2026-06-03T22:10:00+09:00", updated_at: "2026-06-03T22:10:00+09:00",
+    });
+    expect(recordRelPath(base("..")).includes("/../")).toBe(false);
+    expect(recordRelPath(base("."))).toBe("data/untitled/x-1.md");
   });
 
   it("GET /admin/export 는 검증완료만 공개필드로 반환(미검증 제외, 미인증 401)", async () => {

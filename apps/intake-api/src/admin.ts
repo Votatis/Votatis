@@ -184,8 +184,9 @@ export async function adminPatchReport(env: Env, id: string, patch: AdminPatch):
   }
 
   if (JUDGED_STATUSES.has(targetStatus)) {
-    const method = v?.method ?? row.verificationMethod;
-    const links = v?.evidence_links ?? row.verificationEvidenceLinks ?? [];
+    // 패치가 해당 키를 명시하면(설령 null 이어도) 그 값이 최종값 — null 로 근거를 지우며 판정 유지 못 하게.
+    const method = v && "method" in v ? v.method : row.verificationMethod;
+    const links = v && v.evidence_links !== undefined ? v.evidence_links : row.verificationEvidenceLinks ?? [];
     if (!method || links.length === 0) {
       return {
         ok: false,
