@@ -1,7 +1,7 @@
 ---
 id: "0008"
 title: 관리자 검증 API + 인증 (검증 큐 / 상태 판정 / 증거 열람)
-status: in-review   # not-started | in-progress | in-review | completed
+status: completed   # not-started | in-progress | in-review | completed
 created: 2026-06-14
 updated: 2026-06-14
 related:
@@ -74,3 +74,4 @@ related:
 ## Changelog
 - 2026-06-14: 최초 작성 (Goal 001 자율 수행)
 - 2026-06-14: 구현 완료 — 인증 미들웨어(Bearer ADMIN_TOKEN)+CORS(/admin 오리진 제한), GET/PATCH /admin/reports, 증거 스트리밍, POST /admin/session, 공개 GET /stats. 테스트 9건 추가(총 32) 통과, OpenAPI 재방출+프론트 타입 재생성. in-review 이동.
+- 2026-06-14: spec-review 통과(adversarial review + 회귀 테스트, typecheck/test/static build). completed 이동.

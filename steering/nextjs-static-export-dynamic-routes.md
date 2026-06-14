@@ -1,8 +1,8 @@
 ---
-tldr: Next 16 `output: 'export'`(SSG)에서 동적 라우트(`[id]`)는 generateStaticParams가 **빈 배열이면 "missing generateStaticParams" 에러**로 빌드 실패한다. 최소 1개 sentinel param 반환 + `export const dynamicParams = false`로 풀어야 한다(나머지 id는 404). 또 `.next` 캐시 탓에 에러가 라우트별로 번갈아 보고되니 수정 후 `rm -rf .next`.
+tldr: Next 16 `output: 'export'`(SSG)에서 동적 라우트(`[id]`)는 generateStaticParams가 **빈 배열이면 "missing generateStaticParams" 에러**로 빌드 실패한다. 최소 1개 sentinel param 반환 + `export const dynamicParams = false`로 풀어야 한다(나머지 id는 404). 또 `.next` 캐시 탓에 에러가 라우트별로 번갈아 보고되니 수정 후 `rm -rf .next`. **빌드타임에 모르는 런타임 id(예: 관리자 검수 대상)는 `[id]` path-param 대신 `?id=` 쿼리파라미터 페이지 + `useSearchParams`(Suspense 감싸기)로 만들어야 정적 export 가능.**
 tags: [pitfall, nextjs, ssg, frontend]
-last_retrieved: 2026-06-10
-retrieval_count: 0
+last_retrieved: 2026-06-14
+retrieval_count: 1
 ---
 
 ## 규칙 / 교훈
@@ -20,5 +20,6 @@ retrieval_count: 0
 - `output: 'export'`는 서버가 없어 on-demand 렌더가 불가하므로 모든 경로가 빌드 타임에 확정돼야 한다. 빈 목록은 "이 라우트를 어떻게 정적화할지 모름"으로 취급돼 막힌다. 캐시 때문에 원인 라우트를 오판하기 쉬워 시간을 버린다.
 
 ## 적용
-- SSG에서 `[param]` 페이지엔 항상 `dynamicParams=false` + 최소 1개 params. 실 데이터(예: GET /reports)로 채울 수 있으면 그걸로, 아니면 sentinel.
+- SSG에서 `[param]` 페이지엔 항상 `dynamicParams=false` + 최소 1개 params. **빌드타임에 id 목록을 아는 경우만**(예: 공개 아카이브 — 빌드 인덱스 `archive.generated.json`의 id 열거) path-param + generateStaticParams로 정적 상세 페이지를 만든다.
+- **런타임에만 id가 정해지는 경우**(관리자 검수 `/free/admin/evidence` 등 — D1에서 그때그때 조회)는 path-param이 정적 export와 맞지 않는다. `?id=` 쿼리파라미터 단일 페이지를 `"use client"`로 만들고 `useSearchParams()`로 id를 읽되, export 정적 프리렌더 때문에 **`<Suspense>`로 감싸야** 빌드가 통과한다.
 - 빌드 에러가 안 변하거나 라우트를 오가면 `.next` 캐시부터 의심. [[gitignore-lib-catches-src-lib]](누락 모듈)와는 다른 증상.

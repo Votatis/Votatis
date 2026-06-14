@@ -1,7 +1,7 @@
 ---
 id: "0012"
 title: AI 분석 백엔드 (자동 태깅 / 신뢰도 신호 / 합성 위험) — 보조 신호
-status: in-review
+status: completed
 created: 2026-06-14
 updated: 2026-06-14
 related:
@@ -48,3 +48,4 @@ PRD §6 관리자 기능에 "AI 분석 결과 제시(신뢰도·관련 키워드
 ## Changelog
 - 2026-06-14: 최초 작성 (Goal 001 자율 수행)
 - 2026-06-14: 구현 완료 — analyze.ts 휴리스틱(태그추천/신뢰도/합성위험/요약힌트)+POST /admin/reports/{id}/analyze(선택 Workers AI 증강, graceful fallback), 관리자 증거 화면 'AI 분석(보조)' 패널. 테스트 37건(3건 추가) 통과. in-review 이동.
+- 2026-06-14: spec-review 통과(adversarial review + 회귀 테스트, typecheck/test/static build). completed 이동.

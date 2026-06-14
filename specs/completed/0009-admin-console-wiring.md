@@ -1,7 +1,7 @@
 ---
 id: "0009"
 title: 관리자 콘솔 API 연동 (로그인 / 검토 큐 / 증거 검수 / 대시보드)
-status: in-review
+status: completed
 created: 2026-06-14
 updated: 2026-06-14
 related:
@@ -43,3 +43,4 @@ related:
 - 2026-06-14: 최초 작성 (Goal 001 자율 수행)
 - 2026-06-14: 관리자 콘솔 4개 영역 API 연동 구현 — 로그인(공유 토큰), 검토 큐(탭·검색·counts·행 링크), 증거 검수를 `[id]` path-param → `?id=` 쿼리 라우트로 전환(useSearchParams+Suspense, 첨부 인라인·판정 폼·근거 필수 안내), 대시보드(상태별 counts). AdminShell evidence nav href 갱신.
 - 2026-06-14: 구현·검증 완료(typecheck+static build 성공). in-review 이동.
+- 2026-06-14: spec-review 통과(adversarial review + 회귀 테스트, typecheck/test/static build). completed 이동.

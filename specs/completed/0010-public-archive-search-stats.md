@@ -1,7 +1,7 @@
 ---
 id: "0010"
 title: 공개 아카이브 / 검색 / 통계 정적 연동
-status: in-review
+status: completed
 created: 2026-06-14
 updated: 2026-06-14
 related:
@@ -42,3 +42,4 @@ related:
 - 2026-06-14: 최초 작성 (Goal 001 자율 수행)
 - 2026-06-14: 공개 페이지 4종을 빌드타임 데이터 레이어(archive.ts)에 연동 — /archive 목록·필터·정렬·카운트, /archive/[id] 실 id 열거 + 상세(출처/첨부 해시/검증/반박), /search filterRecords 결과, /stats archiveStats() 차트. typecheck 통과 (요청: 채팅)
 - 2026-06-14: 구현·검증 완료(typecheck+static build 성공). in-review 이동.
+- 2026-06-14: spec-review 통과(adversarial review + 회귀 테스트, typecheck/test/static build). completed 이동.
