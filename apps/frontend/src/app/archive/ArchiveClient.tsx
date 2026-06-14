@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   CATEGORY_LABEL,
@@ -9,27 +9,17 @@ import {
   type VerifyStatus,
 } from "@/lib/types";
 import {
-  allRecords,
-  categoryCounts,
-  filterRecords,
-  type ArchiveRecord,
-} from "@/lib/archive";
+  loadArchiveSummaries,
+  recordCategory,
+  type ArchiveSummary,
+} from "@/lib/archive-source";
 import { IGrid, ISearch, IPin, IChart } from "@/components/mock/mock-icons";
 import Torch from "@/components/landing/Torch";
 
 const CATS: Category[] = ["A", "B", "C"];
-const STATUSES: VerifyStatus[] = [
-  "confirmed",
-  "reviewing",
-  "unverified",
-  "disputed",
-  "debunked",
-  "corrected",
-];
+const STATUSES: VerifyStatus[] = ["confirmed", "disputed", "debunked", "corrected"];
 
 // VerifyStatus → 실제 존재하는 칩 CSS 클래스 suffix(`chip c-<suffix>`).
-// types.ts STATUS_CHIP 는 confirmed→"ok" 로 두지만 app-shell.css 엔 .c-ok 가 없고 .c-cnf 만 있어
-// 여기서 CSS 에 실재하는 클래스(cnf/rev/unv/dis/deb/cor)로 매핑한다.
 const STATUS_CHIP_CLASS: Record<string, string> = {
   unverified: "unv",
   reviewing: "rev",
@@ -43,18 +33,29 @@ function statusChipClass(status: string): string {
   return STATUS_CHIP_CLASS[status] ?? "unv";
 }
 
-function regionText(r: ArchiveRecord): string {
-  const parts = [r.region?.sido, r.region?.sigungu].filter(Boolean);
-  return parts.join(" ");
+/** 카드가 쓰는 최소 필드 — 공개 요약(ReportSummary)과 상세(Report) 양쪽이 만족한다. */
+interface CardRecord {
+  id: string;
+  status: string;
+  title: string;
+  summary?: string | null;
+  region?: { sido?: string; sigungu?: string; eup_myeon_dong?: string };
+  tags?: string[];
+  attachment_count?: number;
+  attachments?: unknown[];
 }
 
-/** 아카이브/검색 공용 레코드 카드. .rdoc 계열 클래스 재사용. */
-export function RecordCard({ r }: { r: ArchiveRecord }) {
+function regionText(r: CardRecord): string {
+  return [r.region?.sido, r.region?.sigungu].filter(Boolean).join(" ");
+}
+
+/** 아카이브/검색 공용 레코드 카드. 상세는 런타임 API 조회(/archive/record?id=). */
+export function RecordCard({ r }: { r: CardRecord }) {
   const region = regionText(r);
-  const att = r.attachments?.length ?? 0;
+  const att = r.attachment_count ?? r.attachments?.length ?? 0;
   return (
     <Link
-      href={`/archive/${r.id}`}
+      href={`/archive/record?id=${encodeURIComponent(r.id)}`}
       className="rdoc"
       style={{ display: "block", maxWidth: "none", margin: "0 0 12px", padding: "16px 18px" }}
     >
@@ -82,18 +83,50 @@ export function RecordCard({ r }: { r: ArchiveRecord }) {
   );
 }
 
-/** 실동작 아카이브: 빌드타임 인덱스 레코드 목록 + 필터·정렬 토글 */
+/** 실동작 아카이브: 런타임 API 조회(승인 레코드) + 필터·정렬 토글. 정적 인덱스 fallback. */
 export default function ArchiveClient() {
+  const [records, setRecords] = useState<ArchiveSummary[] | null>(null);
   const [sort, setSort] = useState<"all" | "recent">("all");
   const [cat, setCat] = useState<Category | null>(null);
   const [status, setStatus] = useState<VerifyStatus | null>(null);
 
-  const counts = useMemo(() => categoryCounts(), []);
-  const total = useMemo(() => allRecords().length, []);
-  const list = useMemo(
-    () => filterRecords({ category: cat, status, sort }),
-    [cat, status, sort],
-  );
+  useEffect(() => {
+    let cancelled = false;
+    loadArchiveSummaries().then((rs) => {
+      if (!cancelled) setRecords(rs);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const all = records ?? [];
+  const loading = records === null;
+
+  const counts = useMemo(() => {
+    const c: Record<Category, number> = { A: 0, B: 0, C: 0 };
+    for (const r of all) {
+      const k = recordCategory(r);
+      if (k) c[k]++;
+    }
+    return c;
+  }, [all]);
+
+  const total = all.length;
+
+  const list = useMemo(() => {
+    const q = "";
+    let out = all.filter((r) => {
+      if (cat && recordCategory(r) !== cat) return false;
+      if (status && r.status !== status) return false;
+      void q;
+      return true;
+    });
+    if (sort === "recent") {
+      out = [...out].sort((a, b) => (b.collected_at ?? "").localeCompare(a.collected_at ?? ""));
+    }
+    return out;
+  }, [all, cat, status, sort]);
 
   return (
     <div className="win" style={{ boxShadow: "none", borderRadius: 14, marginTop: 4 }}>
@@ -168,7 +201,14 @@ export default function ArchiveClient() {
             ))}
           </div>
 
-          {list.length === 0 ? (
+          {loading ? (
+            <div className="empty">
+              <div className="ic">
+                <IGrid size={22} />
+              </div>
+              <h4>불러오는 중…</h4>
+            </div>
+          ) : list.length === 0 ? (
             <div className="empty">
               <div className="ic">
                 <IGrid size={22} />
