@@ -3,12 +3,34 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Torch from "@/components/landing/Torch";
+import { verifyAdminToken, AdminApiError } from "@/lib/api/admin";
+import { setAdminToken } from "@/lib/admin-auth";
 
 export default function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [pw, setPw] = useState("");
-  const valid = email.includes("@") && pw.length >= 4;
+  const [token, setToken] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const valid = token.trim().length > 0;
+
+  async function submit() {
+    if (!valid || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const ok = await verifyAdminToken(token.trim());
+      if (ok) {
+        setAdminToken(token.trim());
+        router.push("/free/admin/dashboard");
+      } else {
+        setError("토큰이 올바르지 않습니다. 다시 확인하세요.");
+      }
+    } catch (e) {
+      setError(e instanceof AdminApiError ? e.message : "로그인에 실패했습니다. 잠시 후 다시 시도하세요.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <div className="login" style={{ background: "transparent", minHeight: "60vh" }}>
@@ -19,31 +41,31 @@ export default function LoginForm() {
         <div className="sub">관리자 콘솔 · 검토자 전용</div>
         <input
           className="inp"
-          type="email"
-          placeholder="admin@votatis.kr"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          className="inp"
           type="password"
-          placeholder="비밀번호"
-          value={pw}
-          onChange={(e) => setPw(e.target.value)}
+          placeholder="관리자 액세스 토큰"
+          value={token}
+          onChange={(e) => setToken(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") submit();
+          }}
         />
+        {error && (
+          <div className="l2fa" style={{ color: "var(--red-strong)", marginTop: 0, marginBottom: 8 }}>
+            {error}
+          </div>
+        )}
         <button
           className="lbtn"
-          disabled={!valid}
-          style={!valid ? { background: "var(--g300)", cursor: "not-allowed" } : undefined}
-          onClick={() => router.push("/free/admin/dashboard")}
-          /* TODO: POST /api/admin/login → OTP 2FA → 세션 */
+          disabled={!valid || busy}
+          style={!valid || busy ? { background: "var(--g300)", cursor: "not-allowed" } : undefined}
+          onClick={submit}
         >
-          로그인
+          {busy ? "확인 중…" : "로그인"}
         </button>
         <div className="l2fa">
-          접근 시 2단계 인증(OTP)이 요구됩니다.
+          MVP 단계에서는 운영팀이 공유하는 액세스 토큰으로 인증합니다.
           <br />
-          모든 로그인·열람 활동은 감사 로그에 기록됩니다.
+          토큰은 이 브라우저에만 저장되며 요청 시 인증 헤더로 전송됩니다.
         </div>
       </div>
     </div>

@@ -15,6 +15,7 @@ import {
   adminGetReport,
   adminPatchReport,
   adminGetAttachment,
+  adminExport,
   publicStats,
 } from "./admin";
 import { clientIp } from "./util";
@@ -35,6 +36,7 @@ import {
   AdminReportListSchema,
   AdminReportDetailSchema,
   AdminPatchSchema,
+  AdminExportSchema,
   StatsSchema,
 } from "./schemas";
 
@@ -304,6 +306,21 @@ app.get("/admin/reports/:id/attachments/:idx", async (c) => {
       "cache-control": "private, max-age=60",
     },
   });
+});
+
+// ── GET /admin/export (공개 배포 대상 추출) ───────────────────────────────────
+const adminExportRoute = createRoute({
+  method: "get",
+  path: "/admin/export",
+  responses: {
+    200: { content: { "application/json": { schema: AdminExportSchema } }, description: "검증 완료 레코드(공개 필드)" },
+    401: { content: { "application/json": { schema: ErrorSchema } }, description: "인증 필요" },
+  },
+});
+
+app.openapi(adminExportRoute, async (c) => {
+  const result = await adminExport(c.env);
+  return c.json(result, 200);
 });
 
 // ── OpenAPI 문서 + Scalar UI ─────────────────────────────────────────────────

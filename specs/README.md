@@ -22,3 +22,6 @@ specs/
 | 0006 | D1 기반 제보 저장 + 정식 조회 API (Hono + OpenAPI + Zod) | completed | 2026-06-10 | 2026-06-10 | completed/0006-d1-report-store-api.md |
 | 0007 | frontend(Next.js) apps/frontend 통합 + 제보 기능 이식 + SSG, apps/web 폐기 | completed | 2026-06-10 | 2026-06-10 | completed/0007-frontend-monorepo-ssg-migration.md |
 | 0008 | 관리자 검증 API + 인증 (검증 큐 / 상태 판정 / 증거 열람) | in-review | 2026-06-14 | 2026-06-14 | in-review/0008-admin-verification-api.md |
+| 0009 | 관리자 콘솔 API 연동 (로그인 / 검토 큐 / 증거 검수 / 대시보드) | in-review | 2026-06-14 | 2026-06-14 | in-review/0009-admin-console-wiring.md |
+| 0010 | 공개 아카이브 / 검색 / 통계 정적 연동 | in-review | 2026-06-14 | 2026-06-14 | in-review/0010-public-archive-search-stats.md |
+| 0011 | D1 → GitHub 마크다운 export + 빌드타임 공개 인덱스 | in-review | 2026-06-14 | 2026-06-14 | in-review/0011-d1-markdown-export-pipeline.md |

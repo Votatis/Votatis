@@ -1,10 +1,14 @@
-import { and, count, desc, eq, like, ne, or, sql, type SQL } from "drizzle-orm";
+import { and, count, desc, eq, inArray, like, ne, or, sql, type SQL } from "drizzle-orm";
 import type { z } from "@hono/zod-openapi";
 import type { Env } from "./types";
 import { getDb } from "./db/client";
 import { reports } from "./db/schema";
 import type { ReportRow } from "./db/schema";
 import type { AdminListQuerySchema, AdminPatchSchema } from "./schemas";
+import { toPublicReport } from "./reports-map";
+
+/** 공개 배포(export) 대상 — 검증 완료 상태만(PRD: 검증 통과 데이터만 공개). */
+export const PUBLISHABLE_STATUSES = ["confirmed", "disputed", "debunked", "corrected"] as const;
 
 type AdminListQuery = z.infer<typeof AdminListQuerySchema>;
 type AdminPatch = z.infer<typeof AdminPatchSchema>;
@@ -220,6 +224,17 @@ export async function adminGetAttachment(env: Env, id: string, idx: number) {
   const obj = await env.EVIDENCE_BUCKET.get(att.r2_key);
   if (!obj) return null;
   return { obj, mime: att.mime, filename: att.filename };
+}
+
+/** 공개 배포용 추출 — 검증 완료 레코드를 공개 필드(toPublicReport)로. submitter/exif 비포함. */
+export async function adminExport(env: Env) {
+  const db = getDb(env);
+  const rows = await db
+    .select()
+    .from(reports)
+    .where(inArray(reports.status, [...PUBLISHABLE_STATUSES]))
+    .orderBy(desc(reports.collectedAt));
+  return { records: rows.map(toPublicReport) };
 }
 
 /** 공개 통계 — pending 제외 집계. */

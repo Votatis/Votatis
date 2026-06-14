@@ -28,6 +28,7 @@ export default function AdminMembersPage() {
         <div className="panel" style={{ display: "flex", flexDirection: "column" }}>
           <div className="ph">회원 상세</div>
           <p style={{ fontSize: "12.5px", color: "var(--g500)", lineHeight: 1.6 }}>
+            MVP 단계에서는 관리자 계정을 별도(운영팀 공유 토큰)로 관리하며, 이 화면의 회원 관리 기능은 추후 연동됩니다.
             왼쪽 목록에서 회원을 선택하면 가입일·제보 수·활동 로그·제재 옵션이 표시됩니다.
           </p>
         </div>

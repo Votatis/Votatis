@@ -13,7 +13,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply votatis-reports --local",
     "db:migrate:remote": "wrangler d1 migrations apply votatis-reports --remote",
-    "openapi:emit": "tsx scripts/emit-openapi.ts"
+    "openapi:emit": "tsx scripts/emit-openapi.ts",
+    "export:data": "tsx scripts/export-data.ts"
   },
   "dependencies": {
     "@hono/zod-openapi": "^0.18.3",

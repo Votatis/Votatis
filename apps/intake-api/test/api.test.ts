@@ -9,6 +9,7 @@ import worker from "../src/index";
 import { detectImageType } from "../src/validation";
 import { sha256Hex } from "../src/util";
 import { cleanupPending } from "../src/cleanup";
+import { recordToMarkdown, recordRelPath, type PublicRecord } from "../src/export-md";
 
 const ORIGIN = "https://app.test";
 const JPEG = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00]);
@@ -421,6 +422,82 @@ describe("관리자 검증 API (/admin/*)", () => {
       headers: { origin: "https://evil.test", authorization: `Bearer ${ADMIN}` },
     });
     expect((await call(req)).status).toBe(403);
+  });
+});
+
+describe("공개 배포 export (마크다운 + /admin/export)", () => {
+  const ADMIN = "test-admin-token";
+  const ELECTION = "export테스트선거";
+
+  function adminReq(path: string, opts: { method?: string; body?: unknown; token?: string | null } = {}) {
+    const headers: Record<string, string> = { origin: ORIGIN };
+    if (opts.body !== undefined) headers["content-type"] = "application/json";
+    if (opts.token !== null) headers["authorization"] = `Bearer ${opts.token ?? ADMIN}`;
+    return new Request(`https://api.test${path}`, {
+      method: opts.method ?? "GET",
+      headers,
+      body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+    });
+  }
+
+  it("recordToMarkdown 이 YAML frontmatter+본문을 만들고 submitter/exif 가 없다", () => {
+    const rec: PublicRecord = {
+      id: "x-1",
+      status: "confirmed",
+      election: "제9회 지방선거",
+      title: "테스트 \"제목\"",
+      summary: "요약",
+      body: "본문 내용\n둘째 줄",
+      region: { sido: "경기도", sigungu: "성남시 분당구" },
+      occurred_at: "2026-06-03T16:20:00+09:00",
+      collected_at: "2026-06-03T22:10:00+09:00",
+      tags: ["투표지부족", "개표소"],
+      sources: [{ url: "https://example.com/a", type: "news", archive_url: "https://web.archive.org/x" }],
+      attachments: [{ filename: "a.jpg", r2_key: "k/a.jpg", sha256: "abc", mime: "image/jpeg", size: 100 }],
+      rebuttals: [{ text: "반박", source_url: "https://example.com/r" }],
+      related: ["x-2"],
+      license: "CC-BY-4.0",
+      verification: { reviewer: "rev-1", method: "교차확인", reviewed_at: "2026-06-04T09:00:00+09:00", notes: null, evidence_links: ["https://example.com/e"] },
+      created_at: "2026-06-03T22:10:00+09:00",
+      updated_at: "2026-06-04T09:00:00+09:00",
+    };
+    const md = recordToMarkdown(rec);
+    expect(md.startsWith("---\n")).toBe(true);
+    expect(md).toContain('id: "x-1"');
+    expect(md).toContain('status: "confirmed"');
+    expect(md).toContain("sha256:");
+    expect(md).toContain("# 테스트");
+    expect(md).not.toContain("submitter");
+    expect(md).not.toContain("exif");
+    expect(recordRelPath(rec)).toBe("data/제9회-지방선거/x-1.md");
+  });
+
+  it("GET /admin/export 는 검증완료만 공개필드로 반환(미검증 제외, 미인증 401)", async () => {
+    // unverified 1건 + confirmed 1건 seed
+    const unv = await startSubmission("10.7.0.1", { ...validBody(), election: ELECTION });
+    await env.EVIDENCE_BUCKET.put(unv.uploads[0].staging_key, JPEG);
+    await call(post(`/submissions/${unv.submission_id}/finalize`, { finalize_token: unv.finalize_token }, { ip: "10.7.0.1" }));
+
+    const conf = await startSubmission("10.7.0.2", { ...validBody(), election: ELECTION });
+    await env.EVIDENCE_BUCKET.put(conf.uploads[0].staging_key, JPEG);
+    await call(post(`/submissions/${conf.submission_id}/finalize`, { finalize_token: conf.finalize_token }, { ip: "10.7.0.2" }));
+    const patched = await call(adminReq(`/admin/reports/${conf.submission_id}`, {
+      method: "PATCH",
+      body: { status: "confirmed", verification: { method: "교차확인", evidence_links: ["https://example.com/e"] } },
+    }));
+    expect(patched.status).toBe(200);
+
+    expect((await call(adminReq("/admin/export", { token: null }))).status).toBe(401);
+
+    const res = await call(adminReq("/admin/export"));
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { records: PublicRecord[] };
+    const ids = data.records.map((r) => r.id);
+    expect(ids).toContain(conf.submission_id);
+    expect(ids).not.toContain(unv.submission_id);
+    // 공개 필드 — submitter 없음
+    const txt = JSON.stringify(data);
+    expect(txt).not.toContain("submitter");
   });
 });
 

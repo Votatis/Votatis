@@ -244,6 +244,10 @@ export const AdminPatchSchema = z
   .refine((v) => Object.keys(v).length > 0, { message: "수정할 필드가 없습니다." })
   .openapi("AdminPatch");
 
+export const AdminExportSchema = z
+  .object({ records: z.array(ReportPublicSchema) })
+  .openapi("AdminExport");
+
 export const StatsSchema = z
   .object({
     total: z.number().int(),

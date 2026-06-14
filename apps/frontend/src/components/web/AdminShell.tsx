@@ -10,7 +10,7 @@ const ITEMS: { key: AdminNav; label: string; href: string; Icon: typeof IGrid; c
   { key: "members", label: "회원", href: "/free/admin/members", Icon: IUsers },
   { key: "reports", label: "제보", href: "/free/admin/queue", Icon: IList },
   { key: "queue", label: "검토 큐", href: "/free/admin/queue", Icon: ICheckSq },
-  { key: "evidence", label: "원본 데이터", href: "/free/admin/evidence/0153", Icon: IImage },
+  { key: "evidence", label: "원본 데이터", href: "/free/admin/evidence", Icon: IImage },
 ];
 
 /** 관리자 콘솔 공용 셸 (사이드바 + 메인). 실동작 레이아웃. */
