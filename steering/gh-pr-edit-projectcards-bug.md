@@ -2,7 +2,7 @@
 tldr: `gh pr edit`(과 일부 pr 쓰기)이 "Projects (classic) is being deprecated … (repository.pullRequest.projectCards)" GraphQL 오류로 실패할 수 있다. 본문 수정은 REST 로 우회: `gh api -X PATCH /repos/<owner>/<repo>/pulls/<n> --input <json>` (json 은 {"body": "..."}).
 tags: [pitfall, github, gh-cli]
 last_retrieved: 2026-06-15
-retrieval_count: 2
+retrieval_count: 3
 ---
 
 ## 규칙 / 교훈
