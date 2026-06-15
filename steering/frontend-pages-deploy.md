@@ -2,7 +2,7 @@
 tldr: apps/frontend SSG→Pages 배포: NEXT_PUBLIC_* 빌드타임 주입, `wrangler pages deploy out --branch=main`, preview origin은 CORS 막힘, Turnstile domains에 votatis-web.pages.dev 추가.
 tags: [pitfall, deploy, cloudflare-pages, frontend, cors]
 last_retrieved: 2026-06-15
-retrieval_count: 4
+retrieval_count: 5
 ---
 
 ## 규칙 / 교훈
@@ -12,9 +12,10 @@ retrieval_count: 4
    ```bash
    NEXT_PUBLIC_API_BASE_URL="https://votatis-intake-api.3dulev.workers.dev" \
    NEXT_PUBLIC_TURNSTILE_SITEKEY="0x4AAAAAADhXh1OGOie5kiwQ" \
+   NEXT_PUBLIC_ELECTION="제9회 전국동시지방선거" \
    pnpm --filter votatis-frontend build
    ```
-   기본값(`localhost:8787`)으로 빌드해 올리면 배포 사이트가 localhost를 호출한다.
+   빌드에 필요한 NEXT_PUBLIC_* 3개: `API_BASE_URL`/`TURNSTILE_SITEKEY`/`ELECTION`. .env 엔 없다(빌드 시 인라인). sitekey 는 **공개값**이라 분실 시 운영 빌드 JS(`votatis-web.pages.dev/report` chunk)에서 `0x4A...` 패턴으로 회수 가능. 기본값(`localhost:8787`)으로 빌드해 올리면 배포 사이트가 localhost를 호출한다.
 2. **`--branch=main`으로 production 배포**: `wrangler pages deploy out --project-name=votatis-web` 만 쓰면 **현재 git 브랜치명**(예: feat/...)이 deployment 브랜치가 돼 **preview**(`<branch>.votatis-web.pages.dev`)로 올라간다. production 도메인 `votatis-web.pages.dev`에 반영하려면 `--branch=main` 필요. (dirty 워크트리면 `--commit-dirty=true`)
 3. **preview origin은 CORS 막힘**: intake-api `ALLOWED_ORIGIN`엔 production `https://votatis-web.pages.dev`만 있다. preview URL(`<hash>.votatis-web.pages.dev`)에서 제출하면 CORS 차단 → "API 200인데 브라우저 실패". preview에서 테스트하려면 그 origin을 ALLOWED_ORIGIN에 추가해야 한다.
 4. **Turnstile 도메인**: 실 위젯 sitekey의 허용 domains에 `votatis-web.pages.dev`가 없으면(기본 localhost) 위젯이 토큰을 못 줘 제출이 막힌다. Cloudflare Turnstile 대시보드에서 도메인 추가(CLI 불가).
