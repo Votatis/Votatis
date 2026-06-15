@@ -1,6 +1,7 @@
 import { createRoute } from "@hono/zod-openapi";
 import { createRouter } from "../router";
 import { safeEqual } from "../middleware/admin-auth";
+import { isOriginAllowed } from "../middleware/cors";
 import {
   adminListReports,
   adminGetReport,
@@ -133,13 +134,15 @@ adminRoutes.get("/admin/reports/:id/attachments/:idx", async (c) => {
   if (!Number.isInteger(idx) || idx < 0) return c.json({ error: "잘못된 첨부 index 입니다." }, 400);
   const found = await adminGetAttachment(c.env, id, idx);
   if (!found) return c.json({ error: "첨부를 찾을 수 없습니다." }, 404);
-  return new Response(found.obj.body, {
-    status: 200,
-    headers: {
-      "content-type": found.mime,
-      "cache-control": "private, max-age=60",
-    },
-  });
+  // new Response 는 c.header()(corsMiddleware)로 건 ACAO 를 계승하지 못하므로 직접 부여한다.
+  const headers: Record<string, string> = {
+    "content-type": found.mime,
+    "cache-control": "private, max-age=60",
+    vary: "Origin",
+  };
+  const origin = c.req.header("Origin") ?? null;
+  if (isOriginAllowed(c.env, origin)) headers["access-control-allow-origin"] = origin as string;
+  return new Response(found.obj.body, { status: 200, headers });
 });
 
 // ── POST /admin/reports/{id}/analyze (검증 보조 신호) ─────────────────────────

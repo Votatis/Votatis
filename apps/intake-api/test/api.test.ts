@@ -449,6 +449,8 @@ describe("관리자 검증 API (/admin/*)", () => {
     const res = await call(adminReq(`/admin/reports/${id}/attachments/0`));
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toBe("image/jpeg");
+    // 스트리밍 응답(new Response)도 허용 오리진엔 ACAO 헤더가 있어야 브라우저가 못 막는다.
+    expect(res.headers.get("access-control-allow-origin")).toBe(ORIGIN);
     const bytes = new Uint8Array(await res.arrayBuffer());
     expect(bytes[0]).toBe(0xff);
   });
