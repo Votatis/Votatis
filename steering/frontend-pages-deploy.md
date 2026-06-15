@@ -2,7 +2,7 @@
 tldr: apps/frontend SSG→Pages 배포: NEXT_PUBLIC_* 빌드타임 주입, `wrangler pages deploy out --branch=main`, preview origin은 CORS 막힘, Turnstile domains에 votatis-web.pages.dev 추가.
 tags: [pitfall, deploy, cloudflare-pages, frontend, cors]
 last_retrieved: 2026-06-15
-retrieval_count: 5
+retrieval_count: 6
 ---
 
 ## 규칙 / 교훈
