@@ -32,6 +32,117 @@ function verdict(v) {
   };
 }
 
+// 증거 원본 첨부(votatis-data issues) — 운영 R2(votatis-evidence)에 동일 r2_key 로 업로드됨.
+const ATTACHMENTS = {
+  "e48b59b2d3cc": [
+    {
+      "filename": "001-_________________-________-________-_________-_____.webp",
+      "r2_key": "제9회 전국동시지방선거/e48b59b2d3cc/001-_________________-________-________-_________-_____.webp",
+      "sha256": "da3c660857729baac9519b29c2324c2ecc050bd408a5fd8ea48fd84c01c9263e",
+      "mime": "image/webp",
+      "size": 12776
+    }
+  ],
+  "86dc02da8f0d": [
+    {
+      "filename": "002.webp",
+      "r2_key": "제9회 전국동시지방선거/86dc02da8f0d/002.webp",
+      "sha256": "78640ea6fbf1cc0fa7b22ef4fed9b8640d147ec0b68873e7a155310bb41fc827",
+      "mime": "image/webp",
+      "size": 99744
+    }
+  ],
+  "cd2429c37672": [
+    {
+      "filename": "714852913_1520317999465278_6333821814036513174_n.webp",
+      "r2_key": "제9회 전국동시지방선거/cd2429c37672/714852913_1520317999465278_6333821814036513174_n.webp",
+      "sha256": "692fb373c0c3fce72e09e3e4b9fd5c36ef5b507a1a14a4aca871f1956144b18b",
+      "mime": "image/webp",
+      "size": 51570
+    },
+    {
+      "filename": "715501855_1520318036131941_2195734464871619193_n.webp",
+      "r2_key": "제9회 전국동시지방선거/cd2429c37672/715501855_1520318036131941_2195734464871619193_n.webp",
+      "sha256": "6c00f1ed2261a55379442f3764bbeff898e9a0a09b209e33ef889a6f5e901c13",
+      "mime": "image/webp",
+      "size": 82514
+    }
+  ],
+  "800732950781": [
+    {
+      "filename": "713004243_1520410799455998_2222442277173233745_n.webp",
+      "r2_key": "제9회 전국동시지방선거/800732950781/713004243_1520410799455998_2222442277173233745_n.webp",
+      "sha256": "fe3ca2533751ec755bf27a4cb59d6ee997de7025fcdc3d41d42c84cd1c8b7a18",
+      "mime": "image/webp",
+      "size": 9054
+    },
+    {
+      "filename": "713164317_1520410856122659_4480265451992221693_n.webp",
+      "r2_key": "제9회 전국동시지방선거/800732950781/713164317_1520410856122659_4480265451992221693_n.webp",
+      "sha256": "1bffdc150aa21c5174d472762fec8db996bdc74149a28400065db0fce5e50442",
+      "mime": "image/webp",
+      "size": 8122
+    }
+  ],
+  "59547c149c47": [
+    {
+      "filename": "713344842_1520612942769117_3440661530515807416_n.webp",
+      "r2_key": "제9회 전국동시지방선거/59547c149c47/713344842_1520612942769117_3440661530515807416_n.webp",
+      "sha256": "403ea656469b8af91735f9d8eb1ee21ba8ebb3be0a859e8b94b1609680896f72",
+      "mime": "image/webp",
+      "size": 73998
+    },
+    {
+      "filename": "714759716_1520612996102445_3900240879382357216_n.webp",
+      "r2_key": "제9회 전국동시지방선거/59547c149c47/714759716_1520612996102445_3900240879382357216_n.webp",
+      "sha256": "e162c1ad5582ed25b162cb4c19591e0050ae96fc42daf24611da4e6e6047ea89",
+      "mime": "image/webp",
+      "size": 64692
+    }
+  ],
+  "925e96357609": [
+    {
+      "filename": "713824363_1520620889434989_4149322357180240335_n.webp",
+      "r2_key": "제9회 전국동시지방선거/925e96357609/713824363_1520620889434989_4149322357180240335_n.webp",
+      "sha256": "5ef80e9d0472d118646cd3f80764d3e6c70a823bec557fb0a01ea54c281f8139",
+      "mime": "image/webp",
+      "size": 29424
+    },
+    {
+      "filename": "714794255_1520620936101651_6107023870852392642_n.webp",
+      "r2_key": "제9회 전국동시지방선거/925e96357609/714794255_1520620936101651_6107023870852392642_n.webp",
+      "sha256": "ef0514fc0dca15aae78b5ac57653eccd5b62a785f2145ec7685a6e0eed7720b9",
+      "mime": "image/webp",
+      "size": 17686
+    }
+  ],
+  "d39c7ae53251": [
+    {
+      "filename": "715472509_1520624012768010_7554141746783972213_n.webp",
+      "r2_key": "제9회 전국동시지방선거/d39c7ae53251/715472509_1520624012768010_7554141746783972213_n.webp",
+      "sha256": "5f6fdc60a39940454d3b49512c159c8348d32f07626e94174713f9a76f16bbb0",
+      "mime": "image/webp",
+      "size": 18024
+    },
+    {
+      "filename": "713308110_1520624052768006_6010848434467135356_n.webp",
+      "r2_key": "제9회 전국동시지방선거/d39c7ae53251/713308110_1520624052768006_6010848434467135356_n.webp",
+      "sha256": "082ea0f2ac0a35b7c14d17f3c8a8842a6d9de15104071bbaa00a30fb1398507f",
+      "mime": "image/webp",
+      "size": 27992
+    }
+  ],
+  "956088da6840": [
+    {
+      "filename": "715413194_1520625912767820_1072488548522257274_n.webp",
+      "r2_key": "제9회 전국동시지방선거/956088da6840/715413194_1520625912767820_1072488548522257274_n.webp",
+      "sha256": "d2f3afa36ae19c47be71a3e89d31256a1c7960cb2e2a5b870eb2be5105e44074",
+      "mime": "image/webp",
+      "size": 23420
+    }
+  ]
+};
+
 const REPORTS = [
   {
     id: "e48b59b2d3cc", cat: "B", status: "reviewing",
@@ -180,7 +291,7 @@ for (const r of REPORTS) {
     summary: r.summary ?? null, body: r.body ?? null,
     sido: r.region?.sido ?? null, sigungu: r.region?.sigungu ?? null, eup_myeon_dong: r.region?.eup_myeon_dong ?? null,
     occurred_at: null, collected_at: now,
-    tags: [CAT[r.cat]], sources: r.sources ?? [], attachments: [], exif: null, rebuttals: null, related: null,
+    tags: [CAT[r.cat]], sources: r.sources ?? [], attachments: ATTACHMENTS[r.id] ?? [], exif: null, rebuttals: null, related: null,
     consent: true, submitter: "seed:votatis-data", license: "CC-BY-4.0",
     verification_reviewer: v?.reviewer ?? null, verification_method: v?.method ?? null,
     verification_reviewed_at: v?.reviewed_at ?? null, verification_notes: v?.notes ?? null,
