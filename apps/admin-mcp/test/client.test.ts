@@ -6,6 +6,7 @@ interface Captured {
   url: string;
   method: string;
   auth: string | null;
+  origin: string | null;
   body: string | null;
 }
 
@@ -17,6 +18,7 @@ function fakeFetch(capture: Captured[], responder: () => Response) {
       url: String(input),
       method: init?.method ?? "GET",
       auth: headers["authorization"] ?? null,
+      origin: headers["origin"] ?? null,
       body: (init?.body as string) ?? null,
     });
     return responder();
@@ -47,6 +49,25 @@ test("recordVerdict: PATCH + Bearer + JSON 바디", async () => {
   assert.equal(cap[0].auth, "Bearer tok-123");
   assert.match(cap[0].body ?? "", /confirmed/);
   assert.match(cap[0].body ?? "", /evidence_links/);
+});
+
+test("origin 주입 시 모든 요청에 Origin 헤더 부착(/admin Origin 게이트 통과)", async () => {
+  const cap: Captured[] = [];
+  const client = new AdminClient(
+    "http://api.test",
+    "tok-123",
+    fakeFetch(cap, () => jsonResponse({ items: [], counts: {} })),
+    "https://votatis-web.pages.dev",
+  );
+  await client.listQueue({ status: "unverified" });
+  assert.equal(cap[0].origin, "https://votatis-web.pages.dev");
+});
+
+test("origin 미주입 시 Origin 헤더 없음(로컬 기본 동작 보존)", async () => {
+  const cap: Captured[] = [];
+  const client = new AdminClient("http://api.test", "tok-123", fakeFetch(cap, () => jsonResponse({ items: [], counts: {} })));
+  await client.listQueue({ status: "unverified" });
+  assert.equal(cap[0].origin, null);
 });
 
 test("토큰 미설정이면 인증 필요 도구는 에러", async () => {

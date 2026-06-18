@@ -3,7 +3,7 @@ id: "0014"
 title: 검증 관리 MCP 서버 (votatis-admin-mcp) — 관리자 API 래퍼
 status: completed
 created: 2026-06-14
-updated: 2026-06-14
+updated: 2026-06-19
 related:
   - "docs/mcp-admin-plan.md (기획)"
   - "docs/PERSONA.md 페르소나 5(내부 검증 관리자)"
@@ -52,3 +52,4 @@ related:
 ## Changelog
 - 2026-06-14: 최초 작성 (Goal 002)
 - 2026-06-14: 구현 완료 — apps/admin-mcp(stdio, @modelcontextprotocol/sdk) 도구 8종, record_verdict 근거 필수 가드레일(verdict.ts) + intake-api 얇은 래퍼(client.ts). 단위 10건·smoke(SDK 클라이언트로 도구 8종 노출 확인) 통과, 루트 typecheck/test 통과. docs/mcp-admin-plan.md 기획 + docs/mcp-usage.md 작성. completed.
+- 2026-06-19: `VOTATIS_ORIGIN` env 추가 — intake-api 가 /admin/* 를 Origin 화이트리스트로 막아(cors.ts) Origin 미전송 시 admin 도구가 전부 403 나던 문제 해결. client.ts 가 origin 헤더를 부착하도록 하고 config/index 와이어링 + 단위 테스트 2건 추가, docs/mcp-usage.md 에 Origin 게이트·운영 등록 절차 반영. (요청: 채팅)

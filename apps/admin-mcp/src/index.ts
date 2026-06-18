@@ -8,7 +8,7 @@ import { AdminClient } from "./client.js";
 import { registerTools } from "./tools.js";
 
 const config = loadConfig();
-const client = new AdminClient(config.apiUrl, config.adminToken);
+const client = new AdminClient(config.apiUrl, config.adminToken, undefined, config.origin);
 
 const server = new McpServer({ name: "votatis-admin-mcp", version: "0.1.0" });
 registerTools(server, client);
@@ -17,4 +17,6 @@ const transport = new StdioServerTransport();
 await server.connect(transport);
 
 // stdio 서버는 stdout 을 프로토콜에 쓰므로 로그는 stderr 로만.
-console.error(`[votatis-admin-mcp] 기동: API=${config.apiUrl} token=${config.adminToken ? "set" : "MISSING"}`);
+console.error(
+  `[votatis-admin-mcp] 기동: API=${config.apiUrl} token=${config.adminToken ? "set" : "MISSING"} origin=${config.origin ?? "(none)"}`,
+);

@@ -24,10 +24,13 @@
 
 ## 1. 환경변수
 
-| 변수 | 의미 | 로컬 예 |
-|------|------|--------|
-| `VOTATIS_API_URL` | intake-api 베이스 URL | `http://localhost:8787` |
-| `VOTATIS_ADMIN_TOKEN` | 관리자 Bearer 토큰 | `dev-admin-token` |
+| 변수 | 의미 | 로컬 예 | 운영 예 |
+|------|------|--------|--------|
+| `VOTATIS_API_URL` | intake-api 베이스 URL | `http://localhost:8787` | `https://votatis-intake-api.3dulev.workers.dev` |
+| `VOTATIS_ADMIN_TOKEN` | 관리자 Bearer 토큰 | `dev-admin-token` | 운영 시크릿(`.env`/HUMAN.md) |
+| `VOTATIS_ORIGIN` | `/admin/*` Origin 게이트 통과용 — intake-api `ALLOWED_ORIGIN` 중 하나 | (생략 가능, 로컬 dev origin 허용 시) | `https://votatis-web.pages.dev` |
+
+> ⚠️ **Origin 게이트(필수)**: intake-api 는 `/admin/*` 의 **모든 메서드**를 `ALLOWED_ORIGIN` 화이트리스트로 막는다(`middleware/cors.ts`). MCP 는 서버-서버 호출이라도 허용 Origin 을 헤더로 보내야 하며, 안 보내면 admin 도구가 전부 **403 `허용되지 않은 오리진입니다`** 로 실패한다(`/health`·`/stats` 만 통과). 운영 대상이면 `VOTATIS_ORIGIN` 을 반드시 설정한다(`/health`·`/stats` 외 모든 도구가 admin 경로).
 
 ---
 
@@ -57,6 +60,16 @@ claude mcp add votatis-admin \
   -- node /ABS/PATH/Votatis/apps/admin-mcp/dist/index.js
 ```
 등록 후 Claude Code에서 `/mcp` 로 `votatis-admin` 연결과 도구 8종을 확인한다.
+
+> **운영 대상 등록**: URL·토큰을 운영값으로 바꾸고 `VOTATIS_ORIGIN` 을 더한다. 운영 토큰이 노출되지 않게 **방법 A(`.mcp.json`, 레포 커밋·팀공유) 대신 `--scope local`**(이 프로젝트 비공유) 로 등록한다.
+> ```bash
+> set -a; . ./.env; set +a   # 운영 ADMIN_TOKEN 로드(.env, gitignore)
+> claude mcp add votatis-admin --scope local \
+>   --env VOTATIS_API_URL=https://votatis-intake-api.3dulev.workers.dev \
+>   --env VOTATIS_ORIGIN=https://votatis-web.pages.dev \
+>   --env VOTATIS_ADMIN_TOKEN="$ADMIN_TOKEN" \
+>   -- node /ABS/PATH/Votatis/apps/admin-mcp/dist/index.js
+> ```
 
 ---
 
@@ -118,6 +131,6 @@ Codex 재시작 후 도구가 노출된다.
 
 - **도구가 안 보임**: 빌드했는지(`dist/index.js` 존재), 경로가 절대경로인지 확인. `pnpm --filter votatis-admin-mcp smoke` 로 단독 검증.
 - **"VOTATIS_ADMIN_TOKEN 미설정"**: MCP 설정의 `env` 에 토큰 누락. 로컬은 `dev-admin-token`.
-- **HTTP 401**: 토큰 불일치(운영 토큰 확인). **HTTP 403**: intake-api `ALLOWED_ORIGIN`/CORS — MCP는 서버-서버 호출이라 보통 무관하나, 운영 URL/토큰을 다시 확인.
+- **HTTP 401**: 토큰 불일치(운영 토큰 확인). **HTTP 403 `허용되지 않은 오리진입니다`**: `/admin/*` Origin 게이트에 막힌 것 — `VOTATIS_ORIGIN` 이 비었거나 `ALLOWED_ORIGIN` 에 없는 값. MCP 도 Origin 헤더를 보내야 하므로(서버-서버라도) `VOTATIS_ORIGIN=https://votatis-web.pages.dev` 처럼 허용 origin 으로 설정한다. 기동 로그(stderr) 의 `origin=...` 로 주입 여부 확인.
 - **연결되는데 큐가 비었음**: 실제 미검증 제보가 없을 수 있음(`get_stats` 로 확인).
-- **운영 대상**: `VOTATIS_API_URL`=배포 URL, `VOTATIS_ADMIN_TOKEN`=운영 시크릿으로 교체.
+- **운영 대상**: `VOTATIS_API_URL`=배포 URL, `VOTATIS_ADMIN_TOKEN`=운영 시크릿, **`VOTATIS_ORIGIN`=허용 origin** 으로 교체(Origin 게이트).

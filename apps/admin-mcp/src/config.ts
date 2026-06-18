@@ -3,9 +3,11 @@
 export interface Config {
   apiUrl: string;
   adminToken: string | undefined;
+  // intake-api 의 ALLOWED_ORIGIN 중 하나(예: https://votatis-web.pages.dev). /admin/* Origin 게이트 통과용.
+  origin: string | undefined;
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   const apiUrl = (env.VOTATIS_API_URL ?? "http://localhost:8787").replace(/\/+$/, "");
-  return { apiUrl, adminToken: env.VOTATIS_ADMIN_TOKEN };
+  return { apiUrl, adminToken: env.VOTATIS_ADMIN_TOKEN, origin: env.VOTATIS_ORIGIN };
 }

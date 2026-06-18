@@ -42,6 +42,9 @@ export class AdminClient {
     private readonly apiUrl: string,
     private readonly token: string | undefined,
     private readonly fetchFn: FetchFn = fetch,
+    // intake-api 는 /admin/* 를 Origin 화이트리스트로 막는다(cors.ts). 서버-서버 호출인 MCP 가
+    // 허용 Origin 을 보내지 않으면 403("허용되지 않은 오리진"). 운영 대상이면 VOTATIS_ORIGIN 으로 주입.
+    private readonly origin: string | undefined = undefined,
   ) {}
 
   private requireToken(): string {
@@ -57,6 +60,7 @@ export class AdminClient {
   private async req(path: string, init: RequestInit = {}, auth = true): Promise<Response> {
     const headers: Record<string, string> = { ...(init.headers as Record<string, string>) };
     if (auth) headers["authorization"] = `Bearer ${this.requireToken()}`;
+    if (this.origin) headers["origin"] = this.origin;
     const res = await this.fetchFn(`${this.apiUrl}${path}`, { ...init, headers });
     return res;
   }
