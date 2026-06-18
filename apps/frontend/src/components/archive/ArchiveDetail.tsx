@@ -9,6 +9,7 @@ const STATUS_CHIP_CLASS: Record<string, string> = {
   unverified: "unv",
   reviewing: "rev",
   confirmed: "cnf",
+  suspected: "sus",
   disputed: "dis",
   debunked: "deb",
   corrected: "cor",

@@ -3,7 +3,7 @@ id: "0006"
 title: D1 기반 제보 저장 + 정식 조회 API (Hono + OpenAPI + Zod)
 status: completed   # not-started | in-progress | in-review | completed
 created: 2026-06-10
-updated: 2026-06-10
+updated: 2026-06-19
 related:
   - "specs/completed/0001-report-intake-api.md (대체 대상)"
   - "specs/completed/0002-dev-github-issue-simulation.md (제거 대상)"
@@ -74,7 +74,7 @@ related:
 | 컬럼 | 타입 | 비고 |
 |------|------|------|
 | `id` | TEXT PK | = submission_id |
-| `status` | TEXT | `pending`(내부) / `unverified` / `reviewing` / `confirmed` / `disputed` / `debunked` / `corrected` |
+| `status` | TEXT | `pending`(내부) / `unverified` / `reviewing` / `confirmed` / `suspected` / `disputed` / `debunked` / `corrected` |
 | `election` | TEXT | 인덱스 |
 | `title` | TEXT | |
 | `summary` | TEXT NULL | |
@@ -176,3 +176,4 @@ GET /reports/:id → 단건(공개 필드). pending/없음 → 404
 - 2026-06-10: 구현 완료 — 서버를 Hono + @hono/zod-openapi 로 재구성, D1(Drizzle, flatten `reports` + `rate_limits`) 도입, finalize→D1 적재(Issue 제거), `GET /reports`·`GET /reports/{id}` 공개 조회 추가, KV→D1(pending/rate limit) 이전, cron `cleanupPending`, GitHub 코드 전부 제거. 웹앱은 finalize 응답 `issue_url`→`report_id` 흡수. typecheck/test(21) 통과. in-review 이동.
 - 2026-06-10: 원격 D1 `votatis-reports` 프로비저닝(wrangler.jsonc database_id 채움) + 원격 마이그레이션 적용, `wrangler dev --remote`로 첨부 포함 전 흐름 라이브 검증. GitHub App 자격증명(GITHUB_APP_ID/PRIVATE_KEY)을 .dev.vars/.prod.vars 및 관련 steering에서 제거. (요청: 채팅)
 - 2026-06-10: 로컬/원격 실행 모드 분리 — 로컬 업로드 shim(`LOCAL_UPLOAD`+`PUT /_dev/upload/*`)으로 CF 접근 없이 첨부 흐름 동작, `pnpm dev:local`(=`--var LOCAL_UPLOAD:true`)·`dev:remote`(`--remote`) 스크립트 분리, docs §5에 로컬/원격 가이드 작성. 테스트 23건(로컬 shim 2건 포함). (요청: 채팅)
+- 2026-06-19: 검증 상태값에 `suspected`(의심) 추가 — `reports.status` 허용값/`REPORT_STATUSES`·`PUBLIC_STATUSES` 확장. status 컬럼은 자유 텍스트라 D1 마이그레이션 불요. (요청: 채팅)

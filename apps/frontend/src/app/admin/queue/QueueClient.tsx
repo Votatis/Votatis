@@ -27,6 +27,7 @@ const STATUS_CHIP_CLASS: Record<string, string> = {
   unverified: "unv",
   reviewing: "rev",
   confirmed: "cnf",
+  suspected: "sus",
   disputed: "dis",
   debunked: "deb",
   corrected: "cor",
@@ -103,8 +104,8 @@ export default function QueueClient() {
         <Tile tone="pt-g" label="사실확인" value={String(counts.confirmed ?? 0)} note="완료" dir="dn" />
         <Tile
           tone="pt-dk"
-          label="반박·이견"
-          value={String((counts.debunked ?? 0) + (counts.disputed ?? 0))}
+          label="의심·반박·이견"
+          value={String((counts.suspected ?? 0) + (counts.debunked ?? 0) + (counts.disputed ?? 0))}
           note="누적"
           dir="dn"
         />

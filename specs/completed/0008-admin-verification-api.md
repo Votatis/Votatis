@@ -3,7 +3,7 @@ id: "0008"
 title: 관리자 검증 API + 인증 (검증 큐 / 상태 판정 / 증거 열람)
 status: completed   # not-started | in-progress | in-review | completed
 created: 2026-06-14
-updated: 2026-06-14
+updated: 2026-06-19
 related:
   - "docs/MVP-PRD.md §6 검증 워크플로우(관리자 페이지) / §5 수집 흐름 3 / §11 관리자 페이지"
   - "docs/PERSONA.md 페르소나 5(내부 검증 관리자) — 빠른 통과가 아니라 엄격한 판정을 쉽게"
@@ -46,8 +46,9 @@ related:
 - CORS: `/admin/*`는 쓰기(POST/PATCH)뿐 아니라 GET도 허용 오리진에서만(공개 API와 달리 `*` 금지). `Authorization` 헤더 허용.
 
 ### 상태 전이 규칙
-- 허용 target status: `unverified | reviewing | confirmed | disputed | debunked | corrected` (pending 금지).
-- `confirmed/disputed/debunked/corrected`로 전이하려면 `verification.method`와 `evidence_links≥1`을 요구(페르소나 5: 근거 없는 판정 방지). `reviewing/unverified`로의 되돌림은 근거 불요구.
+- 허용 target status: `unverified | reviewing | confirmed | suspected | disputed | debunked | corrected` (pending 금지).
+- `confirmed/suspected/disputed/debunked/corrected`로 전이하려면 `verification.method`와 `evidence_links≥1`을 요구(페르소나 5: 근거 없는 판정 방지). `reviewing/unverified`로의 되돌림은 근거 불요구.
+- `suspected`(의심): 통상적 설명으로 해소되지 않는 미해명 정황 — 조작 단정이 아니라 해명이 필요한 상태. judged 공통 필수(method·evidence_links·public_summary·risk_level·not_confirmed)에 더해 `missing_evidence≥1`(필요 해명 사항)을 추가로 요구.
 - 전이 시 `verification_reviewed_at = now`, `updated_at = now` 자동 기록.
 
 ### 증거 스트리밍
@@ -75,3 +76,4 @@ related:
 - 2026-06-14: 최초 작성 (Goal 001 자율 수행)
 - 2026-06-14: 구현 완료 — 인증 미들웨어(Bearer ADMIN_TOKEN)+CORS(/admin 오리진 제한), GET/PATCH /admin/reports, 증거 스트리밍, POST /admin/session, 공개 GET /stats. 테스트 9건 추가(총 32) 통과, OpenAPI 재방출+프론트 타입 재생성. in-review 이동.
 - 2026-06-14: spec-review 통과(adversarial review + 회귀 테스트, typecheck/test/static build). completed 이동.
+- 2026-06-19: 판정 상태에 `suspected`(의심) 추가 — judged 공통 근거에 더해 `missing_evidence≥1` 가드레일을 intake-api 서비스·admin-mcp `validateVerdict` 양쪽에 강제(조작 단정 비약 차단). MCP 도구 설명·프론트 라벨("의심", c-sus 칩)·통계/필터 목록 반영. typecheck 전체·테스트(admin-mcp 15) 통과. (요청: 채팅)

@@ -149,7 +149,7 @@ export interface paths {
             parameters: {
                 query?: {
                     election?: string;
-                    status?: "unverified" | "reviewing" | "confirmed" | "disputed" | "debunked" | "corrected";
+                    status?: "unverified" | "reviewing" | "confirmed" | "suspected" | "disputed" | "debunked" | "corrected";
                     sido?: string;
                     sigungu?: string;
                     tag?: string;
@@ -1085,7 +1085,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    status?: "unverified" | "reviewing" | "confirmed" | "disputed" | "debunked" | "corrected";
+                    status?: "unverified" | "reviewing" | "confirmed" | "suspected" | "disputed" | "debunked" | "corrected";
                     election?: string;
                     sido?: string;
                     sigungu?: string;
@@ -1630,7 +1630,7 @@ export interface components {
         };
         AdminPatch: {
             /** @enum {string} */
-            status?: "unverified" | "reviewing" | "confirmed" | "disputed" | "debunked" | "corrected";
+            status?: "unverified" | "reviewing" | "confirmed" | "suspected" | "disputed" | "debunked" | "corrected";
             reviewer?: string;
             verification?: {
                 reviewer?: string | null;

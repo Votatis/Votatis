@@ -13,7 +13,7 @@ export type ArchiveRecord = components["schemas"]["Report"]; // 상세
 export type ArchiveSummary = components["schemas"]["ReportSummary"]; // 목록
 
 /** 공개 아카이브에 노출하는 "승인(검증완료)" 상태 — PRD: 검증 통과 데이터만 공개. */
-export const PUBLISHABLE = new Set<string>(["confirmed", "disputed", "debunked", "corrected"]);
+export const PUBLISHABLE = new Set<string>(["confirmed", "suspected", "disputed", "debunked", "corrected"]);
 
 /** 정적 fallback(빌드타임 인덱스) — static build 준비물. */
 const STATIC: ArchiveRecord[] = (staticGenerated as ArchiveRecord[]) ?? [];

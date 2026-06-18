@@ -5,6 +5,7 @@ export const ADMIN_STATUSES = [
   "unverified",
   "reviewing",
   "confirmed",
+  "suspected",
   "disputed",
   "debunked",
   "corrected",
@@ -12,7 +13,13 @@ export const ADMIN_STATUSES = [
 export type AdminStatus = (typeof ADMIN_STATUSES)[number];
 
 /** 근거(검증 방법 + 출처 링크) 필수 판정 상태. */
-export const JUDGED_STATUSES = new Set<string>(["confirmed", "disputed", "debunked", "corrected"]);
+export const JUDGED_STATUSES = new Set<string>([
+  "confirmed",
+  "suspected",
+  "disputed",
+  "debunked",
+  "corrected",
+]);
 
 export interface VerdictInput {
   status: string;
@@ -24,6 +31,7 @@ export interface VerdictInput {
   not_confirmed?: string[];
   status_scope?: string;
   confirmed_scope?: string[];
+  missing_evidence?: string[];
 }
 
 export type VerdictCheck = { ok: true } | { ok: false; error: string };
@@ -63,6 +71,12 @@ export function validateVerdict(input: VerdictInput): VerdictCheck {
       return {
         ok: false,
         error: "확인됨 판정에는 확인 범위(status_scope)와 확인된 항목(confirmed_scope 1개 이상)이 필요합니다. (부정선거 단정 금지)",
+      };
+    }
+    if (input.status === "suspected" && (!input.missing_evidence || input.missing_evidence.length === 0)) {
+      return {
+        ok: false,
+        error: "의심 판정에는 미해명·필요 해명 사항(missing_evidence 1개 이상)이 필요합니다. (조작 단정이 아니라 해명이 필요한 정황임을 명시)",
       };
     }
   }

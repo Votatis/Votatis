@@ -556,6 +556,14 @@ header.nav {
 .c-unv .pt {
   background: var(--g400);
 }
+.c-sus {
+  background: #fdf1dc;
+  color: #92590b;
+  box-shadow: inset 0 0 0 1px #f0c869;
+}
+.c-sus .pt {
+  background: #d99214;
+}
 .c-dis {
   background: #fff;
   color: var(--g700);

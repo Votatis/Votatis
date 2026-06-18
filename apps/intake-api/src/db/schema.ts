@@ -41,7 +41,7 @@ export const reports = sqliteTable(
   "reports",
   {
     id: text("id").primaryKey(), // = submission_id
-    status: text("status").notNull(), // pending | unverified | reviewing | confirmed | disputed | debunked | corrected
+    status: text("status").notNull(), // pending | unverified | reviewing | confirmed | suspected | disputed | debunked | corrected
     election: text("election").notNull(),
     title: text("title").notNull(),
     summary: text("summary"),

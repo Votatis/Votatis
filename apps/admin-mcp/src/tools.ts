@@ -33,7 +33,7 @@ export function registerTools(server: McpServer, client: AdminClient): void {
     {
       title: "검토 큐 조회",
       description:
-        "검증 대기/진행 제보 목록과 상태별 카운트. status(unverified|reviewing|confirmed|disputed|debunked|corrected)·q(제목/요약/본문 키워드)·지역(sido/sigungu)·tag 로 필터. 보통 status=unverified 부터 검토한다.",
+        "검증 대기/진행 제보 목록과 상태별 카운트. status(unverified|reviewing|confirmed|suspected|disputed|debunked|corrected)·q(제목/요약/본문 키워드)·지역(sido/sigungu)·tag 로 필터. 보통 status=unverified 부터 검토한다.",
       inputSchema: {
         status: z.string().optional(),
         q: z.string().optional(),
@@ -92,7 +92,7 @@ export function registerTools(server: McpServer, client: AdminClient): void {
     {
       title: "판정 기록",
       description:
-        "제보 상태를 판정/갱신한다. ⚠️ confirmed/disputed/debunked/corrected 판정에는 검증 방법(method)·근거 링크(evidence_links 1개 이상)와 함께 공개 요약(public_summary)·위험도(risk_level)·미확인 항목(not_confirmed 1개 이상)이 반드시 필요하다. confirmed 는 확인 범위(status_scope)·확인된 항목(confirmed_scope)도 필수(부정선거 단정 금지). 없으면 거부된다. 페르소나5 규율: 근거 없는 판정 금지, 주장과 사실을 분리하고 과잉해석을 차단한다.",
+        "제보 상태를 판정/갱신한다. ⚠️ confirmed/suspected/disputed/debunked/corrected 판정에는 검증 방법(method)·근거 링크(evidence_links 1개 이상)와 함께 공개 요약(public_summary)·위험도(risk_level)·미확인 항목(not_confirmed 1개 이상)이 반드시 필요하다. confirmed 는 확인 범위(status_scope)·확인된 항목(confirmed_scope)도 필수(부정선거 단정 금지). suspected(의심)는 통상 설명으로 해소되지 않는 미해명 정황으로, 조작 단정이 아니라 해명이 필요한 상태 — missing_evidence(필요 해명 사항) 1개 이상 필수. 없으면 거부된다. 페르소나5 규율: 근거 없는 판정 금지, 주장과 사실을 분리하고 과잉해석을 차단한다.",
       inputSchema: {
         id: z.string(),
         status: z.enum(ADMIN_STATUSES),
@@ -149,7 +149,7 @@ export function registerTools(server: McpServer, client: AdminClient): void {
     "list_publishable",
     {
       title: "공개 배포 대상",
-      description: "검증 완료(confirmed/disputed/debunked/corrected)되어 공개 배포 가능한 레코드 목록(공개 필드).",
+      description: "검증 완료(confirmed/suspected/disputed/debunked/corrected)되어 공개 배포 가능한 레코드 목록(공개 필드).",
     },
     async () => guarded(() => client.listPublishable()),
   );

@@ -6,6 +6,7 @@ export const REPORT_STATUSES = [
   "unverified",
   "reviewing",
   "confirmed",
+  "suspected",
   "disputed",
   "debunked",
   "corrected",
@@ -20,16 +21,23 @@ export const ADMIN_STATUSES = [
   "unverified",
   "reviewing",
   "confirmed",
+  "suspected",
   "disputed",
   "debunked",
   "corrected",
 ] as const;
 
 /** 공개 배포(export) 대상 — 검증 완료 상태만(PRD: 검증 통과 데이터만 공개). */
-export const PUBLISHABLE_STATUSES = ["confirmed", "disputed", "debunked", "corrected"] as const;
+export const PUBLISHABLE_STATUSES = ["confirmed", "suspected", "disputed", "debunked", "corrected"] as const;
 
 /** 근거(method+evidence_links) 필수 판정 상태. reviewing/unverified 되돌림은 근거 불요구. */
-export const JUDGED_STATUSES = new Set<string>(["confirmed", "disputed", "debunked", "corrected"]);
+export const JUDGED_STATUSES = new Set<string>([
+  "confirmed",
+  "suspected",
+  "disputed",
+  "debunked",
+  "corrected",
+]);
 
 /** 검토 피드백 위험도(Votatis#2). 사안 심각도/추가 확인 필요성. */
 export const RISK_LEVELS = ["낮음", "낮음~중간", "중간", "중간~높음", "높음"] as const;

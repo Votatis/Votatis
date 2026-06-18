@@ -17,13 +17,14 @@ import { IGrid, ISearch, IPin, IChart } from "@/components/mock/mock-icons";
 import Torch from "@/components/landing/Torch";
 
 const CATS: Category[] = ["A", "B", "C"];
-const STATUSES: VerifyStatus[] = ["confirmed", "disputed", "debunked", "corrected"];
+const STATUSES: VerifyStatus[] = ["confirmed", "suspected", "disputed", "debunked", "corrected"];
 
 // VerifyStatus → 실제 존재하는 칩 CSS 클래스 suffix(`chip c-<suffix>`).
 const STATUS_CHIP_CLASS: Record<string, string> = {
   unverified: "unv",
   reviewing: "rev",
   confirmed: "cnf",
+  suspected: "sus",
   disputed: "dis",
   debunked: "deb",
   corrected: "cor",

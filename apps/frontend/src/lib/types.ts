@@ -11,6 +11,7 @@ export type VerifyStatus =
   | "unverified"
   | "reviewing"
   | "confirmed"
+  | "suspected"
   | "disputed"
   | "debunked"
   | "corrected";
@@ -41,6 +42,7 @@ export const STATUS_LABEL: Record<VerifyStatus, string> = {
   unverified: "미검증",
   reviewing: "검토 중",
   confirmed: "사실확인",
+  suspected: "의심",
   disputed: "이견 있음",
   debunked: "반박됨",
   corrected: "정정됨",
@@ -51,6 +53,7 @@ export const STATUS_CHIP: Record<VerifyStatus, string> = {
   unverified: "unv",
   reviewing: "rev",
   confirmed: "ok",
+  suspected: "sus",
   disputed: "dis",
   debunked: "deb",
   corrected: "cor",

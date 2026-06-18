@@ -11,6 +11,7 @@ const STATUSES: VerifyStatus[] = [
   "confirmed",
   "reviewing",
   "unverified",
+  "suspected",
   "disputed",
   "debunked",
   "corrected",

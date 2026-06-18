@@ -14,6 +14,7 @@ const ORDER: VerifyStatus[] = [
   "unverified",
   "reviewing",
   "confirmed",
+  "suspected",
   "disputed",
   "debunked",
   "corrected",

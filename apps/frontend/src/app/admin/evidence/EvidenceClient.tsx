@@ -21,13 +21,14 @@ const STATUSES: VerifyStatus[] = [
   "unverified",
   "reviewing",
   "confirmed",
+  "suspected",
   "disputed",
   "debunked",
   "corrected",
 ];
 
 // 근거(검증 방법 + 링크 1개 이상)가 필수인 판정 상태. API 도 400 으로 강제(페르소나 5).
-const JUDGED: VerifyStatus[] = ["confirmed", "disputed", "debunked", "corrected"];
+const JUDGED: VerifyStatus[] = ["confirmed", "suspected", "disputed", "debunked", "corrected"];
 
 // 검토 피드백 위험도(Votatis#2). 판정 시 필수.
 const RISK_OPTIONS = ["낮음", "낮음~중간", "중간", "중간~높음", "높음"] as const;
@@ -284,8 +285,8 @@ export default function EvidenceClient() {
       <div className="privacy">
         <IShield size={18} />
         <p>
-          원본은 관리자만 열람하며 모든 접근이 기록됩니다. confirmed/disputed/debunked/corrected 판정은 검증 방법과
-          근거 링크가 반드시 필요합니다.
+          원본은 관리자만 열람하며 모든 접근이 기록됩니다. confirmed/suspected/disputed/debunked/corrected 판정은 검증 방법과
+          근거 링크가 반드시 필요합니다. 의심(suspected) 판정은 미해명·필요 해명 사항도 1개 이상 적어야 합니다.
         </p>
       </div>
 

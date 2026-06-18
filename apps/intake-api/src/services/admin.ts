@@ -192,6 +192,19 @@ export async function adminPatchReport(env: Env, id: string, patch: AdminPatch):
         };
       }
     }
+
+    // '의심'(suspected)은 통상적 설명으로 해소되지 않는 미해명 정황 — 조작 단정이 아님을 분명히 하기 위해
+    // 필요 해명 사항(missing_evidence)을 반드시 남겨야 한다(페르소나5: 의심을 부정선거 단정으로 비약 금지).
+    if (targetStatus === "suspected") {
+      const missing = mergedArr("missing_evidence", row.verificationMissingEvidence ?? null);
+      if (missing.length === 0) {
+        return {
+          ok: false,
+          status: 400,
+          error: "의심 판정에는 미해명·필요 해명 사항(missing_evidence 1개 이상)이 필요합니다. (조작 단정이 아니라 해명이 필요한 정황임을 명시)",
+        };
+      }
+    }
   }
 
   // 판정 시 reviewer/reviewed_at 자동 기록

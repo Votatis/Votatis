@@ -56,6 +56,23 @@ test("confirmed 는 확인 범위(status_scope/confirmed_scope)까지 필요", (
   );
 });
 
+test("suspected 는 missing_evidence(필요 해명) 없으면 거부", () => {
+  const missing = validateVerdict({ status: "suspected", method: "교차확인", evidence_links: ["https://e/1"], ...feedback });
+  assert.equal(missing.ok, false);
+  assert.match((missing as { error: string }).error, /미해명|해명/);
+
+  assert.deepEqual(
+    validateVerdict({
+      status: "suspected",
+      method: "홈페이지 표출값 대조",
+      evidence_links: ["https://e/1"],
+      ...feedback,
+      missing_evidence: ["선관위의 표출·정정 로직 공식 해명"],
+    }),
+    { ok: true },
+  );
+});
+
 test("알 수 없는 status 는 거부", () => {
   const r = validateVerdict({ status: "pending" });
   assert.equal(r.ok, false);

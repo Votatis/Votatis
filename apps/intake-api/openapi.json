@@ -986,6 +986,7 @@
               "unverified",
               "reviewing",
               "confirmed",
+              "suspected",
               "disputed",
               "debunked",
               "corrected"
@@ -1441,6 +1442,7 @@
                 "unverified",
                 "reviewing",
                 "confirmed",
+                "suspected",
                 "disputed",
                 "debunked",
                 "corrected"
@@ -2354,6 +2356,7 @@
                 "unverified",
                 "reviewing",
                 "confirmed",
+                "suspected",
                 "disputed",
                 "debunked",
                 "corrected"
