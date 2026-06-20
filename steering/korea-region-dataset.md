@@ -1,5 +1,5 @@
 ---
-tldr: 전국 행정구역 데이터. "내손1동"처럼 생활(분동) 단위가 필요하면 행정동, "리"가 필요하면 법정동. 행정동은 juso administrationCode.tsv(행안부 기준 매일 갱신, 키 불필요)로 만들고 출장소 제외·세종 단층·전북 명칭만 보정한다.
+tldr: 전국 행정구역 데이터: 분동·생활단위는 행정동, '리'는 법정동. 행정동은 juso administrationCode.tsv로 생성. 산출물 apps/frontend/src/data/regions.*.json.
 tags: [reference, data, korea-region]
 last_retrieved: 2026-06-10
 retrieval_count: 2

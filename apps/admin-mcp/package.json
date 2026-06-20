@@ -1,0 +1,27 @@
+{
+  "name": "votatis-admin-mcp",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Votatis 검증 관리 MCP 서버 — intake-api 관리자 API를 AI(Claude Code/Codex)용 도구로 노출",
+  "bin": {
+    "votatis-admin-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test --import tsx test/*.test.ts",
+    "smoke": "pnpm build && node scripts/smoke.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.2"
+  }
+}

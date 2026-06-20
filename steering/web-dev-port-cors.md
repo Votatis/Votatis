@@ -1,8 +1,8 @@
 ---
-tldr: 프런트(apps/frontend, Next dev)를 로컬에서 intake-api와 붙일 땐 dev 서버 포트(Next 기본 3000)와 intake-api ALLOWED_ORIGIN(wrangler.jsonc vars의 http://localhost:3000)이 일치해야 CORS 통과. 불일치면 "API는 200인데 브라우저만 실패". 포트가 다르면 intake-api를 --var ALLOWED_ORIGIN으로 맞춰라.
+tldr: Next dev 포트 3000 = intake-api ALLOWED_ORIGIN 이어야 CORS 통과. 불일치면 'API 200인데 브라우저만 실패' → --var ALLOWED_ORIGIN으로 맞춤.
 tags: [pitfall, cors, frontend, intake-api]
-last_retrieved: 2026-06-10
-retrieval_count: 4
+last_retrieved: 2026-06-15
+retrieval_count: 7
 ---
 
 ## 규칙 / 교훈

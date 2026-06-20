@@ -1,8 +1,8 @@
 ---
-tldr: intake-api 로컬 실행은 두 모드 — pnpm dev:local(LOCAL_UPLOAD shim, CF 없이 첨부까지) vs dev:remote(실 R2·D1). TURNSTILE은 항상통과 테스트키(1x0000…AA), D1은 db:migrate:local 선적용. 함정: wrangler dev는 .dev.vars/바인딩 변경 핫리로드 안 함 → 재시작 필수.
+tldr: intake-api 로컬: dev:local(LOCAL_UPLOAD shim, CF 없이) vs dev:remote(실 R2·D1); db:migrate:local 선적용. 함정: wrangler dev는 .dev.vars/바인딩 변경 시 재시작 필수.
 tags: [pitfall, testing, cloudflare, intake-api, d1]
-last_retrieved: 2026-06-10
-retrieval_count: 9
+last_retrieved: 2026-06-14
+retrieval_count: 10
 ---
 
 ## 규칙 / 교훈

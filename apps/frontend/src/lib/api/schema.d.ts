@@ -149,7 +149,7 @@ export interface paths {
             parameters: {
                 query?: {
                     election?: string;
-                    status?: "unverified" | "reviewing" | "confirmed" | "disputed" | "debunked" | "corrected";
+                    status?: "unverified" | "reviewing" | "confirmed" | "suspected" | "disputed" | "debunked" | "corrected";
                     sido?: string;
                     sigungu?: string;
                     tag?: string;
@@ -226,6 +226,1178 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminLoginInput"];
+                };
+            };
+            responses: {
+                /** @description 토큰쌍 + 사용자 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminSessionResultV2"];
+                    };
+                };
+                /** @description 잘못된 요청 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 실패 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 권한 없음/비활성 */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 없음 */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 중복 */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 미구성 */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminRefreshInput"];
+                };
+            };
+            responses: {
+                /** @description 회전된 토큰쌍 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminSessionResultV2"];
+                    };
+                };
+                /** @description 잘못된 요청 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 실패 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 권한 없음/비활성 */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 없음 */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 중복 */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 미구성 */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminLogoutInput"];
+                };
+            };
+            responses: {
+                /** @description 폐기 완료 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OkResult"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/auth/password-reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminPasswordResetInput"];
+                };
+            };
+            responses: {
+                /** @description 설정 완료 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OkResult"];
+                    };
+                };
+                /** @description 잘못된 요청 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 실패 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 권한 없음/비활성 */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 없음 */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 중복 */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 미구성 */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 현재 사용자 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminUserPublic"];
+                    };
+                };
+                /** @description 잘못된 요청 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 실패 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 권한 없음/비활성 */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 없음 */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 중복 */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 미구성 */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 회원 목록 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminMemberList"];
+                    };
+                };
+                /** @description 권한 없음 */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminMemberCreateInput"];
+                };
+            };
+            responses: {
+                /** @description 생성된 회원 + 재설정 토큰 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminMemberCreateResult"];
+                    };
+                };
+                /** @description 잘못된 요청 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 실패 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 권한 없음 */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 없음 */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 중복 */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 미구성 */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/members/{id}/reset-link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 재설정 토큰 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminResetTokenResult"];
+                    };
+                };
+                /** @description 잘못된 요청 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 실패 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 권한 없음 */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 없음 */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 중복 */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 미구성 */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/members/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 삭제 완료 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OkResult"];
+                    };
+                };
+                /** @description 잘못된 요청 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 실패 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 권한 없음 */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 없음 */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 중복 */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 미구성 */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminMemberPatchInput"];
+                };
+            };
+            responses: {
+                /** @description 갱신된 회원 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminUserPublic"];
+                    };
+                };
+                /** @description 잘못된 요청 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 실패 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 권한 없음 */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 없음 */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 중복 */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 미구성 */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/admin/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminSessionInput"];
+                };
+            };
+            responses: {
+                /** @description 토큰 유효 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminSessionResult"];
+                    };
+                };
+                /** @description 토큰 불일치 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    status?: "unverified" | "reviewing" | "confirmed" | "suspected" | "disputed" | "debunked" | "corrected";
+                    election?: string;
+                    sido?: string;
+                    sigungu?: string;
+                    tag?: string;
+                    q?: string;
+                    limit?: number;
+                    offset?: number | null;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 검수 큐 목록 + 상태별 카운트 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminReportList"];
+                    };
+                };
+                /** @description 인증 필요 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminReportCreate"];
+                };
+            };
+            responses: {
+                /** @description 생성된 제보 상세 */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminReportDetail"];
+                    };
+                };
+                /** @description 유효하지 않은 입력 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 필요 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/reports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 상세(내부 필드 포함) */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminReportDetail"];
+                    };
+                };
+                /** @description 인증 필요 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 없음 */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminPatch"];
+                };
+            };
+            responses: {
+                /** @description 갱신된 상세 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminReportDetail"];
+                    };
+                };
+                /** @description 근거 누락 등 검증 실패 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 인증 필요 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 없음 */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/admin/reports/{id}/analyze": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 보조 분석 신호(휴리스틱±AI) */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Analysis"];
+                    };
+                };
+                /** @description 인증 필요 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+                /** @description 없음 */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 검증 완료 레코드(공개 필드) */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminExport"];
+                    };
+                };
+                /** @description 인증 필요 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 공개 레코드 집계 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Stats"];
                     };
                 };
             };
@@ -326,6 +1498,16 @@ export interface components {
             reviewed_at: string | null;
             notes: string | null;
             evidence_links: string[] | null;
+            status_scope: string | null;
+            claim: string | null;
+            verified_facts: string[] | null;
+            assessment: string[] | null;
+            confirmed_scope: string[] | null;
+            not_confirmed: string[] | null;
+            possible_explanations: string[] | null;
+            missing_evidence: string[] | null;
+            public_summary: string | null;
+            risk_level: string | null;
         };
         Report: {
             id: string;
@@ -350,6 +1532,166 @@ export interface components {
             verification: components["schemas"]["Verification"];
             created_at: string;
             updated_at: string;
+        };
+        AdminUserPublic: {
+            id: string;
+            username: string;
+            name: string;
+            /** @enum {string} */
+            role: "root" | "member";
+            /** @enum {string} */
+            status: "active" | "disabled";
+            last_login_at: string | null;
+            created_at: string;
+        };
+        AdminSessionResultV2: {
+            access_token: string;
+            refresh_token: string;
+            user: components["schemas"]["AdminUserPublic"];
+        };
+        AdminLoginInput: {
+            username: string;
+            password: string;
+        };
+        AdminRefreshInput: {
+            refresh_token: string;
+        };
+        OkResult: {
+            /** @enum {boolean} */
+            ok: true;
+        };
+        AdminLogoutInput: {
+            refresh_token: string;
+        };
+        AdminPasswordResetInput: {
+            token: string;
+            password: string;
+        };
+        AdminMemberList: {
+            members: components["schemas"]["AdminUserPublic"][];
+        };
+        AdminMemberCreateResult: {
+            user: components["schemas"]["AdminUserPublic"];
+            reset_token: string;
+        };
+        AdminMemberCreateInput: {
+            username: string;
+            name: string;
+            /** @enum {string} */
+            role?: "root" | "member";
+        };
+        AdminResetTokenResult: {
+            reset_token: string;
+        };
+        AdminMemberPatchInput: {
+            name?: string;
+            /** @enum {string} */
+            status?: "active" | "disabled";
+        };
+        AdminSessionResult: {
+            /** @enum {boolean} */
+            ok: true;
+        };
+        AdminSessionInput: {
+            token: string;
+        };
+        AdminReportSummary: components["schemas"]["ReportSummary"] & {
+            submitter: string;
+            updated_at: string;
+        };
+        AdminReportList: {
+            items: components["schemas"]["AdminReportSummary"][];
+            total: number;
+            counts: {
+                [key: string]: number;
+            };
+            limit: number;
+            offset: number;
+        };
+        AdminVerification: components["schemas"]["Verification"] & {
+            reviewer_note: string | null;
+        };
+        AdminReportDetail: components["schemas"]["Report"] & {
+            verification?: components["schemas"]["AdminVerification"];
+            submitter: string;
+            exif: unknown[] | null;
+        };
+        AdminReportCreate: {
+            election: string;
+            title: string;
+            summary?: string;
+            body?: string;
+            region?: components["schemas"]["Region"];
+            occurred_at?: string;
+            tags?: string[];
+            sources?: components["schemas"]["Source"][];
+            /** @enum {string} */
+            status?: "unverified" | "reviewing";
+        };
+        AdminPatch: {
+            /** @enum {string} */
+            status?: "unverified" | "reviewing" | "confirmed" | "suspected" | "disputed" | "debunked" | "corrected";
+            reviewer?: string;
+            verification?: {
+                reviewer?: string | null;
+                method?: string | null;
+                notes?: string | null;
+                evidence_links?: string[];
+                status_scope?: string | null;
+                claim?: string | null;
+                verified_facts?: string[] | null;
+                assessment?: string[] | null;
+                confirmed_scope?: string[] | null;
+                not_confirmed?: string[] | null;
+                possible_explanations?: string[] | null;
+                missing_evidence?: string[] | null;
+                reviewer_note?: string | null;
+                public_summary?: string | null;
+                /** @enum {string|null} */
+                risk_level?: "낮음" | "낮음~중간" | "중간" | "중간~높음" | "높음" | null;
+            };
+            tags?: string[];
+            rebuttals?: {
+                text: string;
+                /** Format: uri */
+                source_url?: string;
+            }[];
+            related?: string[];
+            title?: string;
+            summary?: string;
+            body?: string;
+        };
+        Analysis: {
+            suggested_tags: string[];
+            credibility: {
+                score: number;
+                signals: string[];
+            };
+            synthetic_risk: {
+                /** @enum {string} */
+                level: "low" | "review" | "unknown";
+                signals: string[];
+            };
+            summary_hint: string;
+            /** @enum {string} */
+            source: "heuristic" | "heuristic+ai";
+        };
+        AdminExport: {
+            records: components["schemas"]["Report"][];
+        };
+        Stats: {
+            total: number;
+            by_status: {
+                [key: string]: number;
+            };
+            by_election: {
+                election: string;
+                count: number;
+            }[];
+            daily: {
+                date: string;
+                count: number;
+            }[];
         };
     };
     responses: never;

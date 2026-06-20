@@ -7,6 +7,12 @@ import type { paths, components } from "./schema";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8787";
 
+/**
+ * R2 public 도메인(증거 이미지 직접 로드용). 비어 있으면 Worker 스트리밍으로 폴백.
+ * 나중에 커스텀 도메인으로 바꿀 수 있게 빌드타임 env 로 둔다.
+ */
+export const R2_PUBLIC_BASE_URL = (process.env.NEXT_PUBLIC_R2_PUBLIC_URL ?? "").replace(/\/+$/, "");
+
 /** intake-api validation 과 일치시킨 제약(클라 측 사전 검증용). */
 export const ALLOWED_MIME = ["image/jpeg", "image/png", "image/gif", "image/webp"] as const;
 export const MAX_FILE_BYTES = 15 * 1024 * 1024; // 15MB

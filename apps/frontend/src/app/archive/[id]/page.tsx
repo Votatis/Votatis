@@ -1,32 +1,28 @@
 import "../../app-shell.css";
 import Link from "next/link";
 import SiteHeader from "@/components/layout/SiteHeader";
-import { IShield } from "@/components/mock/mock-icons";
+import { ArchiveDetail, ArchiveNotFound } from "@/components/archive/ArchiveDetail";
+import { allRecords, getRecord } from "@/lib/archive";
 
-// 정적 export(SSG): 레코드 상세는 빌드 타임에 id 목록을 알 수 없고(공개 조회 API 미연동, mock 빈 상태)
-// 사전 생성 인스턴스 없음. 실 데이터 연동(별도 스펙) 시 generateStaticParams 로 채운다.
+// 정적 export(SSG): 빌드타임 인덱스(archive.generated.json)의 실 id 를 열거한다.
+// 데이터가 0건이어도 빌드가 성공하도록 sentinel("none")을 둔다(dynamicParams=false).
+// 런타임에 새로 승인된 레코드는 /archive/record?id= (API 연동, spec 0016)가 커버한다.
 export const dynamicParams = false;
 export function generateStaticParams(): { id: string }[] {
-  return [{ id: "none" }];
+  const ids = allRecords().map((r) => ({ id: r.id }));
+  return ids.length ? ids : [{ id: "none" }];
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return { title: `${id} — Votatis 레코드` };
+  const r = getRecord(id);
+  return { title: `${r ? r.title : id} — Votatis 레코드` };
 }
 
-export default async function RecordPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function RecordPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const r = getRecord(id);
 
-  // TODO: GET /api/records/{id} 연동. 현재는 데이터 소스가 없어 빈 상태.
   return (
     <>
       <SiteHeader />
@@ -36,25 +32,7 @@ export default async function RecordPage({
             ← 아카이브
           </Link>
         </div>
-        <div className="rdoc">
-          <div className="rdh">
-            <span className="chip c-unv">
-              <span className="pt" />레코드 없음
-            </span>
-            <span className="rid">{id}</span>
-          </div>
-          <div className="empty" style={{ marginTop: 8 }}>
-            <div className="ic">
-              <IShield size={22} />
-            </div>
-            <h4>해당 레코드를 찾을 수 없습니다</h4>
-            <p>
-              요청하신 식별자의 공개 레코드가 존재하지 않거나 아직 검증되지 않았습니다.
-              <br />
-              검증을 통과한 기록만 공개되며, 모든 기록에는 출처·무결성 해시·검증 이력이 함께 표시됩니다.
-            </p>
-          </div>
-        </div>
+        {!r || id === "none" ? <ArchiveNotFound id={id} /> : <ArchiveDetail r={r} />}
       </div>
     </>
   );

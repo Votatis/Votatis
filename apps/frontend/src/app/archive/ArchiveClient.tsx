@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   CATEGORY_LABEL,
@@ -8,24 +8,126 @@ import {
   type Category,
   type VerifyStatus,
 } from "@/lib/types";
+import {
+  loadArchiveSummaries,
+  recordCategory,
+  type ArchiveSummary,
+} from "@/lib/archive-source";
 import { IGrid, ISearch, IPin, IChart } from "@/components/mock/mock-icons";
 import Torch from "@/components/landing/Torch";
 
 const CATS: Category[] = ["A", "B", "C"];
-const STATUSES: VerifyStatus[] = [
-  "confirmed",
-  "reviewing",
-  "unverified",
-  "disputed",
-  "debunked",
-  "corrected",
-];
+const STATUSES: VerifyStatus[] = ["confirmed", "suspected", "disputed", "debunked", "corrected"];
 
-/** 실동작 아카이브: 데이터 없음(빈 상태) + 필터·정렬 토글 작동 */
+// VerifyStatus → 실제 존재하는 칩 CSS 클래스 suffix(`chip c-<suffix>`).
+const STATUS_CHIP_CLASS: Record<string, string> = {
+  unverified: "unv",
+  reviewing: "rev",
+  confirmed: "cnf",
+  suspected: "sus",
+  disputed: "dis",
+  debunked: "deb",
+  corrected: "cor",
+};
+
+function statusChipClass(status: string): string {
+  return STATUS_CHIP_CLASS[status] ?? "unv";
+}
+
+/** 카드가 쓰는 최소 필드 — 공개 요약(ReportSummary)과 상세(Report) 양쪽이 만족한다. */
+interface CardRecord {
+  id: string;
+  status: string;
+  title: string;
+  summary?: string | null;
+  region?: { sido?: string; sigungu?: string; eup_myeon_dong?: string };
+  tags?: string[];
+  attachment_count?: number;
+  attachments?: unknown[];
+}
+
+function regionText(r: CardRecord): string {
+  return [r.region?.sido, r.region?.sigungu].filter(Boolean).join(" ");
+}
+
+/** 아카이브/검색 공용 레코드 카드. 상세는 런타임 API 조회(/archive/record?id=). */
+export function RecordCard({ r }: { r: CardRecord }) {
+  const region = regionText(r);
+  const att = r.attachment_count ?? r.attachments?.length ?? 0;
+  return (
+    <Link
+      href={`/archive/record?id=${encodeURIComponent(r.id)}`}
+      className="rdoc"
+      style={{ display: "block", maxWidth: "none", margin: "0 0 12px", padding: "16px 18px" }}
+    >
+      <div className="rdh" style={{ marginBottom: 8 }}>
+        <span className={`chip c-${statusChipClass(r.status)} sm`}>
+          <span className="pt" />
+          {STATUS_LABEL[r.status as VerifyStatus] ?? r.status}
+        </span>
+        <span className="rid">{r.id}</span>
+      </div>
+      <h3 style={{ fontSize: 16, marginBottom: 6 }}>{r.title}</h3>
+      {r.summary && (
+        <div className="sum" style={{ fontSize: 13.5, marginBottom: 10 }}>
+          {r.summary}
+        </div>
+      )}
+      <div className="meta" style={{ marginBottom: 0 }}>
+        {region && <span>{region}</span>}
+        {(r.tags ?? []).map((t) => (
+          <span key={t}>{t}</span>
+        ))}
+        {att > 0 && <span>첨부 {att}</span>}
+      </div>
+    </Link>
+  );
+}
+
+/** 실동작 아카이브: 런타임 API 조회(승인 레코드) + 필터·정렬 토글. 정적 인덱스 fallback. */
 export default function ArchiveClient() {
+  const [records, setRecords] = useState<ArchiveSummary[] | null>(null);
   const [sort, setSort] = useState<"all" | "recent">("all");
   const [cat, setCat] = useState<Category | null>(null);
   const [status, setStatus] = useState<VerifyStatus | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadArchiveSummaries().then((rs) => {
+      if (!cancelled) setRecords(rs);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const all = records ?? [];
+  const loading = records === null;
+
+  const counts = useMemo(() => {
+    const c: Record<Category, number> = { A: 0, B: 0, C: 0 };
+    for (const r of all) {
+      const k = recordCategory(r);
+      if (k) c[k]++;
+    }
+    return c;
+  }, [all]);
+
+  const total = all.length;
+
+  const list = useMemo(() => {
+    const q = "";
+    let out = all.filter((r) => {
+      if (cat && recordCategory(r) !== cat) return false;
+      if (status && r.status !== status) return false;
+      void q;
+      return true;
+    });
+    if (sort === "recent") {
+      out = [...out].sort((a, b) => (b.collected_at ?? "").localeCompare(a.collected_at ?? ""));
+    }
+    return out;
+  }, [all, cat, status, sort]);
 
   return (
     <div className="win" style={{ boxShadow: "none", borderRadius: 14, marginTop: 4 }}>
@@ -36,7 +138,7 @@ export default function ArchiveClient() {
           </div>
           <div className="ds-sec">아카이브</div>
           <div className="ds-item on">
-            <IGrid />전체 기록<span className="cnt">0</span>
+            <IGrid />전체 기록<span className="cnt">{total}</span>
           </div>
           <Link href="/search" className="ds-item">
             <ISearch />검색
@@ -59,7 +161,7 @@ export default function ArchiveClient() {
                 {c}
               </span>
               {CATEGORY_LABEL[c]}
-              <span className="cnt">0</span>
+              <span className="cnt">{counts[c]}</span>
             </div>
           ))}
         </aside>
@@ -69,7 +171,7 @@ export default function ArchiveClient() {
             <div>
               <h3>전체 기록</h3>
               <div className="sub">
-                제9회 지방선거 · 0건
+                제9회 지방선거 · {list.length}건
                 {cat && ` · ${CATEGORY_LABEL[cat]}`}
                 {status && ` · ${STATUS_LABEL[status]}`}
               </div>
@@ -100,18 +202,34 @@ export default function ArchiveClient() {
             ))}
           </div>
 
-          <div className="empty">
-            <div className="ic">
-              <IGrid size={22} />
+          {loading ? (
+            <div className="empty">
+              <div className="ic">
+                <IGrid size={22} />
+              </div>
+              <h4>불러오는 중…</h4>
             </div>
-            <h4>표시할 기록이 없습니다</h4>
-            <p>
-              아직 공개된 레코드가 없습니다. 검증을 통과한 제보만 이곳에 반영됩니다.
-              {/* TODO: GET /api/records?category={cat}&status={status}&sort={sort} 연동 */}
-              <br />
-              현장을 보셨다면 <Link href="/report" style={{ color: "var(--red)", fontWeight: 700 }}>제보</Link>로 남겨주세요.
-            </p>
-          </div>
+          ) : list.length === 0 ? (
+            <div className="empty">
+              <div className="ic">
+                <IGrid size={22} />
+              </div>
+              <h4>표시할 기록이 없습니다</h4>
+              <p>
+                {total === 0
+                  ? "아직 공개된 레코드가 없습니다. 검증을 통과한 제보만 이곳에 반영됩니다."
+                  : "선택한 조건에 해당하는 기록이 없습니다. 필터를 바꿔보세요."}
+                <br />
+                현장을 보셨다면 <Link href="/report" style={{ color: "var(--red)", fontWeight: 700 }}>제보</Link>로 남겨주세요.
+              </p>
+            </div>
+          ) : (
+            <div>
+              {list.map((r) => (
+                <RecordCard key={r.id} r={r} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

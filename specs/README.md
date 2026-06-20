@@ -21,3 +21,12 @@ specs/
 | 0005 | 랜딩 페이지 + 제보 페이지 분리 | completed | 2026-06-10 | 2026-06-10 | completed/0005-landing-page.md |
 | 0006 | D1 기반 제보 저장 + 정식 조회 API (Hono + OpenAPI + Zod) | completed | 2026-06-10 | 2026-06-10 | completed/0006-d1-report-store-api.md |
 | 0007 | frontend(Next.js) apps/frontend 통합 + 제보 기능 이식 + SSG, apps/web 폐기 | completed | 2026-06-10 | 2026-06-10 | completed/0007-frontend-monorepo-ssg-migration.md |
+| 0008 | 관리자 검증 API + 인증 (검증 큐 / 상태 판정 / 증거 열람) | completed | 2026-06-14 | 2026-06-14 | completed/0008-admin-verification-api.md |
+| 0009 | 관리자 콘솔 API 연동 (로그인 / 검토 큐 / 증거 검수 / 대시보드) | completed | 2026-06-14 | 2026-06-14 | completed/0009-admin-console-wiring.md |
+| 0010 | 공개 아카이브 / 검색 / 통계 정적 연동 | completed | 2026-06-14 | 2026-06-14 | completed/0010-public-archive-search-stats.md |
+| 0011 | D1 → GitHub 마크다운 export + 빌드타임 공개 인덱스 | completed | 2026-06-14 | 2026-06-14 | completed/0011-d1-markdown-export-pipeline.md |
+| 0012 | AI 분석 백엔드 (자동 태깅 / 신뢰도 / 합성 위험) — 보조 신호 | completed | 2026-06-14 | 2026-06-14 | completed/0012-ai-analysis-backend.md |
+| 0013 | intake-api src 디렉터리 재구성 + 레이어 리팩터링 (동작 불변) | completed | 2026-06-14 | 2026-06-14 | completed/0013-intake-api-src-restructure.md |
+| 0014 | 검증 관리 MCP 서버 (votatis-admin-mcp) — 관리자 API 래퍼 | completed | 2026-06-14 | 2026-06-19 | completed/0014-admin-mcp-server.md |
+| 0015 | 관리자 인증 — 루트 계정 + 회원관리 + JWT(access/refresh) | completed | 2026-06-14 | 2026-06-15 | completed/0015-admin-auth-accounts.md |
+| 0016 | 관리자 UX 개선 + 공개 아카이브 API 연동 + 제보 검토 피드백 스키마 + 예시 시드 | completed | 2026-06-15 | 2026-06-15 | completed/0016-admin-ux-archive-feedback.md |

@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { CATEGORY_FULL, STATUS_LABEL, type Category, type VerifyStatus } from "@/lib/types";
+import { filterRecords, type ArchiveRecord } from "@/lib/archive";
 import { ISearch } from "@/components/mock/mock-icons";
+import { RecordCard } from "../archive/ArchiveClient";
 
 const CATS: (Category | "all")[] = ["all", "A", "B", "C"];
 const STATUSES: (VerifyStatus | "all")[] = ["all", "confirmed", "reviewing", "debunked"];
@@ -11,10 +13,16 @@ export default function SearchClient() {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<Category | "all">("all");
   const [status, setStatus] = useState<VerifyStatus | "all">("all");
-  const [submitted, setSubmitted] = useState(false);
+  const [results, setResults] = useState<ArchiveRecord[] | null>(null);
 
-  // TODO: GET /api/search?q={q}&category={cat}&status={status} 연동
-  const onSearch = () => setSubmitted(true);
+  const onSearch = () =>
+    setResults(
+      filterRecords({
+        q,
+        category: cat === "all" ? null : cat,
+        status: status === "all" ? null : status,
+      }),
+    );
 
   return (
     <div style={{ maxWidth: 720 }}>
@@ -24,7 +32,7 @@ export default function SearchClient() {
           value={q}
           onChange={(e) => {
             setQ(e.target.value);
-            setSubmitted(false);
+            setResults(null);
           }}
           placeholder="키워드로 검색 (예: 봉인 스티커)"
           style={{
@@ -47,7 +55,7 @@ export default function SearchClient() {
             className={cat === c ? "on" : ""}
             onClick={() => {
               setCat(c);
-              setSubmitted(false);
+              setResults(null);
             }}
           >
             {c === "all" ? "전체" : CATEGORY_FULL[c]}
@@ -63,7 +71,7 @@ export default function SearchClient() {
             className={status === s ? "on" : ""}
             onClick={() => {
               setStatus(s);
-              setSubmitted(false);
+              setResults(null);
             }}
           >
             {s === "all" ? "전체" : STATUS_LABEL[s]}
@@ -75,19 +83,27 @@ export default function SearchClient() {
         결과 보기
       </button>
 
-      {submitted && (
-        <div className="empty" style={{ marginTop: 24 }}>
-          <div className="ic">
-            <ISearch size={22} />
+      {results !== null &&
+        (results.length === 0 ? (
+          <div className="empty" style={{ marginTop: 24 }}>
+            <div className="ic">
+              <ISearch size={22} />
+            </div>
+            <h4>검색 결과가 없습니다</h4>
+            <p>
+              &ldquo;{q || "전체"}&rdquo;
+              {cat !== "all" && ` · ${CATEGORY_FULL[cat]}`}
+              {status !== "all" && ` · ${STATUS_LABEL[status]}`} 조건에 해당하는 공개 레코드가 없습니다.
+            </p>
           </div>
-          <h4>검색 결과가 없습니다</h4>
-          <p>
-            &ldquo;{q || "전체"}&rdquo;
-            {cat !== "all" && ` · ${CATEGORY_FULL[cat]}`}
-            {status !== "all" && ` · ${STATUS_LABEL[status]}`} 조건에 해당하는 공개 레코드가 없습니다.
-          </p>
-        </div>
-      )}
+        ) : (
+          <div style={{ marginTop: 24 }}>
+            <div className="pl" style={{ fontSize: 13 }}>검색 결과 {results.length}건</div>
+            {results.map((r) => (
+              <RecordCard key={r.id} r={r} />
+            ))}
+          </div>
+        ))}
     </div>
   );
 }

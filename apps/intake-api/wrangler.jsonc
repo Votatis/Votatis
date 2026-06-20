@@ -33,6 +33,8 @@
     "R2_ACCOUNT_ID": "4691f0338d03a2e7d000403d13b66264",
     "R2_BUCKET": "votatis-evidence"
   }
+  // ADMIN_TOKEN 은 vars 에 두지 않는다 — vars(plaintext)가 deploy 때 같은 이름 secret 을 덮어쓴다.
+  //   로컬: .dev.vars 의 ADMIN_TOKEN(=dev-admin-token), 운영: `wrangler secret put ADMIN_TOKEN`.
   // Secrets (wrangler secret put / .dev.vars):
-  //   TURNSTILE_SECRET, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
+  //   TURNSTILE_SECRET, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, ADMIN_TOKEN
 }

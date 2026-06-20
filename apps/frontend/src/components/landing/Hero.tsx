@@ -28,9 +28,9 @@ export default function Hero() {
           <Link className="btn btn-primary btn-lg" href="/report">
             제보 보내기
           </Link>
-          <a className="btn btn-soft btn-lg" href="#archive">
+          <Link className="btn btn-soft btn-lg" href="/archive">
             아카이브 둘러보기
-          </a>
+          </Link>
         </div>
       </div>
 

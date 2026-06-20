@@ -1,5 +1,5 @@
 import "../app-shell.css";
-import "../free/mock.css";
+import "../mock.css";
 import "./report.css";
 import ReportFlow from "./ReportFlow";
 

@@ -11,6 +11,7 @@ export type VerifyStatus =
   | "unverified"
   | "reviewing"
   | "confirmed"
+  | "suspected"
   | "disputed"
   | "debunked"
   | "corrected";
@@ -31,9 +32,9 @@ export const CATEGORY_FULL: Record<Category, string> = {
 
 /** 카테고리별 세부 유형 목록. */
 export const TYPE_SETS: Record<Category, string[]> = {
-  A: ["투표지 부족·과다", "개표 집계 오류", "투표함 관리", "참관 방해", "투표소 운영"],
-  B: ["사전투표지 관리", "본인확인 절차", "관외 우편투표", "사전투표함 보관"],
-  C: ["전산 집계 이상", "통계적 이상치", "출구조사 불일치", "시스템·보안"],
+  A: ["투표지 부족·과다", "개표 집계 오류", "투표함 관리", "참관 방해", "투표소 운영", "기타"],
+  B: ["사전투표지 관리", "본인확인 절차", "관외 우편투표", "사전투표함 보관", "기타"],
+  C: ["전산 집계 이상", "통계적 이상치", "출구조사 불일치", "시스템·보안", "기타"],
 };
 
 /** 검증 상태 라벨. */
@@ -41,6 +42,7 @@ export const STATUS_LABEL: Record<VerifyStatus, string> = {
   unverified: "미검증",
   reviewing: "검토 중",
   confirmed: "사실확인",
+  suspected: "의심",
   disputed: "이견 있음",
   debunked: "반박됨",
   corrected: "정정됨",
@@ -51,6 +53,7 @@ export const STATUS_CHIP: Record<VerifyStatus, string> = {
   unverified: "unv",
   reviewing: "rev",
   confirmed: "ok",
+  suspected: "sus",
   disputed: "dis",
   debunked: "deb",
   corrected: "cor",

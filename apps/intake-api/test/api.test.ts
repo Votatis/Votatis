@@ -6,9 +6,11 @@ import {
 } from "cloudflare:test";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import worker from "../src/index";
-import { detectImageType } from "../src/validation";
-import { sha256Hex } from "../src/util";
-import { cleanupPending } from "../src/cleanup";
+import { detectImageType } from "../src/lib/media";
+import { sha256Hex } from "../src/lib/crypto";
+import { cleanupPending } from "../src/services/cleanup";
+import { recordToMarkdown, recordRelPath, type PublicRecord } from "../src/domain/markdown";
+import { analyzeRecord } from "../src/domain/analyzer";
 
 const ORIGIN = "https://app.test";
 const JPEG = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00]);
@@ -303,6 +305,332 @@ describe("로컬 업로드 shim (LOCAL_UPLOAD)", () => {
     expect(fin.status).toBe(200);
     const data = (await fin.json()) as { attachments: { sha256: string }[] };
     expect(data.attachments[0].sha256).toBe(await sha256Hex(JPEG));
+  });
+});
+
+describe("관리자 검증 API (/admin/*)", () => {
+  const ADMIN = "test-admin-token";
+  const ELECTION = "관리자테스트선거-A";
+
+  function adminReq(path: string, opts: { method?: string; body?: unknown; token?: string | null } = {}) {
+    const headers: Record<string, string> = { origin: ORIGIN };
+    if (opts.body !== undefined) headers["content-type"] = "application/json";
+    if (opts.token !== null) headers["authorization"] = `Bearer ${opts.token ?? ADMIN}`;
+    return new Request(`https://api.test${path}`, {
+      method: opts.method ?? "GET",
+      headers,
+      body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+    });
+  }
+
+  async function seedUnverified(ip: string, extra: Record<string, unknown> = {}): Promise<string> {
+    const body = { ...validBody(), election: ELECTION, tags: ["관리자태그"], ...extra };
+    const s = await startSubmission(ip, body);
+    await env.EVIDENCE_BUCKET.put(s.uploads[0].staging_key, JPEG);
+    const fin = await call(
+      post(`/submissions/${s.submission_id}/finalize`, { finalize_token: s.finalize_token }, { ip }),
+    );
+    expect(fin.status).toBe(200);
+    return s.submission_id;
+  }
+
+  it("토큰 없으면 401, 틀리면 401, 맞으면 200", async () => {
+    expect((await call(adminReq("/admin/reports", { token: null }))).status).toBe(401);
+    expect((await call(adminReq("/admin/reports", { token: "wrong" }))).status).toBe(401);
+    expect((await call(adminReq("/admin/reports"))).status).toBe(200);
+  });
+
+  it("POST /admin/session 이 토큰을 검증한다", async () => {
+    expect((await call(adminReq("/admin/session", { method: "POST", body: { token: "wrong" }, token: null }))).status).toBe(401);
+    const ok = await call(adminReq("/admin/session", { method: "POST", body: { token: ADMIN }, token: null }));
+    expect(ok.status).toBe(200);
+    expect((await ok.json() as { ok: boolean }).ok).toBe(true);
+  });
+
+  it("GET /admin/reports 가 큐 목록 + 상태별 카운트를 반환", async () => {
+    const id = await seedUnverified("10.6.0.1");
+    const res = await call(adminReq(`/admin/reports?election=${encodeURIComponent(ELECTION)}`));
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { items: { id: string; submitter: string }[]; counts: Record<string, number> };
+    expect(data.items.map((i) => i.id)).toContain(id);
+    expect(data.items[0].submitter).toMatch(/^anon-/);
+    expect(data.counts.unverified).toBeGreaterThan(0);
+  });
+
+  it("GET /admin/reports/{id} 가 내부 필드(submitter)를 포함", async () => {
+    const id = await seedUnverified("10.6.0.2");
+    const res = await call(adminReq(`/admin/reports/${id}`));
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { submitter: string; verification: unknown };
+    expect(data.submitter).toMatch(/^anon-/);
+    expect(data.verification).toBeTruthy();
+  });
+
+  it("PATCH 로 reviewing 전이는 근거 없이 가능", async () => {
+    const id = await seedUnverified("10.6.0.3");
+    const res = await call(adminReq(`/admin/reports/${id}`, { method: "PATCH", body: { status: "reviewing" } }));
+    expect(res.status).toBe(200);
+    expect((await res.json() as { status: string }).status).toBe("reviewing");
+  });
+
+  it("근거 없는 confirmed 전이는 400, 근거 있으면 200 + reviewed_at 기록", async () => {
+    const id = await seedUnverified("10.6.0.4");
+    const noEvidence = await call(adminReq(`/admin/reports/${id}`, { method: "PATCH", body: { status: "confirmed" } }));
+    expect(noEvidence.status).toBe(400);
+
+    // 근거는 있으나 피드백(public_summary/risk_level/not_confirmed) 누락 → 여전히 400
+    const noFeedback = await call(adminReq(`/admin/reports/${id}`, {
+      method: "PATCH",
+      body: { status: "confirmed", verification: { method: "교차확인", evidence_links: ["https://example.com/nec"] } },
+    }));
+    expect(noFeedback.status).toBe(400);
+
+    const ok = await call(adminReq(`/admin/reports/${id}`, {
+      method: "PATCH",
+      body: {
+        status: "confirmed",
+        reviewer: "reviewer-a1",
+        verification: {
+          method: "선관위 공지 교차확인",
+          evidence_links: ["https://example.com/nec"],
+          public_summary: "봉인 관리 미흡 정황이 확인된다. 다만 부정선거를 단정할 수는 없다.",
+          risk_level: "중간",
+          not_confirmed: ["부정선거 조작이 있었다는 주장"],
+          status_scope: "봉인 관리 미흡",
+          confirmed_scope: ["봉인지 2겹 부착 정황"],
+        },
+        tags: ["관리자태그", "확인됨"],
+        rebuttals: [{ text: "선관위는 즉시 보충했다고 발표", source_url: "https://example.com/nec2" }],
+      },
+    }));
+    expect(ok.status).toBe(200);
+    const data = (await ok.json()) as { status: string; verification: { reviewed_at: string | null; method: string | null }; rebuttals: unknown[] };
+    expect(data.status).toBe("confirmed");
+    expect(data.verification.reviewed_at).toBeTruthy();
+    expect(data.verification.method).toBe("선관위 공지 교차확인");
+    expect(data.rebuttals).toHaveLength(1);
+  });
+
+  it("판정 후 method:null 로 근거를 지우려 하면 400(판정 무결성 유지)", async () => {
+    const id = await seedUnverified("10.6.0.7");
+    // 먼저 근거와 함께 confirmed
+    const ok = await call(adminReq(`/admin/reports/${id}`, {
+      method: "PATCH",
+      body: {
+        status: "confirmed",
+        verification: {
+          method: "교차확인",
+          evidence_links: ["https://example.com/e"],
+          public_summary: "확인 범위 내 정황 확인.",
+          risk_level: "중간",
+          not_confirmed: ["부정선거 조작 주장"],
+          status_scope: "표출 정합성 미흡",
+          confirmed_scope: ["화면상 수치 감소"],
+        },
+      },
+    }));
+    expect(ok.status).toBe(200);
+    // status 없이 method 만 null 로 — confirmed 인 채 근거 제거 시도 → 400
+    const bypass = await call(adminReq(`/admin/reports/${id}`, {
+      method: "PATCH",
+      body: { verification: { method: null } },
+    }));
+    expect(bypass.status).toBe(400);
+    // DB 는 여전히 method 유지
+    const after = await call(adminReq(`/admin/reports/${id}`));
+    expect((await after.json() as { verification: { method: string | null } }).verification.method).toBe("교차확인");
+  });
+
+  it("GET /admin/reports/{id}/attachments/{idx} 가 인증 하에 바이트를 반환", async () => {
+    const id = await seedUnverified("10.6.0.5");
+    const unauth = await call(adminReq(`/admin/reports/${id}/attachments/0`, { token: null }));
+    expect(unauth.status).toBe(401);
+
+    const res = await call(adminReq(`/admin/reports/${id}/attachments/0`));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toBe("image/jpeg");
+    // 스트리밍 응답(new Response)도 허용 오리진엔 ACAO 헤더가 있어야 브라우저가 못 막는다.
+    expect(res.headers.get("access-control-allow-origin")).toBe(ORIGIN);
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    expect(bytes[0]).toBe(0xff);
+  });
+
+  it("GET /stats 는 인증 없이 공개 집계를 반환", async () => {
+    await seedUnverified("10.6.0.6");
+    const res = await call(get("/stats"));
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { total: number; by_status: Record<string, number>; by_election: unknown[] };
+    expect(data.total).toBeGreaterThan(0);
+    expect(Object.keys(data.by_status).length).toBeGreaterThan(0);
+  });
+
+  it("관리자 GET 도 허용되지 않은 오리진은 403", async () => {
+    const req = new Request("https://api.test/admin/reports", {
+      method: "GET",
+      headers: { origin: "https://evil.test", authorization: `Bearer ${ADMIN}` },
+    });
+    expect((await call(req)).status).toBe(403);
+  });
+});
+
+describe("공개 배포 export (마크다운 + /admin/export)", () => {
+  const ADMIN = "test-admin-token";
+  const ELECTION = "export테스트선거";
+
+  function adminReq(path: string, opts: { method?: string; body?: unknown; token?: string | null } = {}) {
+    const headers: Record<string, string> = { origin: ORIGIN };
+    if (opts.body !== undefined) headers["content-type"] = "application/json";
+    if (opts.token !== null) headers["authorization"] = `Bearer ${opts.token ?? ADMIN}`;
+    return new Request(`https://api.test${path}`, {
+      method: opts.method ?? "GET",
+      headers,
+      body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+    });
+  }
+
+  it("recordToMarkdown 이 YAML frontmatter+본문을 만들고 submitter/exif 가 없다", () => {
+    const rec: PublicRecord = {
+      id: "x-1",
+      status: "confirmed",
+      election: "제9회 지방선거",
+      title: "테스트 \"제목\"",
+      summary: "요약",
+      body: "본문 내용\n둘째 줄",
+      region: { sido: "경기도", sigungu: "성남시 분당구" },
+      occurred_at: "2026-06-03T16:20:00+09:00",
+      collected_at: "2026-06-03T22:10:00+09:00",
+      tags: ["투표지부족", "개표소"],
+      sources: [{ url: "https://example.com/a", type: "news", archive_url: "https://web.archive.org/x" }],
+      attachments: [{ filename: "a.jpg", r2_key: "k/a.jpg", sha256: "abc", mime: "image/jpeg", size: 100 }],
+      rebuttals: [{ text: "반박", source_url: "https://example.com/r" }],
+      related: ["x-2"],
+      license: "CC-BY-4.0",
+      verification: { reviewer: "rev-1", method: "교차확인", reviewed_at: "2026-06-04T09:00:00+09:00", notes: null, evidence_links: ["https://example.com/e"], status_scope: null, claim: null, verified_facts: null, assessment: null, confirmed_scope: null, not_confirmed: null, possible_explanations: null, missing_evidence: null, public_summary: null, risk_level: null },
+      created_at: "2026-06-03T22:10:00+09:00",
+      updated_at: "2026-06-04T09:00:00+09:00",
+    };
+    const md = recordToMarkdown(rec);
+    expect(md.startsWith("---\n")).toBe(true);
+    expect(md).toContain('id: "x-1"');
+    expect(md).toContain('status: "confirmed"');
+    expect(md).toContain("sha256:");
+    expect(md).toContain("# 테스트");
+    expect(md).not.toContain("submitter");
+    expect(md).not.toContain("exif");
+    expect(recordRelPath(rec)).toBe("data/제9회-지방선거/x-1.md");
+  });
+
+  it("recordRelPath 는 '.'/'..' election 경로 탈출을 막는다", () => {
+    const base = (election: string): PublicRecord => ({
+      id: "x-1", status: "confirmed", election, title: "t", summary: null, body: null,
+      region: {}, occurred_at: null, collected_at: "2026-06-03T22:10:00+09:00",
+      tags: [], sources: [], attachments: [], rebuttals: null, related: null, license: "CC-BY-4.0",
+      verification: { reviewer: null, method: null, reviewed_at: null, notes: null, evidence_links: null, status_scope: null, claim: null, verified_facts: null, assessment: null, confirmed_scope: null, not_confirmed: null, possible_explanations: null, missing_evidence: null, public_summary: null, risk_level: null },
+      created_at: "2026-06-03T22:10:00+09:00", updated_at: "2026-06-03T22:10:00+09:00",
+    });
+    expect(recordRelPath(base("..")).includes("/../")).toBe(false);
+    expect(recordRelPath(base("."))).toBe("data/untitled/x-1.md");
+  });
+
+  it("GET /admin/export 는 검증완료만 공개필드로 반환(미검증 제외, 미인증 401)", async () => {
+    // unverified 1건 + confirmed 1건 seed
+    const unv = await startSubmission("10.7.0.1", { ...validBody(), election: ELECTION });
+    await env.EVIDENCE_BUCKET.put(unv.uploads[0].staging_key, JPEG);
+    await call(post(`/submissions/${unv.submission_id}/finalize`, { finalize_token: unv.finalize_token }, { ip: "10.7.0.1" }));
+
+    const conf = await startSubmission("10.7.0.2", { ...validBody(), election: ELECTION });
+    await env.EVIDENCE_BUCKET.put(conf.uploads[0].staging_key, JPEG);
+    await call(post(`/submissions/${conf.submission_id}/finalize`, { finalize_token: conf.finalize_token }, { ip: "10.7.0.2" }));
+    const patched = await call(adminReq(`/admin/reports/${conf.submission_id}`, {
+      method: "PATCH",
+      body: {
+        status: "confirmed",
+        verification: {
+          method: "교차확인",
+          evidence_links: ["https://example.com/e"],
+          public_summary: "확인 범위 내 정황 확인.",
+          risk_level: "중간",
+          not_confirmed: ["부정선거 조작 주장"],
+          status_scope: "관리 미흡",
+          confirmed_scope: ["정황 확인"],
+        },
+      },
+    }));
+    expect(patched.status).toBe(200);
+
+    expect((await call(adminReq("/admin/export", { token: null }))).status).toBe(401);
+
+    const res = await call(adminReq("/admin/export"));
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { records: PublicRecord[] };
+    const ids = data.records.map((r) => r.id);
+    expect(ids).toContain(conf.submission_id);
+    expect(ids).not.toContain(unv.submission_id);
+    // 공개 필드 — submitter 없음
+    const txt = JSON.stringify(data);
+    expect(txt).not.toContain("submitter");
+  });
+});
+
+describe("검증 보조 분석 (analyze)", () => {
+  const ADMIN = "test-admin-token";
+
+  it("analyzeRecord: 키워드 태그 추천 + 신뢰도 신호 + 합성위험(결정적)", () => {
+    const a = analyzeRecord({
+      title: "개표소 투표지 부족",
+      summary: "사전투표지 소진 보고",
+      body: "봉인 스티커가 훼손됨. CCTV 확인 필요.",
+      tags: [],
+      sources: [
+        { url: "https://news.example/a", type: "news", archive_url: "https://web.archive.org/x" },
+        { url: "https://b.example", type: "social" },
+      ],
+      attachments: [{ sha256: "abc", mime: "image/jpeg" }],
+      exif: [{ Make: "Apple" }],
+    });
+    expect(a.suggested_tags).toEqual(expect.arrayContaining(["개표", "투표지", "사전투표", "봉인", "CCTV"]));
+    expect(a.credibility.score).toBeGreaterThan(0.5);
+    expect(a.synthetic_risk.level).toBe("low"); // exif 있음
+    expect(a.source).toBe("heuristic");
+  });
+
+  it("analyzeRecord: 첨부 exif 없으면 합성위험 review, 텍스트만이면 신뢰도 신호에 교차검증", () => {
+    const a = analyzeRecord({
+      title: "목격",
+      summary: null,
+      body: "직접 봤다",
+      tags: [],
+      sources: [{ text: "현장 목격" }],
+      attachments: [{ sha256: "x", mime: "image/png" }],
+      exif: [],
+    });
+    expect(a.synthetic_risk.level).toBe("review");
+    expect(a.credibility.signals.join(" ")).toContain("교차검증");
+  });
+
+  it("POST /admin/reports/{id}/analyze: 인증 하에 분석 반환, 미인증 401, 없는 id 404", async () => {
+    const s = await startSubmission("10.8.0.1", { ...validBody(), election: "분석테스트", body: "개표 봉인 훼손" });
+    await env.EVIDENCE_BUCKET.put(s.uploads[0].staging_key, JPEG);
+    await call(post(`/submissions/${s.submission_id}/finalize`, { finalize_token: s.finalize_token }, { ip: "10.8.0.1" }));
+
+    const unauth = new Request(`https://api.test/admin/reports/${s.submission_id}/analyze`, { method: "POST", headers: { origin: ORIGIN } });
+    expect((await call(unauth)).status).toBe(401);
+
+    const ok = new Request(`https://api.test/admin/reports/${s.submission_id}/analyze`, {
+      method: "POST",
+      headers: { origin: ORIGIN, authorization: `Bearer ${ADMIN}` },
+    });
+    const res = await call(ok);
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { suggested_tags: string[]; source: string };
+    expect(data.suggested_tags).toEqual(expect.arrayContaining(["개표", "봉인"]));
+    expect(data.source).toBe("heuristic");
+
+    const notFound = new Request(`https://api.test/admin/reports/nope/analyze`, {
+      method: "POST",
+      headers: { origin: ORIGIN, authorization: `Bearer ${ADMIN}` },
+    });
+    expect((await call(notFound)).status).toBe(404);
   });
 });
 

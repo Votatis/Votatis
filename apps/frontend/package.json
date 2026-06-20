@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node scripts/build-archive-index.mjs && next dev",
+    "build": "node scripts/build-archive-index.mjs && next build",
     "start": "next start",
+    "build:index": "node scripts/build-archive-index.mjs",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "openapi:gen": "openapi-typescript ../intake-api/openapi.json -o src/lib/api/schema.d.ts",

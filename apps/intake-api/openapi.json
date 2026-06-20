@@ -354,6 +354,84 @@
             "items": {
               "type": "string"
             }
+          },
+          "status_scope": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "claim": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "verified_facts": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "assessment": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "confirmed_scope": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "not_confirmed": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "possible_explanations": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "missing_evidence": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "public_summary": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "risk_level": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         },
         "required": [
@@ -361,7 +439,17 @@
           "method",
           "reviewed_at",
           "notes",
-          "evidence_links"
+          "evidence_links",
+          "status_scope",
+          "claim",
+          "verified_facts",
+          "assessment",
+          "confirmed_scope",
+          "not_confirmed",
+          "possible_explanations",
+          "missing_evidence",
+          "public_summary",
+          "risk_level"
         ]
       },
       "Report": {
@@ -489,6 +577,726 @@
           "verification",
           "created_at",
           "updated_at"
+        ]
+      },
+      "AdminUserPublic": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "root",
+              "member"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "disabled"
+            ]
+          },
+          "last_login_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "name",
+          "role",
+          "status",
+          "last_login_at",
+          "created_at"
+        ]
+      },
+      "AdminSessionResultV2": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "refresh_token": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/AdminUserPublic"
+          }
+        },
+        "required": [
+          "access_token",
+          "refresh_token",
+          "user"
+        ]
+      },
+      "AdminLoginInput": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "AdminRefreshInput": {
+        "type": "object",
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "refresh_token"
+        ]
+      },
+      "OkResult": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "ok"
+        ]
+      },
+      "AdminLogoutInput": {
+        "type": "object",
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "refresh_token"
+        ]
+      },
+      "AdminPasswordResetInput": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "minLength": 10
+          }
+        },
+        "required": [
+          "token",
+          "password"
+        ]
+      },
+      "AdminMemberList": {
+        "type": "object",
+        "properties": {
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminUserPublic"
+            }
+          }
+        },
+        "required": [
+          "members"
+        ]
+      },
+      "AdminMemberCreateResult": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/AdminUserPublic"
+          },
+          "reset_token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user",
+          "reset_token"
+        ]
+      },
+      "AdminMemberCreateInput": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 32
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "root",
+              "member"
+            ]
+          }
+        },
+        "required": [
+          "username",
+          "name"
+        ]
+      },
+      "AdminResetTokenResult": {
+        "type": "object",
+        "properties": {
+          "reset_token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reset_token"
+        ]
+      },
+      "AdminMemberPatchInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "disabled"
+            ]
+          }
+        }
+      },
+      "AdminSessionResult": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "ok"
+        ]
+      },
+      "AdminSessionInput": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "AdminReportSummary": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ReportSummary"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "submitter": {
+                "type": "string"
+              },
+              "updated_at": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "submitter",
+              "updated_at"
+            ]
+          }
+        ]
+      },
+      "AdminReportList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminReportSummary"
+            }
+          },
+          "total": {
+            "type": "integer"
+          },
+          "counts": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            }
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "counts",
+          "limit",
+          "offset"
+        ]
+      },
+      "AdminVerification": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Verification"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "reviewer_note": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "reviewer_note"
+            ]
+          }
+        ]
+      },
+      "AdminReportDetail": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Report"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "verification": {
+                "$ref": "#/components/schemas/AdminVerification"
+              },
+              "submitter": {
+                "type": "string"
+              },
+              "exif": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {}
+              }
+            },
+            "required": [
+              "submitter",
+              "exif"
+            ]
+          }
+        ]
+      },
+      "AdminReportCreate": {
+        "type": "object",
+        "properties": {
+          "election": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "region": {
+            "$ref": "#/components/schemas/Region"
+          },
+          "occurred_at": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 50
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Source"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "unverified",
+              "reviewing"
+            ]
+          }
+        },
+        "required": [
+          "election",
+          "title"
+        ]
+      },
+      "AdminPatch": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "unverified",
+              "reviewing",
+              "confirmed",
+              "suspected",
+              "disputed",
+              "debunked",
+              "corrected"
+            ]
+          },
+          "reviewer": {
+            "type": "string"
+          },
+          "verification": {
+            "type": "object",
+            "properties": {
+              "reviewer": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "method": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "notes": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "evidence_links": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              },
+              "status_scope": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "claim": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "verified_facts": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "assessment": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "confirmed_scope": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "not_confirmed": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "possible_explanations": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "missing_evidence": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "reviewer_note": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "public_summary": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "risk_level": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "낮음",
+                  "낮음~중간",
+                  "중간",
+                  "중간~높음",
+                  "높음"
+                ]
+              }
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 50
+          },
+          "rebuttals": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "source_url": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              },
+              "required": [
+                "text"
+              ]
+            }
+          },
+          "related": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          }
+        }
+      },
+      "Analysis": {
+        "type": "object",
+        "properties": {
+          "suggested_tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "credibility": {
+            "type": "object",
+            "properties": {
+              "score": {
+                "type": "number"
+              },
+              "signals": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "score",
+              "signals"
+            ]
+          },
+          "synthetic_risk": {
+            "type": "object",
+            "properties": {
+              "level": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "review",
+                  "unknown"
+                ]
+              },
+              "signals": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "level",
+              "signals"
+            ]
+          },
+          "summary_hint": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "heuristic",
+              "heuristic+ai"
+            ]
+          }
+        },
+        "required": [
+          "suggested_tags",
+          "credibility",
+          "synthetic_risk",
+          "summary_hint",
+          "source"
+        ]
+      },
+      "AdminExport": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Report"
+            }
+          }
+        },
+        "required": [
+          "records"
+        ]
+      },
+      "Stats": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "by_status": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            }
+          },
+          "by_election": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "election": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "election",
+                "count"
+              ]
+            }
+          },
+          "daily": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "date",
+                "count"
+              ]
+            }
+          }
+        },
+        "required": [
+          "total",
+          "by_status",
+          "by_election",
+          "daily"
         ]
       }
     },
@@ -634,6 +1442,7 @@
                 "unverified",
                 "reviewing",
                 "confirmed",
+                "suspected",
                 "disputed",
                 "debunked",
                 "corrected"
@@ -762,6 +1571,1126 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/auth/login": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "토큰쌍 + 사용자",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSessionResultV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음/비활성",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "중복",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "인증 미구성",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/auth/refresh": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminRefreshInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "회전된 토큰쌍",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSessionResultV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음/비활성",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "중복",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "인증 미구성",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/auth/logout": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLogoutInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "폐기 완료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/auth/password-reset": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminPasswordResetInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "설정 완료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음/비활성",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "중복",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "인증 미구성",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/auth/me": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "현재 사용자",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserPublic"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음/비활성",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "중복",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "인증 미구성",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/members": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "회원 목록",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMemberList"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminMemberCreateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "생성된 회원 + 재설정 토큰",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMemberCreateResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "중복",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "인증 미구성",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/members/{id}/reset-link": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "재설정 토큰",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminResetTokenResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "중복",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "인증 미구성",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/members/{id}": {
+      "patch": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminMemberPatchInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "갱신된 회원",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserPublic"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "중복",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "인증 미구성",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "삭제 완료",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OkResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "중복",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "인증 미구성",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/session": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminSessionInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "토큰 유효",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSessionResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "토큰 불일치",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/reports": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "unverified",
+                "reviewing",
+                "confirmed",
+                "suspected",
+                "disputed",
+                "debunked",
+                "corrected"
+              ]
+            },
+            "required": false,
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "election",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "sido",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "sigungu",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "tag",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "q",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 100,
+              "default": 20
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "default": 0
+            },
+            "required": false,
+            "name": "offset",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "검수 큐 목록 + 상태별 카운트",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminReportList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminReportCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "생성된 제보 상세",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminReportDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "유효하지 않은 입력",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/reports/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "상세(내부 필드 포함)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminReportDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "갱신된 상세",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminReportDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "근거 누락 등 검증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/reports/{id}/analyze": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "보조 분석 신호(휴리스틱±AI)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Analysis"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/export": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "검증 완료 레코드(공개 필드)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminExport"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "공개 레코드 집계",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stats"
                 }
               }
             }

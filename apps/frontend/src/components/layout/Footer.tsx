@@ -29,7 +29,7 @@ export default function Footer() {
               <h5>둘러보기</h5>
               <Link href="/archive">공개 아카이브</Link>
               <Link href="/stats">통계</Link>
-              <Link href="/free/preview">화면 미리보기</Link>
+              <Link href="/preview">화면 미리보기</Link>
             </div>
             <div className="foot-col">
               <h5>오픈소스</h5>
