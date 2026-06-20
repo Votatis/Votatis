@@ -5,16 +5,24 @@
 // 이미지 바이트는 공개 스트리밍 엔드포인트 GET /reports/{id}/attachments/{idx} 에서 받는다.
 
 import { useCallback, useEffect, useState } from "react";
-import { API_BASE_URL } from "@/lib/api/client";
+import { API_BASE_URL, R2_PUBLIC_BASE_URL } from "@/lib/api/client";
 
 interface Attachment {
   filename: string;
+  r2_key: string;
   mime: string;
   size: number;
   sha256: string;
 }
 
-function attachmentUrl(id: string, idx: number): string {
+/** r2_key 의 각 경로 세그먼트만 인코딩(슬래시는 유지). */
+function encodeR2Key(key: string): string {
+  return key.split("/").map(encodeURIComponent).join("/");
+}
+
+/** R2 public 도메인이 설정돼 있으면 직접 로드, 아니면 Worker 스트리밍으로 폴백. */
+function attachmentUrl(id: string, idx: number, key: string): string {
+  if (R2_PUBLIC_BASE_URL) return `${R2_PUBLIC_BASE_URL}/${encodeR2Key(key)}`;
   return `${API_BASE_URL}/reports/${encodeURIComponent(id)}/attachments/${idx}`;
 }
 
@@ -63,7 +71,7 @@ export function AttachmentGallery({ id, attachments }: { id: string; attachments
             aria-label={`${a.filename} 확대 보기`}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={attachmentUrl(id, i)} alt={a.filename} loading="lazy" />
+            <img src={attachmentUrl(id, i, a.r2_key)} alt={a.filename} loading="lazy" />
           </button>
         ))}
       </div>
@@ -89,7 +97,7 @@ export function AttachmentGallery({ id, attachments }: { id: string; attachments
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             className="lb-img"
-            src={attachmentUrl(id, open)}
+            src={attachmentUrl(id, open, attachments[open].r2_key)}
             alt={attachments[open].filename}
             onClick={(e) => e.stopPropagation()}
           />
