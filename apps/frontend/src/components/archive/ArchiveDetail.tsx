@@ -4,6 +4,7 @@
 import { IShield } from "@/components/mock/mock-icons";
 import { STATUS_LABEL, type VerifyStatus } from "@/lib/types";
 import type { ArchiveRecord } from "@/lib/archive-source";
+import { AttachmentGallery } from "./AttachmentGallery";
 
 const STATUS_CHIP_CLASS: Record<string, string> = {
   unverified: "unv",
@@ -154,19 +155,24 @@ export function ArchiveDetail({ r }: { r: ArchiveRecord }) {
           {(r.attachments?.length ?? 0) === 0 ? (
             <div className="kv">첨부 파일이 없습니다.</div>
           ) : (
-            r.attachments.map((a, i) => (
-              <div key={i} style={{ marginBottom: 12 }}>
-                <div className="rsrc" style={{ marginBottom: 2 }}>
-                  {a.filename}
-                </div>
-                <div className="kv">
-                  {a.mime} · {Math.round(a.size / 1024)} KB
-                </div>
-                <div className="hash" style={{ marginTop: 6 }}>
-                  sha256: {a.sha256}
-                </div>
+            <>
+              <AttachmentGallery id={r.id} attachments={r.attachments} />
+              <div style={{ marginTop: 10 }}>
+                {r.attachments.map((a, i) => (
+                  <div key={i} style={{ marginBottom: 12 }}>
+                    <div className="rsrc" style={{ marginBottom: 2 }}>
+                      {a.filename}
+                    </div>
+                    <div className="kv">
+                      {a.mime} · {Math.round(a.size / 1024)} KB
+                    </div>
+                    <div className="hash" style={{ marginTop: 6 }}>
+                      sha256: {a.sha256}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))
+            </>
           )}
         </div>
 

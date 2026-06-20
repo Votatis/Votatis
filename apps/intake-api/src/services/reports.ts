@@ -5,6 +5,7 @@ import type { ReportListQuerySchema } from "../schemas";
 import { reports } from "../db/schema";
 import { getDb } from "../db/client";
 import { toPublicReport, toSummary } from "../domain/mappers";
+import { PUBLISHABLE_STATUSES } from "../constants";
 
 type ListQuery = z.infer<typeof ReportListQuerySchema>;
 
@@ -52,4 +53,21 @@ export async function getReport(env: Env, id: string) {
     .limit(1);
   const row = rows[0];
   return row ? toPublicReport(row) : null;
+}
+
+/**
+ * 공개 첨부(증거 이미지) 바이트. 공개 배포(PUBLISHABLE) 상태 레코드의 첨부만 노출한다.
+ * (미검증/검토중/pending 의 증거는 공개하지 않음 — 프라이버시·오용 방지.)
+ */
+export async function getPublicAttachment(env: Env, id: string, idx: number) {
+  const db = getDb(env);
+  const rows = await db.select().from(reports).where(eq(reports.id, id)).limit(1);
+  const row = rows[0];
+  if (!row) return null;
+  if (!(PUBLISHABLE_STATUSES as readonly string[]).includes(row.status)) return null;
+  const att = (row.attachments ?? [])[idx];
+  if (!att) return null;
+  const obj = await env.EVIDENCE_BUCKET.get(att.r2_key);
+  if (!obj) return null;
+  return { obj, mime: att.mime, filename: att.filename };
 }

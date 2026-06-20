@@ -1,6 +1,6 @@
 import { createRoute } from "@hono/zod-openapi";
 import { createRouter } from "../router";
-import { listReports, getReport } from "../services/reports";
+import { listReports, getReport, getPublicAttachment } from "../services/reports";
 import {
   ReportListQuerySchema,
   ReportListSchema,
@@ -44,4 +44,24 @@ reportsRoutes.openapi(reportGetRoute, async (c) => {
   const report = await getReport(c.env, id);
   if (!report) return c.json({ error: "제보를 찾을 수 없습니다." }, 404);
   return c.json(report, 200);
+});
+
+// ── GET /reports/{id}/attachments/{idx} (공개 증거 이미지 스트리밍) ────────────
+// 공개 배포(PUBLISHABLE) 레코드의 첨부 이미지를 인증 없이 직접 스트리밍한다.
+// <img src> 로 바로 로드되도록 ACAO:* + 공개 캐시. (new Response 는 cors 미들웨어
+// ACAO 를 계승 못 하므로 직접 부여.) plain Hono 라우트 — OpenAPI 스키마엔 비노출.
+reportsRoutes.get("/reports/:id/attachments/:idx", async (c) => {
+  const id = c.req.param("id");
+  const idx = Number(c.req.param("idx"));
+  if (!Number.isInteger(idx) || idx < 0) return c.json({ error: "잘못된 첨부 index 입니다." }, 400);
+  const found = await getPublicAttachment(c.env, id, idx);
+  if (!found) return c.json({ error: "첨부를 찾을 수 없습니다." }, 404);
+  return new Response(found.obj.body, {
+    status: 200,
+    headers: {
+      "content-type": found.mime,
+      "cache-control": "public, max-age=3600",
+      "access-control-allow-origin": "*",
+    },
+  });
 });
