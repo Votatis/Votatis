@@ -1,37 +1,21 @@
-// 공개 아카이브 데이터 소스 (spec 0016) — 런타임 API 연동.
-// 지금: intake-api 공개 조회(GET /reports, GET /reports/{id})에서 "승인(검증완료)" 레코드를 런타임에 읽는다.
-//   → 검증을 통과한 데이터가 정적 재빌드 없이 즉시 아카이브에 반영된다.
-// 나중(준비만): 빌드타임 정적 인덱스(archive.generated.json, spec 0011)는 그대로 두어
-//   static build(SSG) 전환 시 fallback/소스로 재사용한다. API 실패 시에도 이 정적본으로 폴백한다.
+// 공개 아카이브 데이터 소스 (spec 0011/0016).
+// 목록: 빌드타임 슬림 인덱스(archive.generated.json) 기반(loadArchiveSummaries) — API 미사용.
+// 상세(런타임 record?id): 새로 승인됐지만 아직 재빌드 안 된 레코드를 위해 GET /reports/{id} 런타임 조회.
+//   (정적 /archive/[id] 상세는 .md 를 빌드타임 파싱 — archive-md.ts.)
 
 import staticGenerated from "@/data/archive.generated.json";
 import { API_BASE_URL } from "./api/client";
 import type { components } from "./api/schema";
 import { CATEGORY_FULL, type Category } from "./types";
 
-export type ArchiveRecord = components["schemas"]["Report"]; // 상세
-export type ArchiveSummary = components["schemas"]["ReportSummary"]; // 목록
+export type ArchiveRecord = components["schemas"]["Report"]; // 상세(풀)
+export type ArchiveSummary = components["schemas"]["ReportSummary"]; // 목록(슬림)
 
 /** 공개 아카이브에 노출하는 "승인(검증완료)" 상태 — PRD: 검증 통과 데이터만 공개. */
 export const PUBLISHABLE = new Set<string>(["confirmed", "suspected", "disputed", "debunked", "corrected"]);
 
-/** 정적 fallback(빌드타임 인덱스) — static build 준비물. */
-const STATIC: ArchiveRecord[] = (staticGenerated as ArchiveRecord[]) ?? [];
-
-function toSummary(r: ArchiveRecord): ArchiveSummary {
-  return {
-    id: r.id,
-    status: r.status,
-    election: r.election,
-    title: r.title,
-    summary: r.summary ?? null,
-    region: r.region,
-    occurred_at: r.occurred_at ?? null,
-    collected_at: r.collected_at,
-    tags: r.tags ?? [],
-    attachment_count: r.attachments?.length ?? 0,
-  };
-}
+/** 빌드타임 슬림 인덱스(요약). 목록·탐색의 단일 원천. */
+const STATIC: ArchiveSummary[] = (staticGenerated as ArchiveSummary[]) ?? [];
 
 /** tags[0](제보 시 CATEGORY_FULL 라벨로 저장)에서 카테고리를 역추출. 매칭 없으면 null. */
 export function recordCategory(r: { tags?: string[] | null }): Category | null {
@@ -43,36 +27,27 @@ export function recordCategory(r: { tags?: string[] | null }): Category | null {
   return null;
 }
 
-/** 승인 레코드 목록 — API 우선, 실패 시 정적 인덱스로 폴백. publishable 만. */
+/**
+ * 승인 레코드 목록 — 빌드타임에 구운 정적 인덱스(archive.generated.json) 기반.
+ * 런타임 API(/reports)를 호출하지 않는다(공개 아카이브 목록은 export→build 산출물이 단일 원천).
+ * 목록을 갱신하려면 export:data → build(=build-archive-index) 를 다시 돌린다.
+ */
 export async function loadArchiveSummaries(): Promise<ArchiveSummary[]> {
-  try {
-    const all: ArchiveSummary[] = [];
-    let offset = 0;
-    // 페이지네이션(최대 100/페이지). 안전장치로 50페이지(5천건)에서 중단.
-    for (let page = 0; page < 50; page++) {
-      const res = await fetch(`${API_BASE_URL}/reports?limit=100&offset=${offset}`);
-      if (!res.ok) throw new Error(`reports ${res.status}`);
-      const data = (await res.json()) as { items: ArchiveSummary[]; total: number };
-      all.push(...data.items);
-      offset += data.items.length;
-      if (data.items.length === 0 || offset >= data.total) break;
-    }
-    return all.filter((r) => PUBLISHABLE.has(r.status));
-  } catch {
-    return STATIC.filter((r) => PUBLISHABLE.has(r.status)).map(toSummary);
-  }
+  return STATIC.filter((r) => PUBLISHABLE.has(r.status));
 }
 
-/** 승인 레코드 상세 — API 우선, 실패 시 정적 인덱스로 폴백. 비공개/미존재면 null. */
+/**
+ * 승인 레코드 상세 — 런타임 API 조회(GET /reports/{id}). 새로 승인됐지만 아직 재빌드 안 된 레코드용.
+ * 슬림 인덱스에는 상세가 없으므로 API 실패/미존재 시 null(정적 상세는 /archive/[id] 가 md 로 커버).
+ */
 export async function loadArchiveRecord(id: string): Promise<ArchiveRecord | null> {
   try {
     const res = await fetch(`${API_BASE_URL}/reports/${encodeURIComponent(id)}`);
-    if (res.status === 404) return STATIC.find((r) => r.id === id) ?? null;
-    if (!res.ok) throw new Error(`report ${res.status}`);
+    if (!res.ok) return null;
     const r = (await res.json()) as ArchiveRecord;
     // 승인 상태가 아니면 공개 아카이브에선 미노출 취급.
     return PUBLISHABLE.has(r.status) ? r : null;
   } catch {
-    return STATIC.find((r) => r.id === id && PUBLISHABLE.has(r.status)) ?? null;
+    return null;
   }
 }

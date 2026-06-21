@@ -1,8 +1,8 @@
 ---
 tldr: intake-api 는 /admin/* 의 **모든 메서드**를 ALLOWED_ORIGIN 화이트리스트로 막는다(cors.ts: restricted = isWriteMethod || isAdminPath). admin-mcp 는 서버-서버라도 허용 Origin 헤더를 보내야 통과 → 안 보내면 admin 도구 전부 403 "허용되지 않은 오리진". 운영 등록 시 VOTATIS_ORIGIN=https://votatis-web.pages.dev 필수. Node fetch 는 Origin 수동 설정 가능(브라우저와 달리).
 tags: [pitfall, cors, admin-mcp, intake-api, mcp, origin]
-last_retrieved: 2026-06-19
-retrieval_count: 0
+last_retrieved: 2026-06-21
+retrieval_count: 1
 ---
 
 ## 함정 — /admin/* 는 Origin 게이트(메서드 무관)
@@ -15,6 +15,10 @@ retrieval_count: 0
   `record_verdict`·`list_publishable` 은 전부 admin 경로라 Origin 없으면 403.
 - 이건 운영뿐 아니라 로컬에서도 동일. **단위테스트는 fetchFn 주입이라 안 걸리고 smoke 는 도구 노출만**
   확인해서 드러나지 않는 잠재 버그였다.
+- **admin-mcp 만의 문제가 아니다**: `/admin/export` 를 호출하는 `apps/intake-api/scripts/export-data.ts`
+  도 똑같이 막힌다. 이 스크립트도 `ORIGIN` 환경변수로 Origin 헤더를 보내야 운영 export 가 통과한다
+  (`ORIGIN=https://votatis-web.pages.dev`). 게이트가 나중에 추가되며 기존 export 스크립트를 깨뜨린 사례.
+  → /admin/* 를 부르는 **모든 서버-서버 호출자**는 허용 Origin 을 실어야 한다.
 
 ## 해결 — MCP 가 허용 Origin 을 헤더로 전송
 `apps/admin-mcp` 에 `VOTATIS_ORIGIN` env 추가(config.ts→AdminClient 4번째 인자→req 에서

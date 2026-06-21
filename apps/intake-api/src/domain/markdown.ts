@@ -64,6 +64,35 @@ export function recordRelPath(r: PublicRecord, baseDir = "data"): string {
   return `${baseDir}/${slug(r.election)}/${r.id}.md`;
 }
 
+/** 빌드 인덱스(index.json)용 슬림 요약 — 목록·탐색·통계에 필요한 필드만(상세는 md 가 보유). */
+export interface RecordSummary {
+  id: string;
+  status: string;
+  election: string;
+  title: string;
+  summary: string | null;
+  region: { sido?: string; sigungu?: string; eup_myeon_dong?: string };
+  occurred_at: string | null;
+  collected_at: string;
+  tags: string[];
+  attachment_count: number;
+}
+
+export function recordToSummary(r: PublicRecord): RecordSummary {
+  return {
+    id: r.id,
+    status: r.status,
+    election: r.election,
+    title: r.title,
+    summary: r.summary,
+    region: r.region,
+    occurred_at: r.occurred_at,
+    collected_at: r.collected_at,
+    tags: r.tags,
+    attachment_count: r.attachments.length,
+  };
+}
+
 function emitSources(sources: PublicRecord["sources"]): string[] {
   if (!sources.length) return ["sources: []"];
   const lines = ["sources:"];
