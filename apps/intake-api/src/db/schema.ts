@@ -92,6 +92,9 @@ export const reports = sqliteTable(
     finalizeToken: text("finalize_token"),
     staging: text("staging", { mode: "json" }).$type<StagingItem[]>(),
 
+    // 증분 export 플래그 (spec 0018) — 1=export 필요(변경됨). export ack 시 0. 신규/변경 시 1.
+    exportDirty: integer("export_dirty").notNull().default(1),
+
     createdAt: text("created_at").notNull(),
     updatedAt: text("updated_at").notNull(),
   },
@@ -101,6 +104,7 @@ export const reports = sqliteTable(
     regionIdx: index("idx_reports_region").on(t.sido, t.sigungu),
     occurredIdx: index("idx_reports_occurred_at").on(t.occurredAt),
     collectedIdx: index("idx_reports_collected_at").on(t.collectedAt),
+    exportDirtyIdx: index("idx_reports_export_dirty").on(t.exportDirty),
   }),
 );
 

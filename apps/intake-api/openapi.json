@@ -1232,6 +1232,13 @@
       "AdminExport": {
         "type": "object",
         "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "incremental",
+              "full"
+            ]
+          },
           "records": {
             "type": "array",
             "items": {
@@ -1240,7 +1247,33 @@
           }
         },
         "required": [
+          "mode",
           "records"
+        ]
+      },
+      "AdminExportAckResult": {
+        "type": "object",
+        "properties": {
+          "acked": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acked"
+        ]
+      },
+      "AdminExportAckInput": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
         ]
       },
       "Stats": {
@@ -2658,6 +2691,20 @@
     },
     "/admin/export": {
       "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "incremental",
+                "full"
+              ]
+            },
+            "required": false,
+            "name": "mode",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "검증 완료 레코드(공개 필드)",
@@ -2665,6 +2712,41 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminExport"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 필요",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/export/ack": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminExportAckInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ack 처리됨",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminExportAckResult"
                 }
               }
             }

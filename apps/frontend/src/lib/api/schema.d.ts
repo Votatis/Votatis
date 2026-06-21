@@ -1340,7 +1340,9 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    mode?: "incremental" | "full";
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -1369,6 +1371,54 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/export/ack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["AdminExportAckInput"];
+                };
+            };
+            responses: {
+                /** @description ack 처리됨 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AdminExportAckResult"];
+                    };
+                };
+                /** @description 인증 필요 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -1677,7 +1727,15 @@ export interface components {
             source: "heuristic" | "heuristic+ai";
         };
         AdminExport: {
+            /** @enum {string} */
+            mode: "incremental" | "full";
             records: components["schemas"]["Report"][];
+        };
+        AdminExportAckResult: {
+            acked: number;
+        };
+        AdminExportAckInput: {
+            ids: string[];
         };
         Stats: {
             total: number;

@@ -140,7 +140,8 @@ export class AdminClient {
   }
 
   async listPublishable(): Promise<unknown> {
-    const res = await this.req(`/admin/export`);
+    // mode=full: 변경분(incremental)이 아니라 공개 배포 대상 전체(spec 0018).
+    const res = await this.req(`/admin/export?mode=full`);
     return this.json(res, "공개 배포 대상을 불러오지 못했습니다.");
   }
 

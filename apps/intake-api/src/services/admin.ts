@@ -220,6 +220,9 @@ export async function adminPatchReport(env: Env, id: string, patch: AdminPatch):
   if (patch.summary !== undefined) set.summary = patch.summary;
   if (patch.body !== undefined) set.body = patch.body;
 
+  // 변경된 레코드는 재export 대상(spec 0018). ack 가 다시 0 으로 내린다.
+  set.exportDirty = 1;
+
   await db.update(reports).set(set).where(eq(reports.id, id));
 
   const updated = await db.select().from(reports).where(eq(reports.id, id)).limit(1);
@@ -239,13 +242,25 @@ export async function adminGetAttachment(env: Env, id: string, idx: number) {
   return { obj, mime: att.mime, filename: att.filename };
 }
 
-/** 공개 배포용 추출 — 검증 완료 레코드를 공개 필드(toPublicReport)로. submitter/exif 비포함. */
-export async function adminExport(env: Env) {
+/**
+ * 공개 배포용 추출 — 검증 완료 레코드를 공개 필드(toPublicReport)로. submitter/exif 비포함.
+ * mode=incremental(기본): export_dirty=1 인 변경분만. mode=full: PUBLISHABLE 전체(리셋용). (spec 0018)
+ */
+export async function adminExport(env: Env, mode: "incremental" | "full" = "incremental") {
   const db = getDb(env);
-  const rows = await db
-    .select()
-    .from(reports)
-    .where(inArray(reports.status, [...PUBLISHABLE_STATUSES]))
-    .orderBy(desc(reports.collectedAt));
-  return { records: rows.map(toPublicReport) };
+  const publishable = inArray(reports.status, [...PUBLISHABLE_STATUSES]);
+  const where = mode === "full" ? publishable : and(publishable, eq(reports.exportDirty, 1));
+  const rows = await db.select().from(reports).where(where).orderBy(desc(reports.collectedAt));
+  return { mode, records: rows.map(toPublicReport) };
+}
+
+/**
+ * export ack — 로컬 기록을 마친 id 들의 export_dirty 를 0 으로 내린다(spec 0018).
+ * export-data 가 .md 기록 성공 후 호출. 빈 배열이면 무동작. acked = 실제로 0 이 된 건수.
+ */
+export async function adminAckExport(env: Env, ids: string[]): Promise<{ acked: number }> {
+  if (!ids.length) return { acked: 0 };
+  const db = getDb(env);
+  await db.update(reports).set({ exportDirty: 0 }).where(inArray(reports.id, ids));
+  return { acked: ids.length };
 }

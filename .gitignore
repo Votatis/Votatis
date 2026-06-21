@@ -225,6 +225,8 @@ node_modules/
 dist/
 
 .prod.vars
-
 # Playwright MCP (스냅샷·콘솔 로그 등 실행 산출물)
 .playwright-mcp/
+
+# macOS
+.DS_Store

@@ -108,9 +108,21 @@ export const AnalysisSchema = z
   })
   .openapi("Analysis");
 
+export const AdminExportQuerySchema = z.object({
+  mode: z.enum(["incremental", "full"]).optional(),
+});
+
 export const AdminExportSchema = z
-  .object({ records: z.array(ReportPublicSchema) })
+  .object({ mode: z.enum(["incremental", "full"]), records: z.array(ReportPublicSchema) })
   .openapi("AdminExport");
+
+export const AdminExportAckInputSchema = z
+  .object({ ids: z.array(z.string()) })
+  .openapi("AdminExportAckInput");
+
+export const AdminExportAckResultSchema = z
+  .object({ acked: z.number().int() })
+  .openapi("AdminExportAckResult");
 
 export const StatsSchema = z
   .object({

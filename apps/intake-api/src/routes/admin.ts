@@ -9,6 +9,7 @@ import {
   adminCreateReport,
   adminGetAttachment,
   adminExport,
+  adminAckExport,
 } from "../services/admin";
 import { analyzeReport } from "../services/analysis";
 import {
@@ -20,6 +21,9 @@ import {
   AdminReportCreateSchema,
   AdminPatchSchema,
   AdminExportSchema,
+  AdminExportQuerySchema,
+  AdminExportAckInputSchema,
+  AdminExportAckResultSchema,
   AnalysisSchema,
   ReportIdParamSchema,
   ErrorSchema,
@@ -165,9 +169,11 @@ adminRoutes.openapi(adminAnalyzeRoute, async (c) => {
 });
 
 // ── GET /admin/export (공개 배포 대상 추출) ───────────────────────────────────
+// mode=incremental(기본): 변경분(export_dirty=1)만. mode=full: PUBLISHABLE 전체(리셋). (spec 0018)
 const adminExportRoute = createRoute({
   method: "get",
   path: "/admin/export",
+  request: { query: AdminExportQuerySchema },
   responses: {
     200: { content: { "application/json": { schema: AdminExportSchema } }, description: "검증 완료 레코드(공개 필드)" },
     401: { content: { "application/json": { schema: ErrorSchema } }, description: "인증 필요" },
@@ -175,6 +181,25 @@ const adminExportRoute = createRoute({
 });
 
 adminRoutes.openapi(adminExportRoute, async (c) => {
-  const result = await adminExport(c.env);
+  const { mode } = c.req.valid("query");
+  const result = await adminExport(c.env, mode ?? "incremental");
+  return c.json(result, 200);
+});
+
+// ── POST /admin/export/ack (증분 export 완료 표시) ────────────────────────────
+// export-data 가 로컬 기록 성공 후 호출 → 해당 id 들의 export_dirty=0. (spec 0018)
+const adminExportAckRoute = createRoute({
+  method: "post",
+  path: "/admin/export/ack",
+  request: { body: { content: { "application/json": { schema: AdminExportAckInputSchema } } } },
+  responses: {
+    200: { content: { "application/json": { schema: AdminExportAckResultSchema } }, description: "ack 처리됨" },
+    401: { content: { "application/json": { schema: ErrorSchema } }, description: "인증 필요" },
+  },
+});
+
+adminRoutes.openapi(adminExportAckRoute, async (c) => {
+  const { ids } = c.req.valid("json");
+  const result = await adminAckExport(c.env, ids);
   return c.json(result, 200);
 });

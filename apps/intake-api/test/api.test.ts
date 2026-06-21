@@ -570,6 +570,50 @@ describe("공개 배포 export (마크다운 + /admin/export)", () => {
     const txt = JSON.stringify(data);
     expect(txt).not.toContain("submitter");
   });
+
+  it("증분 export: incremental 은 dirty 만, ack 후 제외, full 은 dirty 무관(spec 0018)", async () => {
+    const conf = await startSubmission("10.7.1.9", { ...validBody(), election: ELECTION });
+    await env.EVIDENCE_BUCKET.put(conf.uploads[0].staging_key, JPEG);
+    await call(post(`/submissions/${conf.submission_id}/finalize`, { finalize_token: conf.finalize_token }, { ip: "10.7.1.9" }));
+    await call(adminReq(`/admin/reports/${conf.submission_id}`, {
+      method: "PATCH",
+      body: {
+        status: "confirmed",
+        verification: {
+          method: "교차확인", evidence_links: ["https://example.com/e"],
+          public_summary: "확인 범위 내.", risk_level: "중간", not_confirmed: ["조작 주장"],
+          status_scope: "관리 미흡", confirmed_scope: ["정황 확인"],
+        },
+      },
+    }));
+    const id = conf.submission_id;
+
+    // 판정 직후엔 dirty → incremental 에 포함
+    const inc1 = (await (await call(adminReq("/admin/export?mode=incremental"))).json()) as { mode: string; records: PublicRecord[] };
+    expect(inc1.mode).toBe("incremental");
+    expect(inc1.records.map((r) => r.id)).toContain(id);
+
+    // ack → dirty 해제
+    const ack = await call(adminReq("/admin/export/ack", { method: "POST", body: { ids: [id] } }));
+    expect(ack.status).toBe(200);
+    expect(((await ack.json()) as { acked: number }).acked).toBe(1);
+
+    // incremental 에서 빠지고, full 에는 여전히 있음
+    const inc2 = (await (await call(adminReq("/admin/export?mode=incremental"))).json()) as { records: PublicRecord[] };
+    expect(inc2.records.map((r) => r.id)).not.toContain(id);
+    const full = (await (await call(adminReq("/admin/export?mode=full"))).json()) as { records: PublicRecord[] };
+    expect(full.records.map((r) => r.id)).toContain(id);
+
+    // 다시 PATCH 하면 dirty 재설정 → incremental 에 다시 포함
+    await call(adminReq(`/admin/reports/${id}`, { method: "PATCH", body: { summary: "수정됨" } }));
+    const inc3 = (await (await call(adminReq("/admin/export?mode=incremental"))).json()) as { records: PublicRecord[] };
+    expect(inc3.records.map((r) => r.id)).toContain(id);
+  });
+
+  it("기본(쿼리 없음) export 는 incremental", async () => {
+    const res = await call(adminReq("/admin/export"));
+    expect(((await res.json()) as { mode: string }).mode).toBe("incremental");
+  });
 });
 
 describe("검증 보조 분석 (analyze)", () => {

@@ -76,6 +76,8 @@ export interface RecordSummary {
   collected_at: string;
   tags: string[];
   attachment_count: number;
+  /** 증분 export 버전(= updated_at). 로컬과 비교해 변경분만 재작성(spec 0018). */
+  version: string;
 }
 
 export function recordToSummary(r: PublicRecord): RecordSummary {
@@ -90,6 +92,7 @@ export function recordToSummary(r: PublicRecord): RecordSummary {
     collected_at: r.collected_at,
     tags: r.tags,
     attachment_count: r.attachments.length,
+    version: r.updated_at,
   };
 }
 
