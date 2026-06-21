@@ -1,8 +1,8 @@
 ---
-tldr: drizzle-orm 0.36(D1/sqliteTable)에서 인덱스 등 extraConfig 콜백은 배열 `(t)=>[...]`이 아니라 객체 `(t)=>({ name: index(...).on(...) })` 형태여야 한다(배열형은 TS2769 "IndexBuilder[] not assignable to SQLiteTableExtraConfig"). 마이그레이션은 drizzle-kit generate(파일만) → wrangler d1 migrations apply 로 적용.
+tldr: drizzle-orm 0.36(D1/sqliteTable)에서 인덱스 등 extraConfig 콜백은 배열 `(t)=>[...]`이 아니라 객체 `(t)=>({ name: index(...).on(...) })` 형태여야 한다(배열형은 TS2769 "IndexBuilder[] not assignable to SQLiteTableExtraConfig"). 마이그레이션은 drizzle-kit generate(파일만) → wrangler d1 migrations apply 로 적용. ⚠️새 컬럼을 참조하는 worker 는 **원격 마이그레이션을 배포보다 먼저**(안 그러면 라이브에서 no such column 500).
 tags: [pitfall, drizzle, d1, cloudflare]
-last_retrieved: 2026-06-15
-retrieval_count: 2
+last_retrieved: 2026-06-22
+retrieval_count: 3
 ---
 
 ## 규칙 / 교훈
@@ -18,3 +18,4 @@ retrieval_count: 2
 ## 적용
 - 0.36에서 스키마 작성 시 처음부터 객체형 extraConfig로. 버전 올릴 때 배열형 전환 여부 확인.
 - 스키마 바꾸면 `pnpm db:generate` 후 `db:migrate:local`(+배포 시 `db:migrate:remote`). 테스트는 [[cloudflare-vitest-pool-workers-setup]]의 readD1Migrations/applyD1Migrations 패턴.
+- **배포 순서(컬럼 추가 시)**: ① `db:migrate:remote`(원격 D1에 컬럼 선반영) → ② worker `run deploy`. 순서를 바꾸면 새 코드가 아직 없는 컬럼을 쿼리해 운영 500. (spec 0018 export_dirty 추가에서 적용.)
