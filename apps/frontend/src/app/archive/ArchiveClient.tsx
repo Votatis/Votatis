@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   CATEGORY_LABEL,
@@ -9,7 +9,6 @@ import {
   type VerifyStatus,
 } from "@/lib/types";
 import {
-  loadArchiveSummaries,
   recordCategory,
   type ArchiveSummary,
 } from "@/lib/archive-source";
@@ -85,24 +84,13 @@ export function RecordCard({ r }: { r: CardRecord }) {
 }
 
 /** 실동작 아카이브: 빌드된 정적 인덱스(archive.generated.json) 기반 목록 + 필터·정렬 토글. */
-export default function ArchiveClient() {
-  const [records, setRecords] = useState<ArchiveSummary[] | null>(null);
+export default function ArchiveClient({ initial }: { initial: ArchiveSummary[] }) {
   const [sort, setSort] = useState<"all" | "recent">("all");
   const [cat, setCat] = useState<Category | null>(null);
   const [status, setStatus] = useState<VerifyStatus | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    loadArchiveSummaries().then((rs) => {
-      if (!cancelled) setRecords(rs);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const all = records ?? [];
-  const loading = records === null;
+  // 빌드타임 정적 인덱스를 서버에서 prop 으로 주입 → HTML 에 목록이 그대로 박힌다(로딩 플래시·JS 의존 없음).
+  const all = initial;
 
   const counts = useMemo(() => {
     const c: Record<Category, number> = { A: 0, B: 0, C: 0 };
@@ -202,14 +190,7 @@ export default function ArchiveClient() {
             ))}
           </div>
 
-          {loading ? (
-            <div className="empty">
-              <div className="ic">
-                <IGrid size={22} />
-              </div>
-              <h4>불러오는 중…</h4>
-            </div>
-          ) : list.length === 0 ? (
+          {list.length === 0 ? (
             <div className="empty">
               <div className="ic">
                 <IGrid size={22} />
