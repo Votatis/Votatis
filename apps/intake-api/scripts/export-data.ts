@@ -1,8 +1,12 @@
 // D1 검증완료 레코드를 공개 마크다운(data/{election}/{id}.md) + data/index.json 으로 내보낸다.
 // /admin/export 를 호출하므로 실행 중인 API + 접근 가능한 D1 이 필요하다.
 //   로컬:  pnpm dev:remote (또는 dev) 로 API 띄운 뒤
-//          API_URL=http://localhost:8787 ADMIN_TOKEN=dev-admin-token pnpm export:data
-//   운영:  API_URL=<배포 URL> ADMIN_TOKEN=<운영 토큰> pnpm export:data  (자격증명 필요 → HUMAN.md)
+//          API_URL=http://localhost:8787 ADMIN_TOKEN=dev-admin-token ORIGIN=http://localhost:3000 pnpm export:data
+//   운영:  API_URL=<배포 URL> ADMIN_TOKEN=<운영 토큰> ORIGIN=https://votatis-web.pages.dev pnpm export:data
+//          (자격증명 필요 → HUMAN.md)
+//
+// ⚠️ /admin/* 는 cors.ts 가 Origin 화이트리스트로 막는다(Origin 미전송 시 403). 서버-서버 호출인
+//    이 스크립트도 ALLOWED_ORIGIN 에 포함된 Origin 을 보내야 통과한다 → ORIGIN 환경변수.
 //
 // 산출물: <OUT_DIR(기본 repo data/)>/{election-slug}/{id}.md  +  <OUT_DIR>/index.json
 // index.json 은 빌드타임 인덱스의 단일 원천(프론트가 그대로 소비). md 는 사람용 공개본.
@@ -14,12 +18,13 @@ import { recordToMarkdown, recordRelPath, type PublicRecord } from "../src/domai
 
 const API_URL = process.env.API_URL ?? "http://localhost:8787";
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN ?? "dev-admin-token";
+const ORIGIN = process.env.ORIGIN ?? "http://localhost:3000";
 const here = dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = process.env.OUT_DIR ?? resolve(here, "../../../data"); // repo-root/data
 
 async function main() {
   const res = await fetch(`${API_URL}/admin/export`, {
-    headers: { authorization: `Bearer ${ADMIN_TOKEN}` },
+    headers: { authorization: `Bearer ${ADMIN_TOKEN}`, origin: ORIGIN },
   });
   if (!res.ok) {
     throw new Error(`export 호출 실패: HTTP ${res.status} — ${await res.text()}`);
