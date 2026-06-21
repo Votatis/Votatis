@@ -1,7 +1,7 @@
 ---
 id: "0018"
 title: 증분·버전 기반 export (dirty flag + ack, full 모드 유지)
-status: in-review   # not-started | in-progress | in-review | completed
+status: completed   # not-started | in-progress | in-review | completed
 created: 2026-06-21
 updated: 2026-06-22
 related:
@@ -81,3 +81,4 @@ related:
 - 2026-06-21: 최초 작성
 - 2026-06-22: 이미지 로컬화(data/assets·archive 로컬 서빙) 범위 제외 — 이미지는 R2 그대로. 증분·버전 export 에 집중(요청: 채팅).
 - 2026-06-22: 구현 완료 — reports.export_dirty 컬럼+마이그레이션(0003), 생성/PATCH 시 dirty=1, GET /admin/export?mode=incremental|full, POST /admin/export/ack, export-data 증분/버전skip/병합/ack(EXPORT_MODE), index.json version 필드. 테스트 2건 추가(총 51) 통과, 운영 마이그레이션·배포 후 incremental→ack→재incremental 0건 사이클 검증. in-review 이동.
+- 2026-06-22: spec-review 통과(완료조건 7/7 충족, 운영 사이클 실측). completed 이동.
