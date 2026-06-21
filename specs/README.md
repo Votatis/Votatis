@@ -30,3 +30,4 @@ specs/
 | 0014 | 검증 관리 MCP 서버 (votatis-admin-mcp) — 관리자 API 래퍼 | completed | 2026-06-14 | 2026-06-19 | completed/0014-admin-mcp-server.md |
 | 0015 | 관리자 인증 — 루트 계정 + 회원관리 + JWT(access/refresh) | completed | 2026-06-14 | 2026-06-15 | completed/0015-admin-auth-accounts.md |
 | 0016 | 관리자 UX 개선 + 공개 아카이브 API 연동 + 제보 검토 피드백 스키마 + 예시 시드 | completed | 2026-06-15 | 2026-06-15 | completed/0016-admin-ux-archive-feedback.md |
+| 0017 | 선거(election) 선택 — 2020년 이후 선거 목록 드롭다운(제보/어드민 공용) | in-review | 2026-06-21 | 2026-06-21 | in-review/0017-election-selector.md |

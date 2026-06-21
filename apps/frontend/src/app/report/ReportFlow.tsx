@@ -13,6 +13,7 @@ import {
 } from "@/components/mock/mock-icons";
 import Torch from "@/components/landing/Torch";
 import RegionAutocomplete, { type RegionEntry } from "@/components/RegionAutocomplete";
+import { ELECTIONS, DEFAULT_ELECTION, electionLabel } from "@/lib/elections";
 import {
   submitReport,
   ApiError,
@@ -31,9 +32,6 @@ import { extractExifAll } from "@/lib/exif";
 type Step = "onb" | "s1" | "s2" | "s3" | "done";
 const CATS: Category[] = ["A", "B", "C"];
 
-// 선거: frontend UI엔 선거 선택이 없어 기본값을 둔다(추후 선택 UI 추가 가능).
-const ELECTION = process.env.NEXT_PUBLIC_ELECTION ?? "제9회 전국동시지방선거";
-
 const PHASE_LABEL: Record<ProgressPhase, string> = {
   submitting: "제출 개시 중…",
   uploading: "첨부 업로드 중…",
@@ -51,6 +49,7 @@ export default function ReportFlow() {
   const [locOn, setLocOn] = useState(false);
 
   // 폼 상태
+  const [election, setElection] = useState<string>(DEFAULT_ELECTION);
   const [category, setCategory] = useState<Category>("A");
   const [type, setType] = useState<string>("");
   const [regionEntry, setRegionEntry] = useState<RegionEntry | null>(null);
@@ -170,7 +169,7 @@ export default function ReportFlow() {
         .map((s) => (/^https?:\/\//i.test(s) ? { url: s } : { text: s }));
 
       const input: SubmissionInput = {
-        election: ELECTION,
+        election,
         title: title.trim(),
         summary: `${CATEGORY_FULL[category]} · ${type}`,
         body: detail.trim() || undefined,
@@ -251,6 +250,16 @@ export default function ReportFlow() {
               <div className="s">검토 큐로 전송됩니다</div>
             </div>
             <div className="pcontent">
+              <div className="pl">선거</div>
+              <div className="report-input">
+                <select value={election} onChange={(e) => setElection(e.target.value)} style={{ width: "100%", border: "none", outline: "none", background: "transparent", fontSize: "13.5px", fontFamily: "var(--font)", color: "var(--g900)" }}>
+                  {ELECTIONS.map((el) => (
+                    <option key={el.name} value={el.name}>
+                      {electionLabel(el)}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className="pl">카테고리</div>
               <div className="pty">
                 {CATS.map((c) => (
