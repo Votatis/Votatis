@@ -43,24 +43,13 @@ export function recordCategory(r: { tags?: string[] | null }): Category | null {
   return null;
 }
 
-/** 승인 레코드 목록 — API 우선, 실패 시 정적 인덱스로 폴백. publishable 만. */
+/**
+ * 승인 레코드 목록 — 빌드타임에 구운 정적 인덱스(archive.generated.json) 기반.
+ * 런타임 API(/reports)를 호출하지 않는다(공개 아카이브 목록은 export→build 산출물이 단일 원천).
+ * 목록을 갱신하려면 export:data → build(=build-archive-index) 를 다시 돌린다.
+ */
 export async function loadArchiveSummaries(): Promise<ArchiveSummary[]> {
-  try {
-    const all: ArchiveSummary[] = [];
-    let offset = 0;
-    // 페이지네이션(최대 100/페이지). 안전장치로 50페이지(5천건)에서 중단.
-    for (let page = 0; page < 50; page++) {
-      const res = await fetch(`${API_BASE_URL}/reports?limit=100&offset=${offset}`);
-      if (!res.ok) throw new Error(`reports ${res.status}`);
-      const data = (await res.json()) as { items: ArchiveSummary[]; total: number };
-      all.push(...data.items);
-      offset += data.items.length;
-      if (data.items.length === 0 || offset >= data.total) break;
-    }
-    return all.filter((r) => PUBLISHABLE.has(r.status));
-  } catch {
-    return STATIC.filter((r) => PUBLISHABLE.has(r.status)).map(toSummary);
-  }
+  return STATIC.filter((r) => PUBLISHABLE.has(r.status)).map(toSummary);
 }
 
 /** 승인 레코드 상세 — API 우선, 실패 시 정적 인덱스로 폴백. 비공개/미존재면 null. */

@@ -84,7 +84,7 @@ export function RecordCard({ r }: { r: CardRecord }) {
   );
 }
 
-/** 실동작 아카이브: 런타임 API 조회(승인 레코드) + 필터·정렬 토글. 정적 인덱스 fallback. */
+/** 실동작 아카이브: 빌드된 정적 인덱스(archive.generated.json) 기반 목록 + 필터·정렬 토글. */
 export default function ArchiveClient() {
   const [records, setRecords] = useState<ArchiveSummary[] | null>(null);
   const [sort, setSort] = useState<"all" | "recent">("all");
