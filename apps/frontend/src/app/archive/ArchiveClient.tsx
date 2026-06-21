@@ -50,13 +50,13 @@ function regionText(r: CardRecord): string {
   return [r.region?.sido, r.region?.sigungu].filter(Boolean).join(" ");
 }
 
-/** 아카이브/검색 공용 레코드 카드. 상세는 런타임 API 조회(/archive/record?id=). */
+/** 아카이브/검색 공용 레코드 카드. 상세는 빌드된 정적 페이지(/archive/[id], md 기반). */
 export function RecordCard({ r }: { r: CardRecord }) {
   const region = regionText(r);
   const att = r.attachment_count ?? r.attachments?.length ?? 0;
   return (
     <Link
-      href={`/archive/record?id=${encodeURIComponent(r.id)}`}
+      href={`/archive/${encodeURIComponent(r.id)}`}
       className="rdoc"
       style={{ display: "block", maxWidth: "none", margin: "0 0 12px", padding: "16px 18px" }}
     >

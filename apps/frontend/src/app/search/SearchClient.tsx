@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CATEGORY_FULL, STATUS_LABEL, type Category, type VerifyStatus } from "@/lib/types";
-import { filterRecords, type ArchiveRecord } from "@/lib/archive";
+import { filterRecords, type ArchiveSummary } from "@/lib/archive";
 import { ISearch } from "@/components/mock/mock-icons";
 import { RecordCard } from "../archive/ArchiveClient";
 
@@ -13,7 +13,7 @@ export default function SearchClient() {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<Category | "all">("all");
   const [status, setStatus] = useState<VerifyStatus | "all">("all");
-  const [results, setResults] = useState<ArchiveRecord[] | null>(null);
+  const [results, setResults] = useState<ArchiveSummary[] | null>(null);
 
   const onSearch = () =>
     setResults(

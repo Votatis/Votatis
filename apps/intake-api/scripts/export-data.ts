@@ -14,7 +14,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { recordToMarkdown, recordRelPath, type PublicRecord } from "../src/domain/markdown";
+import { recordToMarkdown, recordRelPath, recordToSummary, type PublicRecord } from "../src/domain/markdown";
 
 const API_URL = process.env.API_URL ?? "http://localhost:8787";
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN ?? "dev-admin-token";
@@ -39,10 +39,12 @@ async function main() {
     written++;
   }
 
+  // index.json 은 목록·탐색·통계용 슬림 요약만(상세 풀데이터는 각 .md 가 보유). 프론트 번들 비대화 방지.
   mkdirSync(OUT_DIR, { recursive: true });
-  writeFileSync(resolve(OUT_DIR, "index.json"), JSON.stringify(records, null, 2) + "\n", "utf8");
+  const summaries = records.map(recordToSummary);
+  writeFileSync(resolve(OUT_DIR, "index.json"), JSON.stringify(summaries, null, 2) + "\n", "utf8");
 
-  console.log(`export 완료: 마크다운 ${written}건 + index.json (${OUT_DIR})`);
+  console.log(`export 완료: 마크다운 ${written}건(상세) + index.json ${summaries.length}건(요약) (${OUT_DIR})`);
 }
 
 main().catch((e) => {
