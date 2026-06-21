@@ -6,9 +6,9 @@ import AdminShell from "@/components/web/AdminShell";
 import { getAccessToken } from "@/lib/admin-auth";
 import { createAdminReport, AdminApiError } from "@/lib/api/admin";
 import { type Category, CATEGORY_LABEL, CATEGORY_FULL, TYPE_SETS } from "@/lib/types";
+import { ELECTIONS, DEFAULT_ELECTION, electionLabel } from "@/lib/elections";
 
 const CATS: Category[] = ["A", "B", "C"];
-const DEFAULT_ELECTION = "제9회 전국동시지방선거";
 
 export default function NewReportClient() {
   const router = useRouter();
@@ -75,7 +75,13 @@ export default function NewReportClient() {
         <div className="kv">
           <b>선거 *</b>
         </div>
-        <input className="inp" type="text" value={election} onChange={(e) => setElection(e.target.value)} />
+        <select className="inp" value={election} onChange={(e) => setElection(e.target.value)}>
+          {ELECTIONS.map((el) => (
+            <option key={el.name} value={el.name}>
+              {electionLabel(el)}
+            </option>
+          ))}
+        </select>
 
         <div className="kv">
           <b>카테고리 *</b>
